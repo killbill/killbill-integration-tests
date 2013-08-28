@@ -14,7 +14,7 @@
 # under the License.
 #
 
-$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift('./');
 require 'killbill-integration-tests/version'
 
 Gem::Specification.new do |s|
