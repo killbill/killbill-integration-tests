@@ -157,7 +157,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_eot_billing_eot_with_ctd
       bp = setup_create_bp(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
-      # Move clock a few days ahead
+      # Move clock after trial
       kb_clock_add_days(31, nil, @options)
 
       requested_date = "2013-08-05"

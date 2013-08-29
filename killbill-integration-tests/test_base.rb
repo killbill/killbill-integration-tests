@@ -10,7 +10,7 @@ module KillBillIntegrationTests
     # Default running instance of Kill Bill server
     KillBillClient.url = 'http://127.0.0.1:8080'
 
-    DEFAULT_KB_INIT_DATE = "2013-08-1"
+    DEFAULT_KB_INIT_DATE = "2013-08-01"
     DEFAULT_KB_INIT_CLOCK = "#{DEFAULT_KB_INIT_DATE}T06:00:00.000Z"
 
     def setup_base(user)
