@@ -73,6 +73,8 @@ module KillBillIntegrationTests
       params[:years] = years unless years.nil?
       params[:timeZone] = time_zone unless time_zone.nil?
 
+      ini=Time.now; sleep 2; fini=Time.now; puts "***** SLEEP #{fini-ini} AFTER CLOCK ADJUSTMENT ****"
+
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                            {},
                            params,
@@ -81,8 +83,7 @@ module KillBillIntegrationTests
 
       # TODO we should ensure on the sever side that all bus/notifications have been processed before we return
       # which would avoid that flaky hack
-      sleep 5
-
+      ini=Time.now; sleep 3; fini=Time.now; puts "***** SLEEP #{fini-ini} AFTER CLOCK ADJUSTMENT ****"
       JSON.parse res.body
     end
 

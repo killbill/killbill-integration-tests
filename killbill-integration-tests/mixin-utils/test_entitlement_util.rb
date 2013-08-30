@@ -36,11 +36,6 @@ module KillBillIntegrationTests
 
       result = result.create(user, nil, nil, options)
       assert_not_nil(result.subscription_id)
-      assert_equal(result.product_name, product_name)
-      assert_equal(result.product_category, category)
-      assert_equal(result.billing_period, billing_period)
-      assert_equal(result.price_list, price_list)
-      assert_nil(result.cancelled_date)
 
       result
     end

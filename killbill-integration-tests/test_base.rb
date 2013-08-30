@@ -1,11 +1,17 @@
+$LOAD_PATH.unshift File.expand_path('../mixin-utils', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../mixin-checkers', __FILE__)
+
 require 'test/unit'
 require 'killbill_client'
 require 'test_util'
+require 'checker'
+
 
 module KillBillIntegrationTests
   class Base < Test::Unit::TestCase
 
     include TestUtil
+    include Checker
 
     # Default running instance of Kill Bill server
     KillBillClient.url = 'http://127.0.0.1:8080'

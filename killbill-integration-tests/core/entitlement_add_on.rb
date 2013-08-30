@@ -22,9 +22,11 @@ module KillBillIntegrationTests
     def test_with_ao
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', nil)
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
