@@ -1,7 +1,7 @@
 module KillBillIntegrationTests
   module TestAccountUtil
 
-    def setup_create_account(user, time_zone, options)
+    def create_account(user, time_zone, options)
       external_key = Time.now.to_i.to_s
       account = KillBillClient::Model::Account.new
       account.name = 'KillBillClient'

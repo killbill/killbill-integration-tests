@@ -81,7 +81,7 @@ module KillBillIntegrationTests
 
       # TODO we should ensure on the sever side that all bus/notifications have been processed before we return
       # which would avoid that flaky hack
-      sleep 3
+      sleep 5
 
       JSON.parse res.body
     end

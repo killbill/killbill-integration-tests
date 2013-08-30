@@ -1,25 +1,48 @@
 module KillBillIntegrationTests
   module TestEntitlementUtil
 
-    def setup_create_bp(account_id, product_name, billing_period, price_list, user, options)
-      # Create BP
-      base_entitlement = KillBillClient::Model::EntitlementNoEvents.new
-      base_entitlement.account_id = account_id
-      base_entitlement.external_key = Time.now.to_i.to_s
-      base_entitlement.product_name = product_name
-      base_entitlement.product_category = 'BASE'
-      base_entitlement.billing_period = billing_period
-      base_entitlement.price_list = price_list
+    def create_entitlement_base(account_id, product_name, billing_period, price_list, user, options)
+      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, user, options)
+    end
 
-      base_entitlement = base_entitlement.create(user, nil, nil, options)
-      assert_not_nil(base_entitlement.subscription_id)
-      assert_equal(base_entitlement.product_name, product_name)
-      assert_equal(base_entitlement.product_category, 'BASE')
-      assert_equal(base_entitlement.billing_period, billing_period)
-      assert_equal(base_entitlement.price_list, price_list)
-      assert_nil(base_entitlement.cancelled_date)
+    def create_entitlement_ao(bundle_id, product_name, billing_period, price_list, user, options)
+      create_entitlement('ADD_ON', nil, bundle_id, product_name, billing_period, price_list, user, options)
+    end
 
-      base_entitlement
+    def get_entitlement(id, options)
+      KillBillClient::Model::EntitlementNoEvents.find_by_id(id, options)
+    end
+
+    def get_subscription(id, options)
+      KillBillClient::Model::SubscriptionNoEvents.find_by_id(id, options)
+    end
+
+    def get_subscriptions(bundle_id, options)
+      KillBillClient::Model::SubscriptionNoEvents.find_by_bundle_id(bundle_id, options)
+    end
+
+    private
+
+    def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, user, options)
+
+      result = KillBillClient::Model::EntitlementNoEvents.new
+      result.account_id = account_id if category == 'BASE'
+      result.external_key = Time.now.to_i.to_s if category == 'BASE'
+      result.bundle_id = bundle_id if category == 'ADD_ON'
+      result.product_name = product_name
+      result.product_category = category
+      result.billing_period = billing_period
+      result.price_list = price_list
+
+      result = result.create(user, nil, nil, options)
+      assert_not_nil(result.subscription_id)
+      assert_equal(result.product_name, product_name)
+      assert_equal(result.product_category, category)
+      assert_equal(result.billing_period, billing_period)
+      assert_equal(result.price_list, price_list)
+      assert_nil(result.cancelled_date)
+
+      result
     end
 
   end

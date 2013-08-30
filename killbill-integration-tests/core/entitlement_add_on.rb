@@ -12,7 +12,7 @@ module KillBillIntegrationTests
 
       # Create account
       default_time_zone = nil
-      @account = setup_create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, default_time_zone, @options)
     end
 
     def teardown
@@ -21,26 +21,12 @@ module KillBillIntegrationTests
 
     def test_with_ao
 
-      bp = setup_create_bp(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
       # Create Add-on
-      ao_entitlement = KillBillClient::Model::EntitlementNoEvents.new
-      ao_entitlement.bundle_id = bp.bundle_id
-      ao_entitlement.product_name = 'RemoteControl'
-      ao_entitlement.product_category = 'ADD_ON'
-      ao_entitlement.billing_period = 'MONTHLY'
-      ao_entitlement.price_list = 'DEFAULT'
+      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
 
-      # Create ADD_ON
-      ao_entitlement = ao_entitlement.create(@user, nil, nil, @options)
-      assert_not_nil(ao_entitlement.subscription_id)
-      assert_equal(ao_entitlement.product_name, 'RemoteControl')
-      assert_equal(ao_entitlement.product_category, 'ADD_ON')
-      assert_equal(ao_entitlement.billing_period, 'MONTHLY')
-      assert_equal(ao_entitlement.price_list, 'DEFAULT')
-      assert_nil(ao_entitlement.cancelled_date)
-
-      subscriptions = KillBillClient::Model::SubscriptionNoEvents.find_by_bundle_id(bp.bundle_id, @options)
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
       assert_equal(subscriptions.size, 2)
 

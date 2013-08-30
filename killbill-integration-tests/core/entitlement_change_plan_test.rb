@@ -12,7 +12,7 @@ module KillBillIntegrationTests
 
       # Create account
       default_time_zone = nil
-      @account = setup_create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, default_time_zone, @options)
     end
 
     def teardown
@@ -21,7 +21,7 @@ module KillBillIntegrationTests
 
     def test_change_default
 
-      bp = setup_create_bp(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
       # Change plan
       requested_date = nil
@@ -33,7 +33,7 @@ module KillBillIntegrationTests
       assert_equal(bp.price_list, 'DEFAULT')
       assert_nil(bp.cancelled_date)
 
-      changed_bp = KillBillClient::Model::SubscriptionNoEvents.find_by_id(bp.subscription_id, @options)
+      changed_bp = get_subscription(bp.subscription_id, @options)
       assert_not_nil(changed_bp)
       assert_nil(changed_bp.cancelled_date)
       assert_nil(changed_bp.billing_end_date)
@@ -52,7 +52,7 @@ module KillBillIntegrationTests
 
     def test_change_with_date
 
-      bp = setup_create_bp(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
       # Move clock after requested_date
       kb_clock_add_days(7, nil, @options)
@@ -67,7 +67,7 @@ module KillBillIntegrationTests
       assert_equal(bp.price_list, 'DEFAULT')
       assert_nil(bp.cancelled_date)
 
-      changed_bp = KillBillClient::Model::SubscriptionNoEvents.find_by_id(bp.subscription_id, @options)
+      changed_bp = get_subscription(bp.subscription_id, @options)
       assert_not_nil(changed_bp)
       assert_nil(changed_bp.cancelled_date)
       assert_nil(changed_bp.billing_end_date)
@@ -88,7 +88,7 @@ module KillBillIntegrationTests
 
     def test_change_with_policy_eot
 
-      bp = setup_create_bp(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
 
       # Move clock after trial
@@ -104,7 +104,7 @@ module KillBillIntegrationTests
       assert_equal(bp.price_list, 'DEFAULT')
       assert_nil(bp.cancelled_date)
 
-      changed_bp = KillBillClient::Model::SubscriptionNoEvents.find_by_id(bp.subscription_id, @options)
+      changed_bp = get_subscription(bp.subscription_id, @options)
       assert_not_nil(changed_bp)
       assert_nil(changed_bp.cancelled_date)
       assert_nil(changed_bp.billing_end_date)
