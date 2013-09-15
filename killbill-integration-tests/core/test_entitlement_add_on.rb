@@ -4,7 +4,7 @@ require 'test_base'
 
 module KillBillIntegrationTests
 
-  class EntitlementAddOn < Base
+  class TestEntitlementAddOn < Base
 
     def setup
       @user = "EntitlementAddOn"

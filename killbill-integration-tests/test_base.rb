@@ -3,14 +3,14 @@ $LOAD_PATH.unshift File.expand_path('../mixin-checkers', __FILE__)
 
 require 'test/unit'
 require 'killbill_client'
-require 'test_util'
+require 'helper'
 require 'checker'
 
 
 module KillBillIntegrationTests
   class Base < Test::Unit::TestCase
 
-    include TestUtil
+    include Helper
     include Checker
 
     # Default running instance of Kill Bill server

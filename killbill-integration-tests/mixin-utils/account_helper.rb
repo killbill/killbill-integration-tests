@@ -1,5 +1,5 @@
 module KillBillIntegrationTests
-  module TestAccountUtil
+  module AccountHelper
 
     def create_account(user, time_zone, options)
       external_key = Time.now.to_i.to_s

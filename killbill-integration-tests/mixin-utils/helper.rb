@@ -1,12 +1,12 @@
 
-require 'test_account_util'
-require 'test_entitlement_util'
+require 'account_helper'
+require 'entitlement_helper'
 
 module KillBillIntegrationTests
-  module TestUtil
+  module Helper
 
-    include TestAccountUtil
-    include TestEntitlementUtil
+    include AccountHelper
+    include EntitlementHelper
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
@@ -65,6 +65,8 @@ module KillBillIntegrationTests
 
     private
 
+    # Add sleep padding -- the server chekx for notificationq when we move the clock but we still don't have gurantees there is
+    # no bus events left in the queue
     def increment_kb_clock(days, weeks, months, years, time_zone, options)
       params = {}
       params[:days] = days unless days.nil?
@@ -73,7 +75,7 @@ module KillBillIntegrationTests
       params[:years] = years unless years.nil?
       params[:timeZone] = time_zone unless time_zone.nil?
 
-      ini=Time.now; sleep 2; fini=Time.now; puts "***** SLEEP #{fini-ini} AFTER CLOCK ADJUSTMENT ****"
+      ini=Time.now; sleep 2; fini=Time.now;
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                            {},
@@ -81,9 +83,7 @@ module KillBillIntegrationTests
                            {
                            }.merge(options)
 
-      # TODO we should ensure on the sever side that all bus/notifications have been processed before we return
-      # which would avoid that flaky hack
-      ini=Time.now; sleep 3; fini=Time.now; puts "***** SLEEP #{fini-ini} AFTER CLOCK ADJUSTMENT ****"
+      ini=Time.now; sleep 3; fini=Time.now;
       JSON.parse res.body
     end
 

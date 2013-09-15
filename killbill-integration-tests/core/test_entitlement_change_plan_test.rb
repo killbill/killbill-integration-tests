@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
 
-  class EntitlementChangePlanTest < Base
+  class TestEntitlementChangePlanTest < Base
 
     def setup
       @user = "EntitlementChangePlanTest"
