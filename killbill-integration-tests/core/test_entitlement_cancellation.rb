@@ -20,7 +20,7 @@ module KillBillIntegrationTests
     end
 
     # Cancellation with with explicit no arguments
-    def test_bp_cancel_default
+    def test_bp_cancel_default_no_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
 
@@ -34,6 +34,28 @@ module KillBillIntegrationTests
       canceled_bp = get_subscription(bp.subscription_id, @options)
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
     end
+
+
+    # Cancellation with with explicit no arguments
+    def test_bp_cancel_default_with_ctd
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+
+      # Move clock after the trial to have a CTD
+      kb_clock_add_days(31, nil, @options)
+
+      # Cancel BP  in trial with no arguments
+      requested_date = nil
+      entitlement_policy = nil
+      billing_policy = nil
+      use_requested_date_for_billing = nil
+      bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      canceled_bp = get_subscription(bp.subscription_id, @options)
+      check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-09-01", "2013-09-30")
+    end
+
+
 
     # Cancellation with with explicit entitlement imm policy
     def test_bp_cancel_entitlement_imm

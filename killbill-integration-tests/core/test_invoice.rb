@@ -32,7 +32,7 @@ module KillBillIntegrationTests
       first_invoice = all_invoices[0]
       check_invoice(first_invoice, 0, 'USD', DEFAULT_KB_INIT_DATE, 0)
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
-      # Move clock to swicth to next phase and generate another invoice
+      # Move clock to switch to next phase and generate another invoice
       kb_clock_add_days(31, nil, @options)
 
       all_invoices = @account.invoices(true, @options)
