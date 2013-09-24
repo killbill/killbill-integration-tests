@@ -1,12 +1,14 @@
 
 require 'account_helper'
 require 'entitlement_helper'
+require 'invoice_helper'
 
 module KillBillIntegrationTests
   module Helper
 
     include AccountHelper
     include EntitlementHelper
+    include InvoiceHelper
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
@@ -22,6 +24,14 @@ module KillBillIntegrationTests
       tenant.api_secret = secret_key
       tenant
     end
+
+    def add_payment_method(account_id, plugin_name, is_default, user, options)
+      pm = KillBillClient::Model::PaymentMethod.new
+      pm.account_id = account_id
+      pm.plugin_name = plugin_name
+      pm.create(is_default, user, nil, nil, options)
+    end
+
 
     def kb_clock_get(time_zone, options)
       params = {}

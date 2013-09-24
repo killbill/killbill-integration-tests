@@ -1,6 +1,10 @@
 module KillBillIntegrationTests
   module AccountHelper
 
+    def get_account(account_id, with_balance = false, with_balance_and_cba = false, options)
+      KillBillClient::Model::Account.find_by_id(account_id, with_balance, with_balance_and_cba, options)
+    end
+
     def create_account(user, time_zone, options)
       external_key = Time.now.to_i.to_s
       account = KillBillClient::Model::Account.new
@@ -25,6 +29,9 @@ module KillBillIntegrationTests
       assert_not_nil(account.account_id)
       account
     end
+
+
+
 
     def get_account_timeline(account_id, options)
       KillBillClient::Model::AccountTimeline.find_by_account_id(account_id, 'MINIMAL', options)
