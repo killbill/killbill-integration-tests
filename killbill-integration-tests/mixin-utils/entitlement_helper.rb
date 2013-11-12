@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     end
 
     def get_subscriptions(bundle_id, options)
-      KillBillClient::Model::Subscription.find_by_bundle_id(bundle_id, options)
+      (KillBillClient::Model::Bundle.find_by_id(bundle_id, options).subscriptions || [])
     end
 
     private
@@ -27,7 +27,7 @@ module KillBillIntegrationTests
 
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id if category == 'BASE'
-      result.external_key = Time.now.to_i.to_s if category == 'BASE'
+      result.external_key = "#{account_id}-" + Time.now.to_i.to_s if category == 'BASE'
       result.bundle_id = bundle_id if category == 'ADD_ON'
       result.product_name = product_name
       result.product_category = category

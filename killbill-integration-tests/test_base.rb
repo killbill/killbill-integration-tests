@@ -19,17 +19,19 @@ module KillBillIntegrationTests
     DEFAULT_KB_INIT_DATE = "2013-08-01"
     DEFAULT_KB_INIT_CLOCK = "#{DEFAULT_KB_INIT_DATE}T06:00:00.000Z"
 
-    def setup_base(user)
+    def setup_base(user, multi_tenant=true, init_clock=DEFAULT_KB_INIT_CLOCK)
 
       # RBAC default options
       @options = {:username => 'admin', :password => 'password'}
 
       # Create tenant and provide options for multi-tenants headers(X-Killbill-ApiKey/X-Killbill-ApiSecret)
-      tenant = setup_create_tenant(user, @options)
-      @options[:api_key] = tenant.api_key
-      @options[:api_secret] = tenant.api_secret
+      if multi_tenant
+        tenant = setup_create_tenant(user, @options)
+        @options[:api_key] = tenant.api_key
+        @options[:api_secret] = tenant.api_secret
+      end
 
-      kb_clock_set(DEFAULT_KB_INIT_CLOCK, nil, @options)
+      kb_clock_set(init_clock, nil, @options)
     end
 
     def teardown_base

@@ -2,6 +2,8 @@
 require 'account_helper'
 require 'entitlement_helper'
 require 'invoice_helper'
+require 'payment_helper'
+require 'refund_helper'
 
 module KillBillIntegrationTests
   module Helper
@@ -9,6 +11,8 @@ module KillBillIntegrationTests
     include AccountHelper
     include EntitlementHelper
     include InvoiceHelper
+    include PaymentHelper
+    include RefundHelper
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
@@ -85,7 +89,7 @@ module KillBillIntegrationTests
       params[:years] = years unless years.nil?
       params[:timeZone] = time_zone unless time_zone.nil?
 
-      ini=Time.now; sleep 2; fini=Time.now;
+      ini=Time.now; sleep 3; fini=Time.now;
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                            {},
@@ -93,7 +97,7 @@ module KillBillIntegrationTests
                            {
                            }.merge(options)
 
-      ini=Time.now; sleep 3; fini=Time.now;
+      ini=Time.now; sleep 5; fini=Time.now;
       JSON.parse res.body
     end
 
