@@ -18,6 +18,7 @@ module KillBillIntegrationTests
     def teardown
       teardown_base
     end
+
 =begin
     def test_simple
 
@@ -107,7 +108,6 @@ module KillBillIntegrationTests
       assert_equal(aos[0].events[3].effective_date , "2013-08-21")
     end
 
-=end
 
     def test_cancel_bp_eot
 
@@ -176,6 +176,84 @@ module KillBillIntegrationTests
       assert_equal(aos[0].events[4].event_type , "STOP_BILLING")
       assert_equal(aos[0].events[4].effective_date , "2013-09-30")
     end
+=end
+
+=begin
+
+** Base plan started at t1
+** Add-on A started at t1
+** Add-on A cancelled at t2
+** Add-on B started at t2
+** Base and add-on B phases aligned at t3
+-> check add-on A was cancelled at t2, add-on B is not cancelled and we don't have duplicated events for add-on A
+** Future cancel add-on B at t4
+** Move the clock to t5
+-> check add-on A was cancelled at t2, add-on B was cancelled at t4 and we don't have duplicated events
+
+=end
+
+
+    def test_separate_ao_cancel
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+
+      # Create Add-on 1
+      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', nil)
+
+      # Move clock after before cancellation (BP still in trial)
+      kb_clock_add_days(3, nil, @options)
+
+      # All default, system will cancel IMM for entitlement and billing EOT since we are past trial
+      requested_date = nil
+      entitlement_policy = nil
+      billing_policy = nil
+      use_requested_date_for_billing = nil
+
+      ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_not_nil(subscriptions)
+      assert_equal(subscriptions.size, 2)
+
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      assert_equal(ao1.start_date , "2013-08-01")
+      assert_equal(ao1.billing_start_date , "2013-08-01")
+      assert_equal(ao1.cancelled_date , "2013-08-04")
+      assert_equal(ao1.billing_end_date , "2013-08-04")
+
+      # Create Add-on 2
+      ao2 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', nil)
+
+
+      requested_date = nil
+      entitlement_policy = "END_OF_TERM"
+      billing_policy = "END_OF_TERM"
+      use_requested_date_for_billing = nil
+
+      ao2.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_not_nil(subscriptions)
+      assert_equal(subscriptions.size, 3)
+
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      assert_equal(ao1.start_date , "2013-08-01")
+      assert_equal(ao1.billing_start_date , "2013-08-01")
+      assert_equal(ao1.cancelled_date , "2013-08-04")
+      assert_equal(ao1.billing_end_date , "2013-08-04")
+
+      ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
+      assert_equal(ao2.start_date , "2013-08-04")
+      assert_equal(ao2.billing_start_date , "2013-08-04")
+      assert_equal(ao2.cancelled_date , "2013-08-31")
+      assert_equal(ao2.billing_end_date , "2013-08-31")
+
+    end
+
+
   end
 end
 
