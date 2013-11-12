@@ -19,7 +19,6 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-=begin
     def test_simple
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -176,7 +175,6 @@ module KillBillIntegrationTests
       assert_equal(aos[0].events[4].event_type , "STOP_BILLING")
       assert_equal(aos[0].events[4].effective_date , "2013-09-30")
     end
-=end
 
 =begin
 
