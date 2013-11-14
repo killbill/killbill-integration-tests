@@ -24,7 +24,7 @@ module KillBillIntegrationTests
 
     def test_fixed_and_recurrring_items
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(all_invoices.size, 1)

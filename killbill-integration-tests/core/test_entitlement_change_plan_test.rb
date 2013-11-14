@@ -24,13 +24,13 @@ module KillBillIntegrationTests
     def test_change_default
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       # Change plan
       requested_date = nil
       billing_policy = nil
       bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
-      check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+      check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)
       assert_not_nil(changed_bp)
@@ -88,7 +88,7 @@ module KillBillIntegrationTests
     def test_change_with_policy_eot
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       # Move clock after trial
       kb_clock_add_days(31, nil, @options)
@@ -97,7 +97,7 @@ module KillBillIntegrationTests
       requested_date = nil
       billing_policy = "END_OF_TERM"
       bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
-      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', nil)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)
       assert_not_nil(changed_bp)
