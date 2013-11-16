@@ -1,11 +1,23 @@
 module KillBillIntegrationTests
   module EntitlementHelper
 
-    def transfer(new_account_id, bundle_id, requested_date, user, options)
+    def transfer_bundle(new_account_id, bundle_id, requested_date, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.account_id = new_account_id
       res = bundle.transfer(bundle_id, requested_date, user, nil, nil, options)
       res
+    end
+
+    def pause_bundle(bundle_id, requested_date, user, options)
+      bundle = KillBillClient::Model::Bundle.new
+      bundle.bundle_id = bundle_id
+      bundle.pause(requested_date, user, nil, nil, options)
+    end
+
+    def resume_bundle(bundle_id, requested_date, user, options)
+      bundle = KillBillClient::Model::Bundle.new
+      bundle.bundle_id = bundle_id
+      bundle.resume(requested_date, user, nil, nil, options)
     end
 
     def create_entitlement_base(account_id, product_name, billing_period, price_list, user, options)

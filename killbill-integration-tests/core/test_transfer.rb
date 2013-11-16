@@ -34,7 +34,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       new_account = create_account(@user, nil, @options)
-      new_bundle = transfer(new_account.account_id, bp.bundle_id, nil, @user, @options)
+      new_bundle = transfer_bundle(new_account.account_id, bp.bundle_id, nil, @user, @options)
 
       # Verify state of the old bundle (entitlement and billing cancelled date should be set to the transfer date)
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -85,7 +85,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(3, nil, @options) # 05/08/2013
 
       new_account = create_account(@user, nil, @options)
-      new_bundle = transfer(new_account.account_id, bp.bundle_id, nil, @user, @options)
+      new_bundle = transfer_bundle(new_account.account_id, bp.bundle_id, nil, @user, @options)
 
       # Verify state of the old bundle (entitlement and billing cancelled date should be set to the transfer date)
       subscriptions = get_subscriptions(bp.bundle_id, @options)
