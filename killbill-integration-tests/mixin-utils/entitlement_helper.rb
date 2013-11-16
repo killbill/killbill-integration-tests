@@ -1,6 +1,13 @@
 module KillBillIntegrationTests
   module EntitlementHelper
 
+    def transfer(new_account_id, bundle_id, requested_date, user, options)
+      bundle = KillBillClient::Model::Bundle.new
+      bundle.account_id = new_account_id
+      res = bundle.transfer(bundle_id, requested_date, user, nil, nil, options)
+      res
+    end
+
     def create_entitlement_base(account_id, product_name, billing_period, price_list, user, options)
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, user, options)
     end
@@ -16,6 +23,15 @@ module KillBillIntegrationTests
     def get_subscription(id, options)
       KillBillClient::Model::Subscription.find_by_id(id, options)
     end
+
+    def get_bundle(bundle_id, options)
+      KillBillClient::Model::Bundle.find_by_id(bundle_id, options)
+    end
+
+    def get_active_bundle_by_key(external_key, options)
+      KillBillClient::Model::Bundle.find_by_external_key(external_key, options)
+    end
+
 
     def get_subscriptions(bundle_id, options)
       (KillBillClient::Model::Bundle.find_by_id(bundle_id, options).subscriptions || [])
