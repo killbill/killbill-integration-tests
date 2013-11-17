@@ -1037,7 +1037,7 @@ module KillBillIntegrationTests
       assert_equal(subscriptions.size, 3)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-10-31", DEFAULT_KB_INIT_DATE, "2013-10-31")
+      check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-10-31", DEFAULT_KB_INIT_DATE, "2013-10-31")
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
       check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", "2013-10-31", "2013-08-15", "2013-10-31")
