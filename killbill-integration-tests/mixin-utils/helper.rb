@@ -1,4 +1,3 @@
-
 require 'account_helper'
 require 'entitlement_helper'
 require 'invoice_helper'
@@ -54,10 +53,10 @@ module KillBillIntegrationTests
       params[:timeZone] = time_zone unless time_zone.nil?
 
       res = KillBillClient::API.post "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
-                            {},
-                            params,
-                            {
-                            }.merge(options)
+                                     {},
+                                     params,
+                                     {
+                                     }.merge(options)
       JSON.parse res.body
     end
 
@@ -77,6 +76,10 @@ module KillBillIntegrationTests
       increment_kb_clock(nil, nil, years, nil, time_zone, options)
     end
 
+    def wait_for_invoice_creation
+      sleep 3
+    end
+
     private
 
     # Add sleep padding -- the server chekx for notificationq when we move the clock but we still don't have gurantees there is
@@ -92,10 +95,10 @@ module KillBillIntegrationTests
       ini=Time.now; sleep 3; fini=Time.now;
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
-                           {},
-                           params,
-                           {
-                           }.merge(options)
+                                    {},
+                                    params,
+                                    {
+                                    }.merge(options)
 
       ini=Time.now; sleep 5; fini=Time.now;
       JSON.parse res.body

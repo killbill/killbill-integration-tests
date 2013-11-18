@@ -26,8 +26,9 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
+      wait_for_invoice_creation
       all_invoices = @account.invoices(true, @options)
-      assert_equal(all_invoices.size, 1)
+      assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
       check_invoice(first_invoice, 0, 'USD', DEFAULT_KB_INIT_DATE, 0)
@@ -37,7 +38,7 @@ module KillBillIntegrationTests
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
-      assert_equal(all_invoices.size, 2)
+      assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice(second_invoice, 500.0, 'USD', '2013-09-01', 0)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')

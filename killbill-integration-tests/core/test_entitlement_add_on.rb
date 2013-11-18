@@ -30,17 +30,17 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
       assert_not_nil(bps)
-      assert_equal(bps.size, 1)
-      assert_equal(bps[0].subscription_id, bp.subscription_id)
+      assert_equal(1, bps.size)
+      assert_equal(bp.subscription_id, bps[0].subscription_id)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
-      assert_equal(aos.size, 1)
-      assert_equal(aos[0].subscription_id, ao_entitlement.subscription_id)
+      assert_equal(1, aos.size)
+      assert_equal(ao_entitlement.subscription_id, aos[0].subscription_id)
     end
 
     def test_cancel_bp_default_policy_in_trial
@@ -68,26 +68,26 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
       assert_not_nil(bps)
-      assert_equal(bps.size, 1)
+      assert_equal(1, bps.size)
       check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-08-21", DEFAULT_KB_INIT_DATE, "2013-08-21")
-      check_events(bps[0].events, [{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
+      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
                                    {:type => "START_BILLING", :date => "2013-08-01"},
                                    {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
-                                   {:type => "STOP_BILLING", :date => "2013-08-21"}])
+                                   {:type => "STOP_BILLING", :date => "2013-08-21"}], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
-      assert_equal(aos.size, 1)
-      assert_equal(aos[0].subscription_id, ao_entitlement.subscription_id)
+      assert_equal(1, aos.size)
+      assert_equal(ao_entitlement.subscription_id, aos[0].subscription_id)
       check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", "2013-08-21", "2013-08-16", "2013-08-21")
-      check_events(aos[0].events, [{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
+      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
                                    {:type => "START_BILLING", :date => "2013-08-16"},
                                    {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
-                                   {:type => "STOP_BILLING", :date => "2013-08-21"}])
+                                   {:type => "STOP_BILLING", :date => "2013-08-21"}], aos[0].events)
     end
 
 
@@ -116,28 +116,28 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
       assert_not_nil(bps)
-      assert_equal(bps.size, 1)
+      assert_equal(1, bps.size)
 
       check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-01", DEFAULT_KB_INIT_DATE, "2013-09-30")
-      check_events(bps[0].events, [{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
+      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
                                    {:type => "START_BILLING", :date => "2013-08-01"},
                                    {:type => "PHASE", :date => "2013-08-31"},
                                    {:type => "STOP_ENTITLEMENT", :date => "2013-09-01"},
-                                   {:type => "STOP_BILLING", :date => "2013-09-30"}])
+                                   {:type => "STOP_BILLING", :date => "2013-09-30"}], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
 
       check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", "2013-09-01", "2013-08-16", "2013-09-30")
-      check_events(aos[0].events, [{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
+      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
                                    {:type => "START_BILLING", :date => "2013-08-16"},
                                    {:type => "PHASE", :date => "2013-09-01"},
                                    {:type => "STOP_ENTITLEMENT", :date => "2013-09-01"},
-                                   {:type => "STOP_BILLING", :date => "2013-09-30"}])
+                                   {:type => "STOP_BILLING", :date => "2013-09-30"}], aos[0].events)
     end
 
 
@@ -162,7 +162,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
@@ -174,7 +174,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
@@ -201,7 +201,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -216,7 +216,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-09-30", "2013-08-01", "2013-08-31")
@@ -244,7 +244,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -259,7 +259,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-09-30")
@@ -290,7 +290,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-08-31")
@@ -299,7 +299,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
@@ -327,7 +327,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-08-05")
@@ -359,7 +359,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-05", "2013-08-01", "2013-08-31")
@@ -391,7 +391,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
@@ -400,7 +400,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
@@ -428,7 +428,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -506,7 +506,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -589,7 +589,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -672,7 +672,7 @@ module KillBillIntegrationTests
       # That date will be used below for cancellation at the entitlement level
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
 
@@ -744,7 +744,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
@@ -798,7 +798,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
@@ -824,7 +824,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
@@ -862,7 +862,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
@@ -888,7 +888,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
@@ -916,7 +916,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 2)
+      assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-04", "2013-08-01", "2013-08-04")
@@ -935,7 +935,7 @@ module KillBillIntegrationTests
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
-      assert_equal(subscriptions.size, 3)
+      assert_equal(3, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-04", "2013-08-01", "2013-08-04")
@@ -1034,7 +1034,7 @@ module KillBillIntegrationTests
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
-      assert_equal(subscriptions.size, 3)
+      assert_equal(3, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-10-31", DEFAULT_KB_INIT_DATE, "2013-10-31")
