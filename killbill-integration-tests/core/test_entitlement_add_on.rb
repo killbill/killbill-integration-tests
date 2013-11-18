@@ -554,7 +554,7 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
       # Uncancel BP
-      ao1.uncancel(@user, nil, nil, @options)
+      bp.uncancel(@user, nil, nil, @options)
 
       # Retrieves subscription and check cancellation date for AO1 reverted back to BP CTD, 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -706,9 +706,29 @@ module KillBillIntegrationTests
       billing_policy = nil
       use_requested_date_for_billing = nil
 
-      assert_raise do
-        ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
-      end
+      ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      # Retrieves subscription and check cancellation date for AO1 is still 30/09/2013
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+
+      # ADD-ON should be reflected as being cancelled on the CTD of the the BP
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+
+      # Uncancel BP and check AO cancellation is not honored
+      bp.uncancel(@user, nil, nil, @options)
+
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil, DEFAULT_KB_INIT_DATE, nil)
+
+      # ADD-ON should be reflected as being cancelled on the CTD of the the BP
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-10-01", "2013-08-05", "2013-10-01")
 
     end
 
