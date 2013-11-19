@@ -75,9 +75,9 @@ module KillBillIntegrationTests
       assert_equal(1, bps.size)
       check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-08-21", DEFAULT_KB_INIT_DATE, "2013-08-21")
       check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
-                                   {:type => "START_BILLING", :date => "2013-08-01"},
-                                   {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
-                                   {:type => "STOP_BILLING", :date => "2013-08-21"}], bps[0].events)
+                    {:type => "START_BILLING", :date => "2013-08-01"},
+                    {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
+                    {:type => "STOP_BILLING", :date => "2013-08-21"}], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
@@ -651,7 +651,7 @@ module KillBillIntegrationTests
 
     end
 
-    def test_future_cancel_ao_after_future_bp_cancel_date
+    def test_future_cancel_ao_after_future_bp_cancel_date_and_uncancel_bp
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -731,6 +731,98 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-10-01", "2013-08-05", "2013-10-01")
 
     end
+
+
+
+    def test_future_cancel_ao_after_future_bp_cancel_date_and_reach_bp_cancellation
+
+      # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+
+      # Move clock and create Add-on 1  (BP still in trial)
+      kb_clock_add_days(4, nil, @options) # 05/08/2013
+
+      # Second invoice  05/08/2013 ->  31/08/2013
+      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+
+      # Move clock on BP Phase (BP not in trial)
+      kb_clock_add_days(26, nil, @options) # 31/08/2013
+
+      #
+      # Let's verify invoice completed its work correctly and set the CTD correctly on both subscription
+      # That date will be used below for cancellation at the entitlement level
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_not_nil(subscriptions)
+      assert_equal(2, subscriptions.size)
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      assert_equal("2013-09-30", bp.charged_through_date)
+
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      assert_equal("2013-09-01", ao1.charged_through_date)
+
+      #
+      # Will future cancel BP on  2013-09-30 (and AO should reflect that as well)
+      #
+      requested_date = nil
+      entitlement_policy = 'END_OF_TERM'
+      billing_policy = 'END_OF_TERM'
+      use_requested_date_for_billing = true
+      bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+
+      # ADD-ON should be reflected as being cancelled on the CTD of the the BP
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+
+      #
+      # Will future cancel AO after BP cancellation date, call should fail as this is already cancelled prior
+      #
+      requested_date = "2013-10-01"
+      entitlement_policy = nil
+      billing_policy = nil
+      use_requested_date_for_billing = nil
+
+      ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+
+      # Retrieves subscription and check cancellation date for AO1 is still 30/09/2013
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+
+      # ADD-ON should be reflected as being cancelled on the CTD of the the BP
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+
+      # Move clock right after BP cancellation effective date
+      kb_clock_add_days(30, nil, @options) # 30/09/2013
+
+      # Retrieves subscription and check cancellation date for AO1 is still 30/09/2013
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+
+      # ADD-ON should be reflected as being cancelled on the CTD of the the BP
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+
+      # Double check we don't have double cancellation, that is the ao is not anymore cancelled at its own cancellation date
+      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-05"},
+                    {:type => "START_BILLING", :date => "2013-08-05"},
+                    {:type => "PHASE", :date => "2013-09-01"},
+                    {:type => "STOP_ENTITLEMENT", :date => "2013-09-30"},
+                    {:type => "STOP_BILLING", :date => "2013-09-30"}], ao1.events)
+
+    end
+
 
 
     def test_cancel_bp_prior_future_ao_cancel_date
