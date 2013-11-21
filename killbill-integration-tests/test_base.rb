@@ -32,6 +32,10 @@ module KillBillIntegrationTests
       end
 
       kb_clock_set(init_clock, nil, @options)
+
+      # Define the proc that is used to retrieve all accounts on the test account
+      @proc_account_invoices_nb = Proc.new { |account| account.invoices(false, @options).size }
+      @proc_invoice_items_nb = Proc.new { |invoice_id| get_invoice_by_id(invoice_id, @options).items.size }
     end
 
     def teardown_base

@@ -5,12 +5,11 @@ module KillBillIntegrationTests
 
     include CheckerBase
 
-    def check_invoice(i, amount, currency, invoice_date, balance)
+    def check_invoice_no_balance(i, amount, currency, invoice_date)
       assert_not_nil(i.invoice_number)
       assert_equal(i.amount, amount)
       assert_equal(i.currency, currency)
       assert_equal(i.invoice_date, invoice_date)
-      assert_equal(i.balance, balance)
     end
 
     def check_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, start_date, end_date)

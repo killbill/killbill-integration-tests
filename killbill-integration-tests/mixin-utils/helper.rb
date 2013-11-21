@@ -1,3 +1,5 @@
+require 'timeout'
+
 require 'account_helper'
 require 'entitlement_helper'
 require 'invoice_helper'
@@ -76,9 +78,24 @@ module KillBillIntegrationTests
       increment_kb_clock(nil, nil, years, nil, time_zone, options)
     end
 
-    def wait_for_invoice_creation
+    def wait_for_killbill
       sleep 3
     end
+
+    #
+    # Pass a block the will be evaluated until either we match expected value ort we timeout
+    #
+    def wait_for_expected_clause(expected, args)
+      Timeout::timeout(5) do
+        while true do
+          nb_invoices = yield(args)
+          return if nb_invoices == expected
+          sleep 1
+        end
+      end
+    end
+
+
 
     private
 
