@@ -1076,7 +1076,7 @@ module KillBillIntegrationTests
       # Create Add-on 2
       ao2 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", nil)
-
+      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
 
       requested_date = nil
       entitlement_policy = "END_OF_TERM"
