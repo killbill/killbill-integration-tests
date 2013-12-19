@@ -1,10 +1,10 @@
 module KillBillIntegrationTests
   module EntitlementHelper
 
-    def transfer_bundle(new_account_id, bundle_id, requested_date, user, options)
+    def transfer_bundle(new_account_id, bundle_id, requested_date, billing_policy, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.account_id = new_account_id
-      res = bundle.transfer(bundle_id, requested_date, user, nil, nil, options)
+      res = bundle.transfer(bundle_id, requested_date, billing_policy, user, nil, nil, options)
       res
     end
 

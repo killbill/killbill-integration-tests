@@ -380,10 +380,8 @@ module KillBillIntegrationTests
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-05", "2013-08-01", "2013-08-31")
 
-      # Enititlement already reached cancellation, we should not be able to uncancel
-      assert_raise do
-        ao1.uncancel(@user, nil, nil, @options)
-      end
+      # We allow to uncancel a subscription as long as the billing cancellation date is in the future.
+      ao1.uncancel(@user, nil, nil, @options)
     end
 
     def test_uncancel_ao_with_cancel_date

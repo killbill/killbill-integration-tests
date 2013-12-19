@@ -6,7 +6,7 @@ module KillBillIntegrationTests
     end
 
     def create_account(user, time_zone, options)
-      external_key = Time.now.to_i.to_s
+      external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
       account = KillBillClient::Model::Account.new
       account.name = 'KillBillClient'
       account.external_key = external_key
@@ -54,12 +54,10 @@ module KillBillIntegrationTests
       account
     end
 
-
-
-
     def get_account_timeline(account_id, options)
       KillBillClient::Model::AccountTimeline.find_by_account_id(account_id, 'MINIMAL', options)
     end
+
 
   end
 end
