@@ -17,7 +17,7 @@ module KillBillIntegrationTests
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
-      tenant.external_key = Time.now.to_i.to_s
+      tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
       tenant.api_key = 'test-api-key' + tenant.external_key
       secret_key = 'test-api-secret' + tenant.external_key
       tenant.api_secret = secret_key
