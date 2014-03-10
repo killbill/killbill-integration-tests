@@ -52,11 +52,11 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.35, 'USD', "2013-08-31")
+      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
       assert_equal(3, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.65, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.65, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       # Move clock
       kb_clock_add_days(5, nil, @options) # 10/09/2013
@@ -68,10 +68,10 @@ module KillBillIntegrationTests
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 322.60, 'USD', "2013-09-10")
+      check_invoice_no_balance(third_invoice, 322.58, 'USD', "2013-09-10")
       assert_equal(2, third_invoice.items.size)
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.60, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.60, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -140,11 +140,11 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
 
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.35, 'USD', "2013-08-31")
+      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
       assert_equal(3, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.65, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.65, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       third_invoice = all_invoices[2]
       check_invoice_no_balance(third_invoice, 0.77, 'USD', "2013-09-02")
@@ -163,11 +163,11 @@ module KillBillIntegrationTests
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
-      check_invoice_no_balance(fourth_invoice, 327.730, 'USD', "2013-09-10")
+      check_invoice_no_balance(fourth_invoice, 327.71, 'USD', "2013-09-10")
       assert_equal(3, fourth_invoice.items.size)
       check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'RECURRING', 'oilslick-monthly-evergreen'), fourth_invoice.invoice_id, 5.13, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'RECURRING', 'sports-monthly-evergreen'), fourth_invoice.invoice_id, 322.60, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'CBA_ADJ', nil), fourth_invoice.invoice_id, -327.73, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'RECURRING', 'sports-monthly-evergreen'), fourth_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'CBA_ADJ', nil), fourth_invoice.invoice_id, -327.71, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -248,11 +248,11 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.35, 'USD', "2013-08-31")
+      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
       assert_equal(3, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.65, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.65, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       # Move clock
       kb_clock_add_days(5, nil, @options) # 10/09/2013
@@ -264,10 +264,10 @@ module KillBillIntegrationTests
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 322.60, 'USD', "2013-09-10")
+      check_invoice_no_balance(third_invoice, 322.58, 'USD', "2013-09-10")
       assert_equal(2, third_invoice.items.size)
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.60, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.60, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
