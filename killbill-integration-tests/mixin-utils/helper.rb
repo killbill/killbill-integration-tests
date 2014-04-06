@@ -5,6 +5,8 @@ require 'entitlement_helper'
 require 'invoice_helper'
 require 'payment_helper'
 require 'refund_helper'
+require 'usage_helper'
+
 
 module KillBillIntegrationTests
   module Helper
@@ -14,6 +16,7 @@ module KillBillIntegrationTests
     include InvoiceHelper
     include PaymentHelper
     include RefundHelper
+    include UsageHelper
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
