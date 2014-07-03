@@ -110,7 +110,7 @@ Create a few accounts with different currencies, locale, timezone:
       kb_clock_add_days(31, nil, @options)
 
       # Cancel all plans so we stop invoicing those accounts in the future
-      bps.each do |bp|
+      pbs.each do |bp|
         bp.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
       end
     end
