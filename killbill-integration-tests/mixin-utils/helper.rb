@@ -37,7 +37,8 @@ module KillBillIntegrationTests
       pm = KillBillClient::Model::PaymentMethod.new
       pm.account_id = account_id
       pm.plugin_name = plugin_name
-      pm.create(is_default, user, nil, nil, options)
+      pm.plugin_info = nil
+      pm.create(is_default, user, nil, options)
     end
 
 

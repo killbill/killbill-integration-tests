@@ -21,114 +21,6 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-    def test_external_payment_with_no_specified_amount
-      create_charge(@account.account_id, "5.0", 'USD', 'My first charge', @user, @options)
-      pay_all_unpaid_invoices(@account.account_id, true, nil, @user, @options)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_external_payment_with_exact_amount
-      create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, true, "12.0", @user, @options)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_external_payment_with_lower_amount
-      charge1 = create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      charge2 = create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, true, "10.0", @user, @options)
-
-      invoice1 = get_invoice_by_id(charge1.invoice_id, @options)
-      assert_equal(0, invoice1.balance)
-
-      invoice2 = get_invoice_by_id(charge2.invoice_id, @options)
-      assert_equal(2.0, invoice2.balance)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(2.0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_external_payment_with_higer_amount
-      charge1 = create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      charge2 = create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, true, "15.0", @user, @options)
-
-      invoice1 = get_invoice_by_id(charge1.invoice_id, @options)
-      assert_equal(0.0, invoice1.balance)
-
-      invoice2 = get_invoice_by_id(charge2.invoice_id, @options)
-      assert_equal(0.0, invoice2.balance)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(-3.0, refreshed_account.account_balance)
-      assert_equal(3.0, refreshed_account.account_cba)
-    end
-
-    def test_payment_with_no_specified_amount
-      create_charge(@account.account_id, "5.0", 'USD', 'My first charge', @user, @options)
-      pay_all_unpaid_invoices(@account.account_id, false, nil, @user, @options)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_payment_with_exact_amount
-      create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, false, "12.0", @user, @options)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_payment_with_lower_amount
-      charge1 = create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      charge2 = create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, false, "10.0", @user, @options)
-
-      invoice1 = get_invoice_by_id(charge1.invoice_id, @options)
-      assert_equal(0, invoice1.balance)
-
-      invoice2 = get_invoice_by_id(charge2.invoice_id, @options)
-      assert_equal(2.0, invoice2.balance)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(2.0, refreshed_account.account_balance)
-      assert_equal(0, refreshed_account.account_cba)
-    end
-
-    def test_payment_with_higher_amount
-      charge1 = create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
-      charge2 = create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, false, "15.0", @user, @options)
-
-      invoice1 = get_invoice_by_id(charge1.invoice_id, @options)
-      assert_equal(0.0, invoice1.balance)
-
-      invoice2 = get_invoice_by_id(charge2.invoice_id, @options)
-      assert_equal(0.0, invoice2.balance)
-
-      refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0.0, refreshed_account.account_balance)
-      assert_equal(0.0, refreshed_account.account_cba)
-    end
-
     def test_multiple_auth_captures
       authorize = 'AUTHORIZE'
       capture   = 'CAPTURE'
@@ -161,7 +53,7 @@ module KillBillIntegrationTests
 
       # Void the second auth
       void2_key = payment2_key + '-void'
-      void2     = create_void(auth2.payment_id, void2_key, @user, @options)
+      void2     = create_void(auth2.payment_id, void2_key, {}, @user, @options)
       check_transaction(void2, payment2_key, void2_key, void, nil, nil, success)
 
       # Try to capture the second auth
