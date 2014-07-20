@@ -4,7 +4,8 @@ module KillBillIntegrationTests
     def transfer_bundle(new_account_id, bundle_id, requested_date, billing_policy, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.account_id = new_account_id
-      res = bundle.transfer(bundle_id, requested_date, billing_policy, user, nil, nil, options)
+      bundle.bundle_id = bundle_id
+      res = bundle.transfer(requested_date, billing_policy, user, nil, nil, options)
       res
     end
 
