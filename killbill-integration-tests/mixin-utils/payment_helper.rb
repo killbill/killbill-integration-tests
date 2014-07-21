@@ -20,7 +20,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.auth(account_id, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      transaction.auth(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
     end
 
     def create_purchase(account_id, payment_external_key, transaction_external_key, amount, currency, user, options)
@@ -29,7 +29,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.purchase(account_id, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      transaction.purchase(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
     end
 
     def create_credit(account_id, payment_external_key, transaction_external_key, amount, currency, user, options)
@@ -38,7 +38,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.credit(account_id, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      transaction.credit(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
     end
 
     def create_capture(payment_id, transaction_external_key, amount, currency, user, options)
