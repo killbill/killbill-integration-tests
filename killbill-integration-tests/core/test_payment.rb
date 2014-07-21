@@ -53,7 +53,7 @@ module KillBillIntegrationTests
 
       # Void the second auth
       void2_key = payment2_key + '-void'
-      void2     = create_void(auth2.payment_id, void2_key, {}, @user, @options)
+      void2     = create_void(auth2.payment_id, void2_key, @user, @options)
       check_transaction(void2, payment2_key, void2_key, void, nil, nil, success)
 
       # Try to capture the second auth
