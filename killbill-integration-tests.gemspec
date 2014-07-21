@@ -40,4 +40,5 @@ Gem::Specification.new do |s|
   s.rdoc_options << '--exclude' << '.'
 
   s.add_development_dependency 'rake', '>= 10.0.0'
+  s.add_development_dependency 'thread', '>= 0.1.4'
 end
