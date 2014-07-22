@@ -11,8 +11,8 @@ require 'load_base'
 module KillBillIntegrationTests
 
 
-  NB_THREADS = 10
-  NB_ITERATIONS = 100
+  NB_THREADS = 1
+  NB_ITERATIONS = 10
 
 
 
@@ -70,26 +70,26 @@ module KillBillIntegrationTests
                              end)
   load_pool.add_task(credit_task, 5)
 
-=begin
   auth_multi_capture_task = LoadTask.new(load_pool.pool,
                                          :AuthMultiCapture,
                                          Proc.new do |iteration|
                                            auth_multi_capture_task.with_rescue_and_timing(iteration) do
                                              options = {:username => 'admin', :password => 'password'}
                                              account = auth_multi_capture_task.setup_account(options)
-                                             auth = auth_multi_capture_task.create_auth(account.account_id, auth_multi_capture_task.gen_key, auth_multi_capture_task.gen_key, '10.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
-                                             auth_multi_capture_task.create_void(auth.payment_id, auth_multi_capture_task.gen_key, auth_multi_capture_task.name, options)
+
+                                             auth = auth_multi_capture_task.op_create_auth(account.account_id, auth_multi_capture_task.gen_key, auth_multi_capture_task.gen_key, '10.0', account.currency, auth_multi_capture_task.name, options)
+
+
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
+                                             auth_multi_capture_task.op_create_capture(auth.payment_id, auth_multi_capture_task.gen_key, '1.0', account.currency, auth_multi_capture_task.name, options)
                                            end
                                          end)
-  load_pool.add_task(auth_multi_capture_task, 5)
-=end
+  load_pool.add_task(auth_multi_capture_task, 1)
 
 
 

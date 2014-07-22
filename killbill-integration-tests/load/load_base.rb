@@ -42,6 +42,7 @@ module KillBillIntegrationTests
 
     include Helper
 
+    #KillBillClient.url = 'http://killbill-uat2.snc1:8080'
     KillBillClient.url = 'http://127.0.0.1:8080'
 
     attr_reader :name, :op_stats, :tasks_stats, :exceptions
