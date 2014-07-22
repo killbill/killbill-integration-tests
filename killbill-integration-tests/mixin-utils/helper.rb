@@ -39,7 +39,7 @@ module KillBillIntegrationTests
       pm.is_default = is_default
       pm.plugin_name = plugin_name
       pm.plugin_info = nil
-      pm.create(is_default, user, nil, nil, options)
+      pm.create(user, nil, nil, options)
     end
 
 
