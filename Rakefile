@@ -7,15 +7,42 @@ require 'rake/testtask'
 
 Bundler::GemHelper.install_tasks
 
+BASE_DIR = 'killbill-integration-tests'
 
 namespace :test do
-  Rake::TestTask.new do |t|
-    t.libs << "killbill-integration-tests"
-    t.test_files = FileList['killbill-integration-tests/core/test*.rb']
-    t.verbose = true
+  Rake::TestTask.new('entitlement') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/core/test_entitlement_*.rb",
+                            "#{BASE_DIR}/core/test_pause_resume.rb",
+                            "#{BASE_DIR}/core/test_transfer.rb",
+                            "#{BASE_DIR}/core/test_usage.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('invoice') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/core/test_invoice_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('payment') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/core/test_payment.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('payment:control') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/core/test_payment_with_control.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('all') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/core/test_*.rb"]
+    t.verbose    = true
   end
 end
 
-
 # Run tests by default
-task :default => 'nothing'
+task :default => 'test:all'
