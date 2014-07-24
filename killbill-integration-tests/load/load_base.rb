@@ -42,16 +42,17 @@ module KillBillIntegrationTests
 
     include Helper
 
-    #KillBillClient.url = 'http://killbill-uat2.snc1:8080'
-    KillBillClient.url = 'http://127.0.0.1:8080'
+    KillBillClient.url = 'http://killbill-uat2.snc1:8080'
+    #KillBillClient.url = 'http://127.0.0.1:8080'
 
     attr_reader :name, :op_stats, :tasks_stats, :exceptions
 
-    def initialize(pool, name, proc_task, expect_exception=false)
+    def initialize(pool, name, proc_task, expect_exception=false, with_stats=true)
       @pool = pool
       @name = name
       @proc_task = proc_task
       @expect_exception = expect_exception
+      @with_stats = with_stats
       @op_stats = {}
       @tasks_stats = []
       @exceptions = []
@@ -74,7 +75,7 @@ module KillBillIntegrationTests
         end
       ensure
         after_task = Time.now
-        @tasks_stats << (after_task - before_task)
+        @tasks_stats << (after_task - before_task) if @with_stats
       end
     end
 
@@ -109,11 +110,16 @@ module KillBillIntegrationTests
     end
 
     def report
-      puts "TASK #{@name} (iterations = #{@tasks_stats.size}) err = #{@exceptions.size} : avg = #{format_ms(@tasks_stats.average)}, min = #{format_ms(@tasks_stats.min)}, max = #{format_ms(@tasks_stats.max)}, std = #{format_ms(@tasks_stats.standard_deviation)}"
-      op_stats.each do |k, v|
-        puts "\t OP #{k} : avg = #{format_ms(v.average)}, min = #{format_ms(v.min)}, max = #{format_ms(v.max)}, std = #{format_ms(v.standard_deviation)}"
+      default_report = "TASK #{@name} (iterations = #{@tasks_stats.size}) err = #{@exceptions.size}"
+      if @with_stats
+        puts "#{default_report} : avg = #{format_ms(@tasks_stats.average)}, min = #{format_ms(@tasks_stats.min)}, max = #{format_ms(@tasks_stats.max)}, std = #{format_ms(@tasks_stats.standard_deviation)}"
+        op_stats.each do |k, v|
+          puts "\t OP #{k} : avg = #{format_ms(v.average)}, min = #{format_ms(v.min)}, max = #{format_ms(v.max)}, std = #{format_ms(v.standard_deviation)}"
+        end
+        puts "\n"
+      else
+        puts "#{default_report}"
       end
-      puts "\n"
     end
 
 
@@ -136,15 +142,17 @@ module KillBillIntegrationTests
       rescue => e
         raise e
       ensure
-        after_op = Time.now
-        @stat_mutex.synchronize {
-          op_result = @op_stats[method]
-          if op_result.nil?
-            op_result = []
-            @op_stats[method] = op_result
-          end
-          op_result << (after_op - before_op)
-        }
+        if @with_stats
+          after_op = Time.now
+          @stat_mutex.synchronize {
+            op_result = @op_stats[method]
+            if op_result.nil?
+              op_result = []
+              @op_stats[method] = op_result
+            end
+            op_result << (after_op - before_op)
+          }
+        end
       end
 
       result
