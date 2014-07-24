@@ -12,7 +12,7 @@ module KillBillIntegrationTests
 
 
   NB_THREADS = 1
-  NB_ITERATIONS = 1
+  NB_ITERATIONS = 10
 
   WITH_STATS = true
 
