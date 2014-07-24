@@ -19,6 +19,18 @@ module KillBillIntegrationTests
 
   load_pool = LoadPool.new(NB_THREADS, NB_ITERATIONS)
 
+
+  test_task = LoadTask.new(load_pool.pool,
+                                   :Test,
+                                   Proc.new do |iteration|
+                                     test_task.with_rescue_and_timing(iteration) do
+                                       options = {:username => 'admin', :password => 'password'}
+                                       test_task.op_kb_clock_get(nil, options)
+                                     end
+                                   end, false, WITH_STATS)
+  load_pool.add_task(test_task, 1)
+
+
   auth_capture_task = LoadTask.new(load_pool.pool,
                                    :AuthCapture,
                                    Proc.new do |iteration|
