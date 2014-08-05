@@ -18,6 +18,8 @@ module KillBillIntegrationTests
     include RefundHelper
     include UsageHelper
 
+    TIMEOUT_SEC = 5
+
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
       tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
@@ -86,22 +88,31 @@ module KillBillIntegrationTests
       sleep 3
     end
 
+
     #
     # Pass a block the will be evaluated until either we match expected value ort we timeout
     #
     def wait_for_expected_clause(expected, args)
-      Timeout::timeout(5) do
-        while true do
-          nb_invoices = yield(args)
-          return if nb_invoices == expected
-          sleep 1
+
+
+      begin
+        Timeout::timeout(TIMEOUT_SEC) do
+          while true do
+            nb_invoices = yield(args)
+            return if nb_invoices == expected
+            sleep 1
+          end
         end
+      rescue Timeout::Error => e
+        obj_name = args.class.name.split('::').pop.downcase
+        obj_id = args.send "#{obj_name}_id".to_sym
+        puts "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}"
       end
     end
 
 
-
     private
+
 
     # Add sleep padding -- the server chekx for notificationq when we move the clock but we still don't have gurantees there is
     # no bus events left in the queue
