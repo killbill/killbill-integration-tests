@@ -103,7 +103,7 @@ In addition to that, each task is given a ratio, which allows to limit the numbe
 Once the parameters have been set to the desired values, and after an existing instance of Kill Bill has been started, the only operation required is to run the test:
 
 ```
-bundle exec ruby killbill-integration-tests/load/payment_load.rb 
+> bundle exec ruby killbill-integration-tests/load/payment_load.rb 
 **************************    COMPLETED LOAD TESTS (nbThreads = 1)    ***************************
 TASK Test (iterations = 1) err = 0
 TASK AuthCapture (iterations = 1) err = 0
