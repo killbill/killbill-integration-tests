@@ -87,5 +87,19 @@ It is advised to start from a clean database prior starting the tests since movi
 ```
 
 
+Load/Perf Tests:
+---------------
+
+The integration tests also offer some support to run performance/load tests. Under 'load' there is a base class `load_base.rb` that relies on the `thread/pool` gem to schedule tasks across mutliple threads. It also offers the ability to profile the calls by using the profiling feature embedded into Kill Bill (https://github.com/killbill/killbill/wiki/Kill-Bill-Profiling).
+
+The `payment_load.rb` test relies on `load_base.rb` and defines a set of Tasks. A task is a small scenario that should be run; it can be as simple as doing one call, or could comprise multiple operations. One should adjust the following parameters (currently hardcoded in the test) to suit its needs:
+* NB_ITERATIONS : number of iterations for each of the tasks with default ratio set to 1
+* NB_THREADS : number of threads that should pick from the queue of tasks
+* WITH_STATS : Whether test should gather statistics from server. It is advised to turn it off when running very large load tests since all the information will be kept in memory on the client side.
+
+In addition to that, each task is given a ratio, which allows to limit the nimber of iterations for certain tasks. A ratio of 1 means that the task will be run NB_ITERATIONS times. A greater ratio will be used as a modulo factor to NB_ITERATIONS; for example if NB_ITERATIONS = 10, and ratio = 5, the task would run twice, one for iteration = 5 and once for iteration = 10. This is useful for instance to run a large number of payment calls against a dummy payment plugin and have in parallel a few calls hitting a third party sandbox.
+
+
+
 
 
