@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.name        = 'killbill-integration-tests'
   s.version     = KillBillIntegrationTests::Version.to_s
   s.summary     = 'Kill Bill test suite.'
-  s.description = 'An test suite against a running instance of Kill Bill.'
+  s.description = 'A test suite against a running instance of Kill Bill.'
 
   s.required_ruby_version = '>= 1.8.6'
 
@@ -35,10 +35,11 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.bindir        = 'bin'
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  s.require_paths = ["lib", "killbill-integration-tests"]
 
   s.rdoc_options << '--exclude' << '.'
 
+  s.add_development_dependency 'killbill-client', '~> 0.7.4'
   s.add_development_dependency 'rake', '>= 10.0.0'
   s.add_development_dependency 'thread', '>= 0.1.4'
 end
