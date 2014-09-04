@@ -213,6 +213,8 @@ module KillBillIntegrationTests
           data.merge!(task.profiling_stats) { |k, o, n| (o << n).flatten! }
         end
 
+        return if data.empty?
+
         puts "\nOperations:"
 
         data = Hash[data.sort_by { |k, v| v.percentile(0.9).to_f }]
