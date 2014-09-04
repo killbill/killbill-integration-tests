@@ -39,7 +39,7 @@ module KillBillIntegrationSeed
       data[:locale] = 'fr_FR'
 
       @jeanpoquelin = create_account_with_data(@user, data, @options)
-      add_payment_method(@jeanpoquelin.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@jeanpoquelin.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice for the annual plan
       base1 = create_entitlement_base(@jeanpoquelin.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -79,7 +79,7 @@ module KillBillIntegrationSeed
       data[:locale] = 'it_IT'
 
       @agostinogiordano = create_account_with_data(@user, data, @options)
-      add_payment_method(@agostinogiordano.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@agostinogiordano.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice for the annual plan
       base1 = create_entitlement_base(@agostinogiordano.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)

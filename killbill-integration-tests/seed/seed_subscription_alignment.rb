@@ -38,7 +38,7 @@ module KillBillIntegrationSeed
       data[:country] = 'England'
       data[:locale] = 'en_GB'
       @brianking = create_account_with_data(@user, data, @options)
-      add_payment_method(@brianking.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@brianking.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice
       base = create_entitlement_base(@brianking.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)

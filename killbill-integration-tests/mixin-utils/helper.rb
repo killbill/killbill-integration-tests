@@ -35,11 +35,12 @@ module KillBillIntegrationTests
       tenant
     end
 
-    def add_payment_method(account_id, plugin_name, is_default, user, options)
+    def add_payment_method(account_id, plugin_name, is_default, plugin_info, user, options)
       pm = KillBillClient::Model::PaymentMethod.new
       pm.account_id = account_id
       pm.plugin_name = plugin_name
-      pm.plugin_info = nil
+      pm.plugin_info = plugin_info if plugin_info
+
       pm.create(is_default, user, nil, nil, options)
     end
 

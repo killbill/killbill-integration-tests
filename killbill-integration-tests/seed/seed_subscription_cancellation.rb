@@ -37,7 +37,7 @@ module KillBillIntegrationSeed
       data[:country] = 'England'
       data[:locale] = 'en_GB'
       @allisongreenwich = create_account_with_data(@user, data, @options)
-      add_payment_method(@allisongreenwich.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@allisongreenwich.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice
       base = create_entitlement_base(@allisongreenwich.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -72,7 +72,7 @@ module KillBillIntegrationSeed
       data[:country] = 'England'
       data[:locale] = 'en_GB'
       @christianlolipop = create_account_with_data(@user, data, @options)
-      add_payment_method(@christianlolipop.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@christianlolipop.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice
       base = create_entitlement_base(@christianlolipop.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
