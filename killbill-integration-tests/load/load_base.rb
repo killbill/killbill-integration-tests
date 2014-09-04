@@ -209,7 +209,7 @@ module KillBillIntegrationTests
       if @with_stats
         data = {}
         @payment_tasks.each do |task_name, task|
-          puts "TASK #{task_name} (iterations = #{task.tasks_stats.size}) err = #{task.exceptions.size}"
+          puts "TASK #{task_name} (iterations = #{task.tasks_stats.size}, err = #{task.exceptions.size}) avg = #{format_stat_usec(task.tasks_stats.average)} min = #{format_stat_usec(task.tasks_stats.min)} max = #{format_stat_usec(task.tasks_stats.max)} tp90 = #{format_stat_usec(task.tasks_stats.percentile(0.9))} std = #{format_stat_usec(task.tasks_stats.standard_deviation)}"
           data.merge!(task.profiling_stats) { |k, o, n| (o << n).flatten! }
         end
 
