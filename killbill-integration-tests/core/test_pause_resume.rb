@@ -13,7 +13,7 @@ module KillBillIntegrationTests
       # Create account
       default_time_zone = nil
       @account = create_account(@user, default_time_zone, @options)
-      add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
 
     end

@@ -43,7 +43,7 @@ Create a few accounts with different currencies, locale, timezone:
       data[:country] = 'England'
       data[:locale] = 'en_GB'
       @brianking = create_account_with_data(@user, data, @options)
-      add_payment_method(@brianking.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@brianking.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       data = {}
       data[:name] = 'John Silver'
@@ -60,7 +60,7 @@ Create a few accounts with different currencies, locale, timezone:
       data[:country] = 'USA'
       data[:locale] = 'en_US'
       @johnsilver = create_account_with_data(@user, data, @options)
-      add_payment_method(@johnsilver.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@johnsilver.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
 
       data = {}
@@ -78,7 +78,7 @@ Create a few accounts with different currencies, locale, timezone:
       data[:country] = 'France'
       data[:locale] = 'fr_FR'
       @pauldupond = create_account_with_data(@user, data, @options)
-      add_payment_method(@pauldupond.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@pauldupond.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       data = {}
       data[:name] = 'Yokuri Matsumoto'
@@ -95,7 +95,7 @@ Create a few accounts with different currencies, locale, timezone:
       data[:country] = 'Japan'
       data[:locale] = 'ja_JP'
       @yokurimatsumoto = create_account_with_data(@user, data, @options)
-      add_payment_method(@yokurimatsumoto.account_id, '__EXTERNAL_PAYMENT__', true, @user, @options)
+      add_payment_method(@yokurimatsumoto.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
 
       pbs = []
