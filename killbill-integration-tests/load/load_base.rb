@@ -215,6 +215,7 @@ module KillBillIntegrationTests
 
         puts "\nOperations:"
 
+        data = Hash[data.sort_by { |k, v| v.percentile(0.9).to_f }]
 
         max_len_op = (data.keys.map { |k| k.size}.sort.last || 0) + 1
         data.each do |k, v|
