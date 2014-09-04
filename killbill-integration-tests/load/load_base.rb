@@ -46,7 +46,6 @@ module KillBillIntegrationTests
 
     include Helper
 
-    #KillBillClient.url = 'http://killbill-uat2.snc1:8080'
     KillBillClient.url = 'http://127.0.0.1:8080'
 
     attr_reader :name, :op_stats, :tasks_stats, :profiling_stats, :exceptions
@@ -217,7 +216,7 @@ module KillBillIntegrationTests
         puts "\nOperations:"
 
 
-        max_len_op = data.keys.map { |k| k.size}.sort.last + 1
+        max_len_op = (data.keys.map { |k| k.size}.sort.last || 0) + 1
         data.each do |k, v|
           puts "#{format_string("#{k}:", max_len_op)} avg = #{format_stat_usec(v.average)} min = #{format_stat_usec(v.min)} max = #{format_stat_usec(v.max)} tp90 = #{format_stat_usec(v.percentile(0.9))} std = #{format_stat_usec(v.standard_deviation)}"
         end
