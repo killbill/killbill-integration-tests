@@ -26,5 +26,11 @@ module KillBillIntegrationTests
       assert_equal(end_date, ii.end_date, msg)
     end
 
+    def check_usage_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date)
+      msg = "invoice_item #{ii.invoice_item_id}"
+      check_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, start_date, end_date)
+      assert_equal(usage_name, ii.usage_name, msg)
+    end
+
   end
 end

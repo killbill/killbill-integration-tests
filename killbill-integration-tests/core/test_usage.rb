@@ -44,7 +44,7 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 539.50, 'USD', '2013-09-01')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', '2013-08-01', '2013-08-31')
+      check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', '2013-08-01', '2013-08-31')
 
 
     end
