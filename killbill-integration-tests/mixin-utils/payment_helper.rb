@@ -20,7 +20,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.auth(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.auth(account_id, nil, user, nil, nil, options), transaction_external_key)
     end
 
     def create_purchase(account_id, payment_external_key, transaction_external_key, amount, currency, user, options)
@@ -29,7 +29,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.purchase(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.purchase(account_id, nil, user, nil, nil, options), transaction_external_key)
     end
 
     def create_credit(account_id, payment_external_key, transaction_external_key, amount, currency, user, options)
@@ -38,7 +38,7 @@ module KillBillIntegrationTests
       transaction.currency                 = currency
       transaction.payment_external_key     = payment_external_key
       transaction.transaction_external_key = transaction_external_key
-      transaction.credit(account_id, nil, user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.credit(account_id, nil, user, nil, nil, options), transaction_external_key)
     end
 
     def create_capture(payment_id, transaction_external_key, amount, currency, user, options)
@@ -47,7 +47,7 @@ module KillBillIntegrationTests
       transaction.amount                   = amount
       transaction.currency                 = currency
       transaction.transaction_external_key = transaction_external_key
-      transaction.capture(user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.capture(user, nil, nil, options), transaction_external_key)
     end
 
     def create_refund(payment_id, transaction_external_key, amount, currency, user, options)
@@ -56,14 +56,19 @@ module KillBillIntegrationTests
       transaction.amount                   = amount
       transaction.currency                 = currency
       transaction.transaction_external_key = transaction_external_key
-      transaction.refund(user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.refund(user, nil, nil, options), transaction_external_key)
     end
 
     def create_void(payment_id, transaction_external_key, user, options)
       transaction                          = KillBillClient::Model::Transaction.new
       transaction.payment_id               = payment_id
       transaction.transaction_external_key = transaction_external_key
-      transaction.void(user, nil, nil, options).transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      refreshed_transaction(transaction.void(user, nil, nil, options), transaction_external_key)
+    end
+
+    def refreshed_transaction(payment, transaction_external_key)
+      # There is no refresh in case of plugin timeout for instance
+      payment.is_a?(KillBillClient::Model::Transaction) ? payment : payment.transactions.find { |t| t.transaction_external_key == transaction_external_key }
     end
   end
 end
