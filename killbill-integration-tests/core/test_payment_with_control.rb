@@ -61,7 +61,7 @@ module KillBillIntegrationTests
 
    # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
     def test_authorize_plugin_timedout
-      payment_key = 'payment1-' + Time.now.to_i.to_s
+      payment_key = 'payment2-' + Time.now.to_i.to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -69,18 +69,16 @@ module KillBillIntegrationTests
 
       auth1_key = payment_key + '-auth'
       auth1_amount = '123.5'
-      got_exception= false
-      begin
-        create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-      rescue KillBillClient::API::InternalServerError => e
-        got_exception= true
-      end
-      assert(got_exception, "Failed to get exception")
+      got_exception = false
+
+      auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
+      # 202 in case of timeout
+      assert_equal(202, auth.response.code.to_i)
     end
 
 
     def test_authorize_with_nil_result
-      payment_key      = 'payment1-' + Time.now.to_i.to_s
+      payment_key      = 'payment3-' + Time.now.to_i.to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
