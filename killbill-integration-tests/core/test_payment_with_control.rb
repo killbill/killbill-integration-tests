@@ -76,7 +76,6 @@ module KillBillIntegrationTests
       assert_equal(202, auth.response.code.to_i)
     end
 
-
     def test_authorize_with_nil_result
       payment_key      = 'payment3-' + Time.now.to_i.to_s
       payment_currency = 'USD'
