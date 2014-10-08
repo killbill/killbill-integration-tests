@@ -34,8 +34,8 @@ module KillBillIntegrationTests
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
+      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 500.00, 'USD', "2013-08-31")
@@ -45,33 +45,39 @@ module KillBillIntegrationTests
       kb_clock_add_days(5, nil, @options) # 5/09/2013
       pause_bundle(bp.bundle_id, nil, @user, @options)
 
-      # Verify last invoice was adjusted
-      wait_for_expected_clause(3, second_invoice.invoice_id, &@proc_invoice_items_nb)
+      # Verify new invoice is generated for when we block
+      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
-      assert_equal(2, all_invoices.size)
+      assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
+
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
-      assert_equal(3, second_invoice.items.size)
+      check_invoice_no_balance(second_invoice, 500.00, 'USD', "2013-08-31")
+      assert_equal(1, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+
+      third_invoice = all_invoices[2]
+      # TODO_REPAIR : check_invoice_no_balance(third_invoice, 0.0, 'USD', "2013-08-31")
+      assert_equal(2, third_invoice.items.size)
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       # Move clock
       kb_clock_add_days(5, nil, @options) # 10/09/2013
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
-      # Verify last invoice was adjusted
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      # Verify new invoice is generated for when we unblock
+      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
-      third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 322.58, 'USD', "2013-09-10")
-      assert_equal(2, third_invoice.items.size)
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 322.58, 'USD', "2013-09-10")
+      assert_equal(2, fourth_invoice.items.size)
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -89,8 +95,6 @@ module KillBillIntegrationTests
                     {:type => "RESUME_BILLING", :date => "2013-09-10"}], bp.events)
 
     end
-
-
 
     def test_with_ao
 
@@ -133,41 +137,44 @@ module KillBillIntegrationTests
       pause_bundle(bp.bundle_id, nil, @user, @options)
 
 
-      # Verify last invoice was adjusted
-      wait_for_expected_clause(3, third_invoice.invoice_id, &@proc_invoice_items_nb)
+      # Verify we generated a new invoice
+      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
 
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
-      assert_equal(3, second_invoice.items.size)
+      check_invoice_no_balance(second_invoice, 500.0, 'USD', "2013-08-31")
+      assert_equal(1, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 0.77, 'USD', "2013-09-02")
-      assert_equal(3, third_invoice.items.size)
+      check_invoice_no_balance(third_invoice, 7.18, 'USD', "2013-09-02")
+      assert_equal(1, third_invoice.items.size)
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 7.18, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-02', '2013-09-30')
-      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -6.41, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(third_invoice.items[2], third_invoice.invoice_id, 6.41, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+
+      fourth_invoice = all_invoices[3]
+      # TODO_REPAIR check_invoice_no_balance(fourth_invoice, 0.77, 'USD', "2013-09-02")
+      assert_equal(3, fourth_invoice.items.size)
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -416.67), fourth_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -6.41), fourth_invoice.invoice_id, -6.41, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'CBA_ADJ', 423.08), fourth_invoice.invoice_id, 423.08, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       # Move clock
       kb_clock_add_days(5, nil, @options) # 10/09/2013
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify last invoice was adjusted
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(5, @account, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(4, all_invoices.size)
+      assert_equal(5, all_invoices.size)
       sort_invoices!(all_invoices)
-      fourth_invoice = all_invoices[3]
-      check_invoice_no_balance(fourth_invoice, 327.71, 'USD', "2013-09-10")
-      assert_equal(3, fourth_invoice.items.size)
-      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'RECURRING', 'oilslick-monthly-evergreen'), fourth_invoice.invoice_id, 5.13, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'RECURRING', 'sports-monthly-evergreen'), fourth_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'CBA_ADJ', nil), fourth_invoice.invoice_id, -327.71, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+      fifth_invoice = all_invoices[4]
+      check_invoice_no_balance(fifth_invoice, 327.71, 'USD', "2013-09-10")
+      assert_equal(3, fifth_invoice.items.size)
+      check_invoice_item(get_specific_invoice_item(fifth_invoice.items, 'RECURRING', 'oilslick-monthly-evergreen'), fifth_invoice.invoice_id, 5.13, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fifth_invoice.items, 'RECURRING', 'sports-monthly-evergreen'), fifth_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fifth_invoice.items, 'CBA_ADJ', -327.71), fifth_invoice.invoice_id, -327.71, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -197,8 +204,6 @@ module KillBillIntegrationTests
 
 
     end
-
-
     def test_future_pause
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -210,6 +215,8 @@ module KillBillIntegrationTests
       # Second invoice
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
+
+      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
@@ -233,41 +240,49 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
-=begin
-      # BUG : futre pause events are not returned
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
-                    {:type => "START_BILLING", :date => "2013-08-01"},
-                    {:type => "PHASE", :date => "2013-08-31"},
-                    {:type => "PAUSE_ENTITLEMENT", :date => "2013-09-05"},
-                    {:type => "PAUSE_BILLING", :date => "2013-09-05"}], bp.events)
-=end
+
+      # BUG : future pause events are not returned
+      #check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
+      #              {:type => "START_BILLING", :date => "2013-08-01"},
+      #              {:type => "PHASE", :date => "2013-08-31"},
+      #              {:type => "PAUSE_ENTITLEMENT", :date => "2013-09-05"},
+      #              {:type => "PAUSE_BILLING", :date => "2013-09-05"}], bp.events)
+
       # Move clock to reach pause
       kb_clock_add_days(5, nil, @options) # 5/09/2013
 
+      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+
       all_invoices = @account.invoices(true, @options)
-      assert_equal(2, all_invoices.size)
+      assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
+
       second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 83.33, 'USD', "2013-08-31")
-      assert_equal(3, second_invoice.items.size)
+      check_invoice_no_balance(second_invoice, 500.00, 'USD', "2013-08-31")
+      assert_equal(1, second_invoice.items.size)
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
-      check_invoice_item(second_invoice.items[2], second_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
+
+      third_invoice = all_invoices[2]
+      # TODO_REPAIR check_invoice_no_balance(third_invoice, 500.00, 'USD', "2013-08-31")
+      assert_equal(2, third_invoice.items.size)
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
 
       # Move clock
       kb_clock_add_days(5, nil, @options) # 10/09/2013
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
-      # Verify last invoice was adjusted
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      # Verify we generate a new invoice
+      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
-      third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 322.58, 'USD', "2013-09-10")
-      assert_equal(2, third_invoice.items.size)
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
-      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 322.58, 'USD', "2013-09-10")
+      assert_equal(2, fourth_invoice.items.size)
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 322.58, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-10', '2013-09-30')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, -322.58, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -286,18 +301,6 @@ module KillBillIntegrationTests
 
     end
 
-
-
-    private
-
-    def get_specific_invoice_item(items, type, phase_name)
-      items.each do |i|
-        if i.phase_name == phase_name && i.item_type == type
-          return i
-        end
-      end
-      nil
-    end
 
   end
 end
