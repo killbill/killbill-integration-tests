@@ -25,5 +25,20 @@ module KillBillIntegrationTests
       end
     end
 
+    def get_specific_invoice_item(items, type, extra_condition)
+      items.each do |i|
+        if type == 'RECURRING' && i.phase_name == extra_condition && i.item_type == type
+          return i
+        elsif type == 'REPAIR_ADJ' && i.amount == extra_condition && i.item_type == type
+          return i
+        elsif type == 'CBA_ADJ' && i.amount == extra_condition && i.item_type == type
+          return i
+        elsif type == 'USAGE' && i.amount == extra_condition && i.item_type == type
+          return i
+        end
+      end
+      assert_not_nil(nil, "Counf not find item for type #{type} , condition = #{extra_condition}")
+    end
+
   end
 end
