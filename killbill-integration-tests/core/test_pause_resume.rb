@@ -58,7 +58,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
 
       third_invoice = all_invoices[2]
-      # TODO_REPAIR : check_invoice_no_balance(third_invoice, 0.0, 'USD', "2013-08-31")
+      check_invoice_no_balance(third_invoice, -416.67, 'USD', "2013-09-05")
       assert_equal(2, third_invoice.items.size)
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
       check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
@@ -154,7 +154,7 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 7.18, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-02', '2013-09-30')
 
       fourth_invoice = all_invoices[3]
-      # TODO_REPAIR check_invoice_no_balance(fourth_invoice, 0.77, 'USD', "2013-09-02")
+      check_invoice_no_balance(fourth_invoice, -423.08, 'USD', "2013-09-05")
       assert_equal(3, fourth_invoice.items.size)
       check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -416.67), fourth_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -6.41), fourth_invoice.invoice_id, -6.41, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
@@ -263,7 +263,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
 
       third_invoice = all_invoices[2]
-      # TODO_REPAIR check_invoice_no_balance(third_invoice, 500.00, 'USD', "2013-08-31")
+      check_invoice_no_balance(third_invoice, -416.67, 'USD', "2013-09-05")
       assert_equal(2, third_invoice.items.size)
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
       check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 416.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')

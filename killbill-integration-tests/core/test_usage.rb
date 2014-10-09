@@ -18,8 +18,6 @@ module KillBillIntegrationTests
     def teardown
       teardown_base
     end
-
-=begin
     #
     # Test correct usage is generated when specifying boundaries date
     #
@@ -278,7 +276,6 @@ module KillBillIntegrationTests
       assert(got_exception, "Failed to get exception")
     end
 
-=end
     #
     # Test BP IMM cancellation and verify that usage is generation right at the time of cancellation
     #
@@ -330,7 +327,8 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
-      # TODO_REPAIR check_invoice_no_balance(third_invoice, 39.5, 'USD', '2013-08-31')
+      # There is also a REPAIR from the IMM cancellation
+      check_invoice_no_balance(third_invoice, -960.50, 'USD', '2013-08-31')
       check_usage_invoice_item(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
     end
   end
