@@ -19,6 +19,30 @@ module KillBillIntegrationTests
       invoice_item.create(user, nil, nil, options)
     end
 
+    def trigger_invoice_dry_run(account_id, target_date, options = {})
+      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, options);
+    end
+
+    def create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category, billing_period,
+        price_list_name,  options = {})
+      KillBillClient::Model::Invoice.create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category,
+                                                                 billing_period, price_list_name, options)
+    end
+
+
+    def change_plan_dry_run(account_id, bundle_id, subscription_id, target_date, product_name, product_category, billing_period, price_list_name,
+        effective_date, billing_policy, options = {})
+      KillBillClient::Model::Invoice.change_plan_dry_run(account_id, bundle_id, subscription_id, target_date, product_name, product_category, billing_period, price_list_name,
+                                                         effective_date, billing_policy, options)
+    end
+
+    def cancel_subscription_dry_run(account_id, bundle_id, subscription_id, target_date,
+        effective_date, billing_policy,  options = {})
+      KillBillClient::Model::Invoice.cancel_subscription_dry_run(account_id, bundle_id, subscription_id, target_date,
+                                                                 effective_date, billing_policy, options)
+    end
+
+
     def sort_invoices!(invoices)
       invoices.sort! do |a, b|
         a.invoice_date <=> b.invoice_date
