@@ -96,6 +96,60 @@ module KillBillIntegrationTests
 
     end
 
+    def test_pause_resume_in_the_past
+
+      # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+
+
+      # Second invoice
+      # Move clock  (BP out of trial)
+      kb_clock_add_days(30, nil, @options) # 31/08/2013
+
+      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 500.00, 'USD', "2013-08-31")
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
+
+      # Third invoice
+      # Move clock
+      kb_clock_add_days(30, nil, @options) # 30/09/2013
+      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 500.00, 'USD', "2013-09-30")
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
+
+      # Move clock to make sure both pause and resume are in the past, but before 31/10/2013 so as to not re-trigger new invoice
+      kb_clock_add_days(30, nil, @options) # 30/10/2013
+
+      # Disable invoice processing for account
+      @account.set_auto_invoicing_off(@user, "test_pause_resume_in_the_past", "Disable invoice prior pause/resume", @options)
+
+      # Pause bundle in the past
+      pause_bundle(bp.bundle_id, '2013-09-15', @user, @options)
+
+      # Resume bundle in the past
+      resume_bundle(bp.bundle_id, '2013-10-15', @user, @options)
+
+      @account.remove_auto_invoicing_off(@user, "test_pause_resume_in_the_past", "Re-enable invoice prior pause/resume", @options)
+
+      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      fourth_invoice = all_invoices[3]
+
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'CBA_ADJ', 491.94), fourth_invoice.invoice_id, 491.94, 'USD', 'CBA_ADJ', nil, nil, '2013-10-30', '2013-10-30')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -250.00), fourth_invoice.invoice_id, -250.00, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-15', '2013-09-30')
+      check_invoice_item(get_specific_invoice_item(fourth_invoice.items, 'REPAIR_ADJ', -241.94), fourth_invoice.invoice_id, -241.94, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-30', '2013-10-15')
+
+    end
+
     def test_with_ao
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -300,8 +354,6 @@ module KillBillIntegrationTests
                     {:type => "RESUME_BILLING", :date => "2013-09-10"}], bp.events)
 
     end
-
-
   end
 end
 
