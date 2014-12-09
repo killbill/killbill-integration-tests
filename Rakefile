@@ -31,9 +31,10 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('payment:control') do |t|
+  Rake::TestTask.new('plugins:killbill-payment-test') do |t|
     t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/core/test_payment_with_control.rb"]
+    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-payment-test/test_payment_with_control.rb",
+                            "#{BASE_DIR}/plugins/killbill-payment-test/test_overdue.rb"]
     t.verbose    = true
   end
 
