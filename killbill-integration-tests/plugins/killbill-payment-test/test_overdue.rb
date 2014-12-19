@@ -10,6 +10,9 @@ module KillBillIntegrationTests
       @user = "Overdue"
       setup_base(@user)
 
+      overdue_file_xml = get_resource_as_string("Overdue.xml")
+      KillBillClient::Model::Overdue.upload_tenant_overdue_config(overdue_file_xml, @user, "overdue specific to this test", "upload overdue for tenant", @options)
+
       # Create account
       default_time_zone = nil
       @account = create_account(@user, default_time_zone, @options)

@@ -20,6 +20,17 @@ module KillBillIntegrationTests
 
     TIMEOUT_SEC = 5
 
+    def get_resource_as_string(resource_name)
+      resource_path_name = File.expand_path("../../resources/#{resource_name}", __FILE__)
+      if !File.exists?(resource_path_name) || !File.file?(resource_path_name)
+        raise ArgumentError.new("Cannot find resource #{resource_name}")
+      end
+
+      resource_file = File.open(resource_path_name, "rb")
+      resource_content = resource_file.read
+      resource_content
+    end
+
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
       tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
