@@ -20,7 +20,7 @@ module KillBillIntegrationTests
       account.city = 'Foo'
       account.state = 'California'
       account.country = 'LalaLand'
-      account.locale = 'FR_fr'
+      account.locale = 'fr_FR'
       account.is_notified_for_invoices = false
       assert_nil(account.account_id)
 
