@@ -13,13 +13,16 @@ module KillBillIntegrationTests
     include Helper
     include Checker
 
-    # Default running instance of Kill Bill server
-    KillBillClient.url = 'http://127.0.0.1:8080'
+    DEFAULT_KB_ADDRESS='127.0.0.1'
+    DEFAULT_KB_PORT='8080'
 
     DEFAULT_KB_INIT_DATE = "2013-08-01"
     DEFAULT_KB_INIT_CLOCK = "#{DEFAULT_KB_INIT_DATE}T06:00:00.000Z"
 
-    def setup_base(user, multi_tenant=true, init_clock=DEFAULT_KB_INIT_CLOCK)
+    def setup_base(user, multi_tenant=true, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
+
+      # Default running instance of Kill Bill server
+      reset_killbill_client_url(killbill_address, killbill_port)
 
       # RBAC default options
       @options = {:username => 'admin', :password => 'password'}
@@ -38,6 +41,10 @@ module KillBillIntegrationTests
         account.invoices(false, @options).size
       end
       @proc_invoice_items_nb = Proc.new { |invoice_id| get_invoice_by_id(invoice_id, @options).items.size }
+    end
+
+    def reset_killbill_client_url(killbill_address, killbill_port)
+      KillBillClient.url = "http://#{killbill_address}:#{killbill_port}"
     end
 
     def teardown_base
