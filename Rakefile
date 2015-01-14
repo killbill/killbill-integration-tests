@@ -31,6 +31,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:killbill-invoice-test') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-invoice-test/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins:killbill-payment-test') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
