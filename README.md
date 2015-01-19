@@ -37,7 +37,7 @@ rake test:payment:control  # Run tests for payment:control
 Most tests should be able to run with default kill Bill version except for the test:payment:control, which requires
 the plugin https://github.com/killbill/killbill-payment-test-plugin to be installed.
 
-Start Kill Bill locally either by following the instructions and lanching the executable war (see http://docs.kill-bill.org/userguide.html#five-minutes), or by starting the server from source repo:
+Start Kill Bill locally either by following the instructions and lanching the executable war (see http://killbill.io/userguide/subscriptions-userguide/), or by starting the server from source repo:
 
 ```
 # Make sure the database is correctly installed
