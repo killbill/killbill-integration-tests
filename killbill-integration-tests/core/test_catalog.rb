@@ -19,6 +19,7 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+    # Increase the price in a subsequent catalog
     def test_price_increase
       create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
 
@@ -34,6 +35,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_balance(30, 4, '2013-10-01', 2200.0)
     end
 
+    # Add a plan in a subsequent catalog
     def test_add_plan
       create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
 
@@ -49,6 +51,31 @@ module KillBillIntegrationTests
       create_basic_entitlement(4, 'ANNUAL', '2013-10-01', '2014-10-01', 14000.0)
 
       add_days_and_check_invoice_item(31, 5, 'basic-monthly', '2013-11-01', '2013-12-01', 1000.0)
+    end
+
+    # Remove a phase in a subsequent catalog
+    def test_remove_phase
+      upload_catalog('Catalog-WithTrial.xml')
+
+      # The first subscription has a trial phase
+      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
+
+      # Move the clock to 2013-08-15
+      add_days(14)
+
+      # Effective date of the second catalog is 2013-08-15
+      upload_catalog('Catalog-NoTrial.xml')
+
+      # The new subscription doesn't have a trial phase
+      # Because of the ACCOUNT billing alignment, there is a leading proration
+      create_basic_entitlement(2, 'MONTHLY', '2013-08-15', '2013-08-31', 516.13)
+
+      # Move the clock to 2013-08-31 (30 days trial)
+      add_days(16)
+
+      invoice = check_invoice_balance(3, '2013-08-31', 2000.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
     end
 
     def test_create_alignment
