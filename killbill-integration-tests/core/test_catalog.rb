@@ -7,15 +7,12 @@ module KillBillIntegrationTests
   class TestCatalog < Base
 
     def setup
-      @user = "Catalog"
+      @user = 'Catalog'
       setup_base(@user)
 
-      catalog_file_xml = get_resource_as_string("Catalog-v1.xml")
-      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, "Initial Catalog", "upload catalog for tenant", @options)
+      upload_catalog('Catalog-v1.xml')
 
-      # Create account
-      default_time_zone = nil
-      @account = create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, nil, @options)
     end
 
     def teardown
@@ -23,55 +20,60 @@ module KillBillIntegrationTests
     end
 
     def test_price_increase
+      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
 
-      bp1 = create_entitlement_base(@account.account_id, 'Basic', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(bp1, 'Basic', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      # Effective date of the second catalog is 2013-09-01
+      upload_catalog('Catalog-v2.xml')
 
+      # Original subscription is grandfathered
+      add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
 
-      all_invoices = @account.invoices(true, @options)
-      sort_invoices!(all_invoices)
-      assert_equal(1, all_invoices.size)
-      new_invoice = all_invoices[0]
-      check_invoice_no_balance(new_invoice, 1000.0, 'USD', '2013-08-01')
-      check_invoice_item(new_invoice.items[0], new_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-01', '2013-09-01')
+      # Create a new subscription and check the new price is effective
+      create_basic_entitlement(3, 'MONTHLY', '2013-09-01', '2013-10-01', 1200.0)
 
-
-      catalog_file_xml2 = get_resource_as_string("Catalog-v2.xml")
-      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml2, @user, "New Catalog Version (Change of price)", "upload catalog for tenant", @options)
-
-      kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
-
-      all_invoices = @account.invoices(true, @options)
-      sort_invoices!(all_invoices)
-      assert_equal(2, all_invoices.size)
-      new_invoice = all_invoices[1]
-      check_invoice_no_balance(new_invoice, 1000.0, 'USD', '2013-09-01')
-      check_invoice_item(new_invoice.items[0], new_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-10-01')
-
-
-      bp2 = create_entitlement_base(@account.account_id, 'Basic', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(bp2, 'Basic', 'BASE', 'MONTHLY', 'DEFAULT', '2013-09-01', nil)
-
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
-
-      all_invoices = @account.invoices(true, @options)
-      sort_invoices!(all_invoices)
-      assert_equal(3, all_invoices.size)
-      new_invoice = all_invoices[2]
-      check_invoice_no_balance(new_invoice, 1200.0, 'USD', '2013-09-01')
-      check_invoice_item(new_invoice.items[0], new_invoice.invoice_id, 1200.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-10-01')
-
-      kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
-
-      all_invoices = @account.invoices(true, @options)
-      sort_invoices!(all_invoices)
-      assert_equal(4, all_invoices.size)
-      new_invoice = all_invoices[3]
-      check_invoice_no_balance(new_invoice, 2200.0, 'USD', '2013-10-01')
+      add_days_and_check_invoice_balance(30, 4, '2013-10-01', 2200.0)
     end
 
+    private
+
+    def create_basic_entitlement(invoice_nb=1, billing_period='MONTHLY', start_date='2013-08-01', end_date='2013-09-01', amount=1000.0)
+      bp = create_entitlement_base(@account.account_id, 'Basic', billing_period, 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Basic', 'BASE', billing_period, 'DEFAULT', start_date, nil)
+      check_evergreen_item(invoice_nb, 'basic-' + billing_period.downcase, start_date, end_date, amount)
+      bp
+    end
+
+    def add_days_and_check_invoice_balance(days, invoice_nb, invoice_date, amount)
+      kb_clock_add_days(days, nil, @options)
+      check_invoice_balance(invoice_nb, invoice_date, amount)
+    end
+
+    def add_days_and_check_invoice_item(days, invoice_nb, plan, start_date, end_date, amount)
+      kb_clock_add_days(days, nil, @options)
+      check_evergreen_item(invoice_nb, plan, start_date, end_date, amount)
+    end
+
+    def check_evergreen_item(invoice_nb, plan, start_date, end_date, amount)
+      new_invoice = check_invoice_balance(invoice_nb, start_date, amount)
+      check_invoice_item(new_invoice.items[0], new_invoice.invoice_id, amount, 'USD', 'RECURRING', plan, plan + '-evergreen', start_date, end_date)
+    end
+
+    def check_invoice_balance(invoice_nb, invoice_date, amount)
+      wait_for_expected_clause(invoice_nb, @account, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(invoice_nb, all_invoices.size)
+
+      new_invoice = all_invoices[invoice_nb - 1]
+      check_invoice_no_balance(new_invoice, amount, 'USD', invoice_date)
+
+      new_invoice
+    end
+
+    def upload_catalog(name)
+      catalog_file_xml = get_resource_as_string(name)
+      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, 'New Catalog Version', 'Upload catalog for tenant', @options)
+    end
   end
 end
