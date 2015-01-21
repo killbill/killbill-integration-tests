@@ -91,7 +91,136 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(14, 7, 'BasicAOStartOfSubscription-monthly', '2013-10-14', '2013-11-14', 150)
     end
 
+    def test_change_alignment_start_of_bundle
+      bp, ao = setup_change_alignment_test
+
+      # Change plan with a start of bundle change alignment: the trial will still end on 2013-08-31
+      change_ao_entitlement(ao, 3, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      check_subscription_events(bp,
+                                ao,
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                                 {:type => 'START_BILLING', :date => '2013-08-01'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}],
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                                 {:type => 'START_BILLING', :date => '2013-08-05'},
+                                 {:type => 'CHANGE', :date => '2013-08-15'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}])
+
+      # Move the clock to 2013-08-31 (30 days trial)
+      add_days(16)
+
+      # Both subscriptions are aligned on the same invoice (ACCOUNT billing alignment)
+      invoice = check_invoice_balance(4, '2013-08-31', 1100.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 100.0, 'USD', 'RECURRING', 'BasicAOStartOfBundle-monthly', 'BasicAOStartOfBundle-monthly-evergreen', '2013-08-31', '2013-09-30')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+    end
+
+    def test_change_alignment_start_of_subscription
+      bp, ao = setup_change_alignment_test
+
+      # Change plan with a start of subscription change alignment: the trial will now end on 2013-09-04
+      change_ao_entitlement(ao, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      check_subscription_events(bp,
+                                ao,
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                                 {:type => 'START_BILLING', :date => '2013-08-01'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}],
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                                 {:type => 'START_BILLING', :date => '2013-08-05'},
+                                 {:type => 'CHANGE', :date => '2013-08-15'},
+                                 {:type => 'PHASE', :date => '2013-09-04'}])
+
+      # Move the clock to 2013-08-31 (30 days trial)
+      add_days(16)
+
+      invoice = check_invoice_balance(4, '2013-08-31', 1000.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+
+      # Move the clock to 2013-09-04
+      add_days(4)
+
+      # Pro-rated invoice for the add-on (ACCOUNT billing alignment)
+      invoice = check_invoice_balance(5, '2013-09-04', 125.81)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 125.81, 'USD', 'RECURRING', 'BasicAOStartOfSubscription-monthly', 'BasicAOStartOfSubscription-monthly-evergreen', '2013-09-04', '2013-09-30')
+
+      # Move the clock to 2013-09-30
+      add_days(26)
+
+      invoice = check_invoice_balance(6, '2013-09-30', 1150.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 150.0, 'USD', 'RECURRING', 'BasicAOStartOfSubscription-monthly', 'BasicAOStartOfSubscription-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
+    end
+
+    def test_change_alignment_change_of_plan
+      bp, ao = setup_change_alignment_test
+
+      # Change plan with a start of change of plan change alignment: the trial will now end on 2013-09-14
+      change_ao_entitlement(ao, 3, 'BasicAOChangeOfPlan', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      check_subscription_events(bp,
+                                ao,
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                                 {:type => 'START_BILLING', :date => '2013-08-01'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}],
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                                 {:type => 'START_BILLING', :date => '2013-08-05'},
+                                 {:type => 'CHANGE', :date => '2013-08-15'},
+                                 {:type => 'PHASE', :date => '2013-09-14'}])
+
+      # Move the clock to 2013-08-31 (30 days trial)
+      add_days(16)
+
+      invoice = check_invoice_balance(4, '2013-08-31', 1000.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+
+      # Move the clock to 2013-09-14
+      add_days(14)
+
+      # Pro-rated invoice for the add-on (ACCOUNT billing alignment)
+      invoice = check_invoice_balance(5, '2013-09-14', 103.23)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 103.23, 'USD', 'RECURRING', 'BasicAOChangeOfPlan-monthly', 'BasicAOChangeOfPlan-monthly-evergreen', '2013-09-14', '2013-09-30')
+
+      # Move the clock to 2013-09-30
+      add_days(16)
+
+      invoice = check_invoice_balance(6, '2013-09-30', 1200.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 200.0, 'USD', 'RECURRING', 'BasicAOChangeOfPlan-monthly', 'BasicAOChangeOfPlan-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
+    end
+
+    #def test_change_alignment_change_of_pricelist
+    #  # TODO This hasn't been implemented yet in Kill Bill
+    #end
+
     private
+
+    # This will:
+    #   * create a bundle on 2013-08-01 (30 days trial)
+    #   * add an add-on on 2013-08-05 (30 days trial)
+    #   * move the clock to 2013-08-15
+    # test_change_alignment_* tests will then change the add-on plan using different alignments
+    def setup_change_alignment_test
+      upload_catalog('Catalog-ChangeAlignment.xml')
+
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
+
+      # Move the clock to 2013-08-05
+      add_days(4)
+
+      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', 0.0)
+      check_subscription_events(bp,
+                                ao,
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                                 {:type => 'START_BILLING', :date => '2013-08-01'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}],
+                                [{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                                 {:type => 'START_BILLING', :date => '2013-08-05'},
+                                 {:type => 'PHASE', :date => '2013-08-31'}])
+
+      # Move the clock to 2013-08-15
+      add_days(10)
+
+      [bp, ao]
+    end
 
     def create_basic_entitlement(invoice_nb=1, billing_period='MONTHLY', start_date='2013-08-01', end_date='2013-09-01', amount=1000.0)
       bp = create_entitlement_base(@account.account_id, 'Basic', billing_period, 'DEFAULT', @user, @options)
@@ -104,10 +233,37 @@ module KillBillIntegrationTests
       bp
     end
 
-    def create_ao_entitlement(bp, invoice_nb, plan, billing_period='MONTHLY', start_date='2013-08-01', amount=1000.0, invoice_date=start_date)
-      ao = create_entitlement_ao(bp.bundle_id, plan, billing_period, 'DEFAULT', @user, @options)
-      check_subscription(ao, plan, 'ADD_ON', billing_period, 'DEFAULT', start_date, nil, start_date, nil)
-      check_fixed_item(invoice_nb, plan + '-' + billing_period.downcase, invoice_date, amount, start_date)
+    def create_ao_entitlement(bp, invoice_nb, product, billing_period='MONTHLY', start_date='2013-08-01', amount=1000.0, invoice_date=start_date)
+      ao = create_entitlement_ao(bp.bundle_id, product, billing_period, 'DEFAULT', @user, @options)
+      check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', start_date, nil, start_date, nil)
+      check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, start_date)
+      ao
+    end
+
+    def change_ao_entitlement(ao, invoice_nb, product, billing_period='MONTHLY', ao_start_date='2013-08-01', amount=0.0, invoice_date=start_date)
+      ao = ao.change_plan({:productName => product, :billingPeriod => billing_period, :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', ao_start_date, nil, ao_start_date, nil)
+      check_fixed_item(invoice_nb, product + '-'+ billing_period.downcase, invoice_date, amount)
+    end
+
+    def check_subscription_events(bp, ao, bp_events, ao_events)
+      # Check bundle subscriptions
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_not_nil(subscriptions)
+      assert_equal(2, subscriptions.size)
+
+      # Check base plan events
+      bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
+      assert_not_nil(bps)
+      assert_equal(1, bps.size)
+      check_events(bp_events, bps[0].events)
+
+      # Check add-on events
+      aos = subscriptions.reject { |s| s.product_category == 'BASE' }
+      assert_not_nil(aos)
+      assert_equal(1, aos.size)
+      check_events(ao_events, aos[0].events)
+
       ao
     end
 
