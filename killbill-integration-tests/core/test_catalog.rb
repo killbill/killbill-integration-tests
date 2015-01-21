@@ -34,6 +34,23 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_balance(30, 4, '2013-10-01', 2200.0)
     end
 
+    def test_add_plan
+      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
+
+      add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
+
+      # Effective date of the second catalog is 2013-10-01
+      upload_catalog('Catalog-v3.xml')
+
+      # Original subscription is grandfathered
+      add_days_and_check_invoice_item(30, 3, 'basic-monthly', '2013-10-01', '2013-11-01', 1000.0)
+
+      # The annual plan is only present in the v3 catalog
+      create_basic_entitlement(4, 'ANNUAL', '2013-10-01', '2014-10-01', 14000.0)
+
+      add_days_and_check_invoice_item(31, 5, 'basic-monthly', '2013-11-01', '2013-12-01', 1000.0)
+    end
+
     private
 
     def create_basic_entitlement(invoice_nb=1, billing_period='MONTHLY', start_date='2013-08-01', end_date='2013-09-01', amount=1000.0)
