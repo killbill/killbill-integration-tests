@@ -76,6 +76,13 @@ module KillBillIntegrationTests
       invoice = check_invoice_balance(3, '2013-08-31', 2000.0)
       check_invoice_item(invoice.items[0], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+
+      # Move the clock to 2013-09-30
+      add_days(30)
+
+      invoice = check_invoice_balance(4, '2013-09-30', 2000.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
     end
 
     def test_create_alignment
