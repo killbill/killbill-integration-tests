@@ -31,6 +31,11 @@ module KillBillIntegrationTests
       resource_content
     end
 
+    def upload_catalog(name, user, options)
+      catalog_file_xml = get_resource_as_string(name)
+      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
+    end
+
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
       tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
