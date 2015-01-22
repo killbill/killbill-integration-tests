@@ -22,7 +22,7 @@ module KillBillIntegrationTests
     end
 
     def check_events(expected, real)
-      assert_equal(expected.size, real.size)
+      assert_equal(expected.size, real.size, real)
       expected.each_with_index() do |e, i|
         assert_equal(e[:type], real[i].event_type)
         assert_equal(e[:date], real[i].effective_date)
