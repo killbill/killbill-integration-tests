@@ -326,22 +326,7 @@ module KillBillIntegrationTests
     end
 
     def check_invoice_balance(invoice_nb, invoice_date, amount)
-      wait_for_expected_clause(invoice_nb, @account, &@proc_account_invoices_nb)
-
-      all_invoices = @account.invoices(true, @options)
-      assert_equal(invoice_nb, all_invoices.size)
-
-      sort_invoices!(all_invoices)
-      all_invoices.each do |invoice|
-        invoice.items.sort! do |a, b|
-          a.amount <=> b.amount
-        end
-      end
-
-      new_invoice = all_invoices[invoice_nb - 1]
-      check_invoice_no_balance(new_invoice, amount, 'USD', invoice_date)
-
-      new_invoice
+      check_next_invoice_amount(invoice_nb, amount, invoice_date, @account, @options, &@proc_account_invoices_nb)[-1]
     end
   end
 end
