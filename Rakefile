@@ -10,7 +10,7 @@ Bundler::GemHelper.install_tasks
 BASE_DIR = 'killbill-integration-tests'
 
 namespace :test do
-  Rake::TestTask.new('entitlement') do |t|
+  Rake::TestTask.new('core:entitlement') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_entitlement_*.rb",
                             "#{BASE_DIR}/core/test_pause_resume.rb",
@@ -19,13 +19,13 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('invoice') do |t|
+  Rake::TestTask.new('core:invoice') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_invoice_*.rb"]
     t.verbose    = true
   end
 
-  Rake::TestTask.new('payment') do |t|
+  Rake::TestTask.new('core:payment') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_payment.rb"]
     t.verbose    = true
