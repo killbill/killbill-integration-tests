@@ -58,7 +58,7 @@ module KillBillIntegrationTests
 
     def sort_invoices!(invoices)
       invoices.sort! do |a, b|
-        a.invoice_date <=> b.invoice_date
+        a.invoice_date == b.invoice_date ? a.invoice_number <=> b.invoice_number : a.invoice_date <=> b.invoice_date
       end
     end
 

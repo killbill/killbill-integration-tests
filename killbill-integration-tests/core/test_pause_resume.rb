@@ -204,6 +204,101 @@ module KillBillIntegrationTests
                     {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
                     {:type => 'RESUME_BILLING', :date => '2013-08-02'},
                     {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+
+      # Move clock (BP out of trial)
+      kb_clock_add_days(29, nil, @options) # 31/08/2013
+
+      # Verify invoices
+      all_invoices  = check_next_invoice_amount(2, 500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
+      first_invoice = all_invoices[0]
+      assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      second_invoice = all_invoices[1]
+      assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
+
+      # Pause bundle again
+      pause_bundle(bp.bundle_id, nil, @user, @options)
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_equal(1, subscriptions.size)
+      bp = subscriptions.first
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                    {:type => 'START_BILLING', :date => '2013-08-01'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PHASE', :date => '2013-08-31'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-31'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-31'}], bp.events)
+
+      # Verify invoices
+      all_invoices  = check_next_invoice_amount(3, -500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
+      first_invoice = all_invoices[0]
+      assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      second_invoice = all_invoices[1]
+      assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
+      third_invoice = all_invoices[2]
+      assert_equal(2, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -500, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-31', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 500, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
+
+      # Resume bundle again
+      resume_bundle(bp.bundle_id, nil, @user, @options)
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_equal(1, subscriptions.size)
+      bp = subscriptions.first
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                    {:type => 'START_BILLING', :date => '2013-08-01'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
+                    {:type => 'PHASE', :date => '2013-08-31'},
+                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-31'},
+                    {:type => 'PAUSE_BILLING', :date => '2013-08-31'},
+                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-31'},
+                    {:type => 'RESUME_BILLING', :date => '2013-08-31'}], bp.events)
+
+      # Move clock 1 day to check nothing happens (2013-09-01)
+      kb_clock_add_days(1, nil, @options)
+
+      # Verify invoices
+      all_invoices  = check_next_invoice_amount(4, 500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
+      first_invoice = all_invoices[0]
+      assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      second_invoice = all_invoices[1]
+      assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
+      third_invoice = all_invoices[2]
+      assert_equal(2, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -500, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-31', '2013-09-30')
+      check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 500, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
+      fourth_invoice = all_invoices[3]
+      assert_equal(2, fourth_invoice.items.size, "Invalid number of invoice items: #{fourth_invoice.items.size}")
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, -500, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
     end
 
     def test_pause_resume_in_the_past
