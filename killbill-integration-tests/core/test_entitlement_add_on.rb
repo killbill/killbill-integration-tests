@@ -1096,69 +1096,83 @@ module KillBillIntegrationTests
 
     end
 
-
     def test_complex_ao
-
-      # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
+      # First invoice 01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      all_invoices  = check_next_invoice_amount(1, 0, '2013-08-01', @account, @options, &@proc_account_invoices_nb)
+      first_invoice = all_invoices[0]
+      assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
 
-      # Move clock and create Add-on 1  (BP still in trial)
+      # Move clock and create Add-on 1 (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
-      # Second invoice  05/08/2013 ->  31/08/2013
+      # Second invoice 05/08/2013 -> 31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
-
+      all_invoices   = check_next_invoice_amount(2, 3.35, '2013-08-05', @account, @options, &@proc_account_invoices_nb)
+      second_invoice = all_invoices[1]
+      assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 3.35, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-05', '2013-08-31')
 
       # Move clock and create Add-on 2 (BP still in trial)
       kb_clock_add_days(10, nil, @options) # 15/08/2013
 
-      # Third invoice  15/08/2013 ->  31/08/2013
+      # Third invoice 15/08/2013 -> 31/08/2013
       ao2 = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options) # (Subscription Aligned)
       check_entitlement(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      all_invoices  = check_next_invoice_amount(3, 4.13, '2013-08-15', @account, @options, &@proc_account_invoices_nb)
+      third_invoice = all_invoices[2]
+      assert_equal(1, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 4.13, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-discount', '2013-08-15', '2013-08-31')
+
+      kb_clock_add_days(16, nil, @options) # 31/08/2013
 
       # Fourth invoice
-      # BP : 31/08/2013 ->  30/09/2013
-      # AO1 : 31/08/2013 ->  01/09/2013  (end of discount)
-      # AO2 : 31/08/2013 ->  15/09/2013   (end of discount)
-      kb_clock_add_days(16, nil, @options) # 31/08/2013
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      # BP : 31/08/2013 -> 30/09/2013
+      # AO1 : 31/08/2013 -> 01/09/2013 (end of discount)
+      # AO2 : 31/08/2013 -> 15/09/2013 (end of discount)
+      all_invoices   = check_next_invoice_amount(4, 504.13, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
+      fourth_invoice = all_invoices[3]
+      assert_equal(3, fourth_invoice.items.size, "Invalid number of invoice items: #{fourth_invoice.items.size}")
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 0.13, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-31', '2013-09-01')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 4.0, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-discount', '2013-08-31', '2013-09-15')
+      check_invoice_item(fourth_invoice.items[2], fourth_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
 
       # Check on CTD after invoices
       subscriptions = get_subscriptions(bp.bundle_id, @options)
-      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      bp            = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       assert_equal("2013-09-01", ao1.charged_through_date)
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
       assert_equal("2013-09-15", ao2.charged_through_date)
 
+      kb_clock_add_days(1, nil, @options) # 01/09/2013
 
       # Fifth invoice AO1 01/09/2013 -> 30/09/2013 (Recurring Phase)
-      kb_clock_add_days(1, nil, @options) # 01/09/2013
-      wait_for_expected_clause(5, @account, &@proc_account_invoices_nb)
+      all_invoices  = check_next_invoice_amount(5, 7.44, '2013-09-01', @account, @options, &@proc_account_invoices_nb)
+      fifth_invoice = all_invoices[4]
+      assert_equal(1, fifth_invoice.items.size, "Invalid number of invoice items: #{fifth_invoice.items.size}")
+      check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 7.44, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-01', '2013-09-30')
 
       # Check on CTD after invoices
       subscriptions = get_subscriptions(bp.bundle_id, @options)
-      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      bp            = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       assert_equal("2013-09-30", bp.charged_through_date)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       assert_equal("2013-09-30", ao1.charged_through_date)
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
       assert_equal("2013-09-15", ao2.charged_through_date)
 
-
-      # Change Plan for BP (future cancel date = 30/09/2013)  => AO1 is now included in new plan
+      # Change Plan for BP (future cancel date = 30/09/2013) => AO1 is now included in new plan
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
-      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      subscriptions  = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil, DEFAULT_KB_INIT_DATE, nil)
@@ -1169,23 +1183,56 @@ module KillBillIntegrationTests
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
       check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil, "2013-08-15", nil)
 
-      # Sixth invoice AO2 15/09/2013 -> 30/09/2013 (Recurring Phase, aligns to BCD)
       kb_clock_add_days(14, nil, @options) # 15/09/2013
-      wait_for_expected_clause(6, @account, &@proc_account_invoices_nb)
 
-      # Seventh invoice AO2
-      # BP : 30/09/2013 ->  31/10/2013
-      # AO1 : (CANCELLED)
-      # AO2 : 30/09/2013 ->  31/10/2013
+      # Sixth invoice AO2 15/09/2013 -> 30/09/2013 (Recurring Phase, aligns to BCD)
+      all_invoices  = check_next_invoice_amount(6, 8.69, '2013-09-15', @account, @options, &@proc_account_invoices_nb)
+      sixth_invoice = all_invoices[5]
+      assert_equal(1, sixth_invoice.items.size, "Invalid number of invoice items: #{sixth_invoice.items.size}")
+      check_invoice_item(sixth_invoice.items[0], sixth_invoice.invoice_id, 8.69, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-evergreen', '2013-09-15', '2013-09-30')
+
       kb_clock_add_days(15, nil, @options) # 30/09/2013
-      wait_for_expected_clause(7, @account, &@proc_account_invoices_nb)
 
+      # Seventh invoice
+      # BP : 30/09/2013 -> 31/10/2013
+      # AO1 : (CANCELLED)
+      # AO2 : 30/09/2013 -> 31/10/2013
+      # Regression check for https://github.com/killbill/killbill/issues/268
+      all_invoices    = check_next_invoice_amount(7, 1017.95, '2013-09-30', @account, @options, &@proc_account_invoices_nb)
+      seventh_invoice = all_invoices[6]
+      assert_equal(2, seventh_invoice.items.size, "Invalid number of invoice items: #{seventh_invoice.items.size}")
+      check_invoice_item(seventh_invoice.items[0], seventh_invoice.invoice_id, 17.95, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(seventh_invoice.items[1], seventh_invoice.invoice_id, 1000, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-09-30', '2013-10-31')
 
-      # Future cancel BP  (and therefore ADD_ON)
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
+      assert_equal(3, subscriptions.size)
 
-      requested_date = nil
-      entitlement_policy = "END_OF_TERM"
-      billing_policy = nil
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil, DEFAULT_KB_INIT_DATE, nil)
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                    {:type => 'START_BILLING', :date => '2013-08-01'},
+                    {:type => 'PHASE', :date => '2013-08-31'},
+                    {:type => 'CHANGE', :date => '2013-09-30'}], bp.events)
+
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                    {:type => 'START_BILLING', :date => '2013-08-05'},
+                    {:type => 'PHASE', :date => '2013-09-01'},
+                    {:type => 'STOP_ENTITLEMENT', :date => '2013-09-30'},
+                    {:type => 'STOP_BILLING', :date => '2013-09-30'}], ao1.events)
+
+      ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
+      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil, "2013-08-15", nil)
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-15'},
+                    {:type => 'START_BILLING', :date => '2013-08-15'},
+                    {:type => 'PHASE', :date => '2013-09-15'}], ao2.events)
+
+      # Future cancel BP (and therefore ADD_ON)
+
+      requested_date                 = nil
+      entitlement_policy             = "END_OF_TERM"
+      billing_policy                 = nil
       use_requested_date_for_billing = nil
 
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
@@ -1195,14 +1242,33 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-10-31", DEFAULT_KB_INIT_DATE, "2013-10-31")
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
+                    {:type => 'START_BILLING', :date => '2013-08-01'},
+                    {:type => 'PHASE', :date => '2013-08-31'},
+                    {:type => 'CHANGE', :date => '2013-09-30'},
+                    {:type => 'STOP_ENTITLEMENT', :date => '2013-10-31'},
+                    {:type => 'STOP_BILLING', :date => '2013-10-31'}], bp.events)
+
+      ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
+                    {:type => 'START_BILLING', :date => '2013-08-05'},
+                    {:type => 'PHASE', :date => '2013-09-01'},
+                    {:type => 'STOP_ENTITLEMENT', :date => '2013-09-30'},
+                    {:type => 'STOP_BILLING', :date => '2013-09-30'}], ao1.events)
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
       check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", "2013-10-31", "2013-08-15", "2013-10-31")
+      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-15'},
+                    {:type => 'START_BILLING', :date => '2013-08-15'},
+                    {:type => 'PHASE', :date => '2013-09-15'},
+                    {:type => 'STOP_ENTITLEMENT', :date => '2013-10-31'},
+                    {:type => 'STOP_BILLING', :date => '2013-10-31'}], ao2.events)
 
-      # MORE TO COME ... when basic tests pass
-
+      # Verify no new invoice has been generated
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(7, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
     end
-
   end
 end
 
