@@ -1063,6 +1063,7 @@ module KillBillIntegrationTests
       use_requested_date_for_billing = nil
 
       ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
+      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
@@ -1074,7 +1075,7 @@ module KillBillIntegrationTests
       # Create Add-on 2
       ao2 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", nil)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
 
       requested_date = nil
       entitlement_policy = "END_OF_TERM"
