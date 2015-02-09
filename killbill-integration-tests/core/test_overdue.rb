@@ -28,12 +28,108 @@ module KillBillIntegrationTests
     end
 
     def test_add_overdue_state
-      go_through_all_overdue_stages(@account, 'OD3')
+      bp = go_through_all_overdue_stages(@account, 'OD3', '2013-08-01')
+      check_entitlement_with_events(bp,
+                                    '2013-08-01',
+                                    [{:type                   => 'START_ENTITLEMENT',
+                                      :date                   => '2013-08-01',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'entitlement-service',
+                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                     {:type                   => 'START_BILLING',
+                                      :date                   => '2013-08-01',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'billing-service',
+                                      :service_state_name     => 'START_BILLING'},
+                                     {:type                   => 'PHASE',
+                                      :date                   => '2013-08-31',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'entitlement+billing-service',
+                                      :service_state_name     => 'PHASE'},
+                                     {:type                   => 'SERVICE_STATE_CHANGE',
+                                      :date                   => '2013-10-01',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD1'},
+                                     {:type                   => 'PAUSE_ENTITLEMENT',
+                                      :date                   => '2013-10-11',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD2'},
+                                     {:type                   => 'PAUSE_BILLING',
+                                      :date                   => '2013-10-11',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD2'},
+                                     {:type                   => 'SERVICE_STATE_CHANGE',
+                                      :date                   => '2013-10-21',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD3'}],
+                                    @options)
 
       upload_overdue('Overdue-v1.xml', @user, @options)
 
       other_account = create_account(@user, nil, @options)
-      go_through_all_overdue_stages(other_account, 'OD4', '2013-10-31')
+      bp            = go_through_all_overdue_stages(other_account, 'OD4', '2013-10-31')
+      check_entitlement_with_events(bp,
+                                    '2013-10-31',
+                                    [{:type                   => 'START_ENTITLEMENT',
+                                      :date                   => '2013-10-31',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'entitlement-service',
+                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                     {:type                   => 'START_BILLING',
+                                      :date                   => '2013-10-31',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'billing-service',
+                                      :service_state_name     => 'START_BILLING'},
+                                     {:type                   => 'PHASE',
+                                      :date                   => '2013-11-30',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'entitlement+billing-service',
+                                      :service_state_name     => 'PHASE'},
+                                     {:type                   => 'SERVICE_STATE_CHANGE',
+                                      :date                   => '2013-12-31',
+                                      :is_blocked_billing     => false,
+                                      :is_blocked_entitlement => false,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD1'},
+                                     {:type                   => 'PAUSE_ENTITLEMENT',
+                                      :date                   => '2014-01-10',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD2'},
+                                     {:type                   => 'PAUSE_BILLING',
+                                      :date                   => '2014-01-10',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD2'},
+                                     {:type                   => 'SERVICE_STATE_CHANGE',
+                                      :date                   => '2014-01-20',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD3'},
+                                     {:type                   => 'SERVICE_STATE_CHANGE',
+                                      :date                   => '2014-01-30',
+                                      :is_blocked_billing     => true,
+                                      :is_blocked_entitlement => true,
+                                      :service_name           => 'overdue-service',
+                                      :service_state_name     => 'OD4'}],
+                                    @options)
     end
 
     # Similar test than the one above, but rely on the re-evaluation interval
@@ -78,6 +174,17 @@ module KillBillIntegrationTests
 
       # Move to last overdue stage
       add_days_and_check_overdue_stage(account, 10, expected_last_stage, options)
+
+      bp
+    end
+
+    def check_entitlement_with_events(bp, start_date, events, options)
+      subscriptions = get_subscriptions(bp.bundle_id, options)
+      assert_equal(1, subscriptions.size)
+
+      bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', start_date, nil, start_date, nil)
+      check_events(events, bp.events)
     end
 
     def add_days_and_check_overdue_stage(account, days, stage, options=@options)

@@ -24,11 +24,13 @@ module KillBillIntegrationTests
     def check_events(expected, real)
       assert_equal(expected.size, real.size, real)
       expected.each_with_index() do |e, i|
-        assert_equal(e[:type], real[i].event_type)
-        assert_equal(e[:date], real[i].effective_date)
+        assert_equal(e[:type], real[i].event_type) if e.has_key?(:type)
+        assert_equal(e[:date], real[i].effective_date) if e.has_key?(:date)
+        assert_equal(e[:is_blocked_billing], real[i].is_blocked_billing) if e.has_key?(:is_blocked_billing)
+        assert_equal(e[:is_blocked_entitlement], real[i].is_blocked_entitlement) if e.has_key?(:is_blocked_entitlement)
+        assert_equal(e[:service_name], real[i].service_name) if e.has_key?(:service_name)
+        assert_equal(e[:service_state_name], real[i].service_state_name) if e.has_key?(:service_state_name)
       end
     end
-
-
   end
 end
