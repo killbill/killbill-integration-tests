@@ -189,14 +189,12 @@ module KillBillIntegrationTests
 
     def add_days_and_check_overdue_stage(account, days, stage, options=@options)
       kb_clock_add_days(days, nil, options)
-      # Make sure overdue state gets re-computed
-      wait_for_killbill
       check_overdue_stage(account, stage, options)
     end
 
     def check_overdue_stage(account, stage, options=@options)
       overdue_result = account.overdue(options)
-      assert_equal(stage, overdue_result.name, 'Failed to retrieve overdue status associated with account')
+      assert_equal(stage, overdue_result.name, "Failed to retrieve overdue status associated with account #{account.account_id}")
     end
   end
 end

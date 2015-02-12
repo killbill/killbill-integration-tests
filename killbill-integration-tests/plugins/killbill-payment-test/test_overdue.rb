@@ -54,7 +54,7 @@ module KillBillIntegrationTests
       end
 
       # Make sure overdue state gets re-computed
-      wait_for_killbill
+      wait_for_killbill(@options)
 
       overdue_result = @account.overdue(@options)
       assert_equal('OD1', overdue_result.name , 'Failed to retrieve overdue status associated to account')

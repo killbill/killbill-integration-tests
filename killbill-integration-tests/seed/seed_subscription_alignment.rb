@@ -46,11 +46,11 @@ module KillBillIntegrationSeed
 
       # generate second invoice : OilSlick 2013-02-13 ->  2013-03-08 (bundle aligned so computes until next PHASE event)
       ao1 = create_entitlement_ao(base.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      sleep 3;
+      wait_for_killbill(@options)
 
       # generate third invoice : Remote  2013-02-13 ->  2013-03-10 (subscription aligned, but BILLING is ACCOUNT aligned, so computed until BCD !!)
       ao2 = create_entitlement_ao(base.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
-      sleep 3;
+      wait_for_killbill(@options)
 
       # generate fourth invoice : OilSlick 2013-03-08 ->  2013-03-10 (Recurring phase and BILLING aligned so invoice up to BCD)
       kb_clock_add_days(24, nil, @options)  # 03/09/2013

@@ -76,11 +76,13 @@ module KillBillIntegrationTests
       JSON.parse res.body
     end
 
-
     def kb_clock_set(requested_date, time_zone, options)
-      params = {}
+      params                 = {}
       params[:requestedDate] = requested_date unless requested_date.nil?
-      params[:timeZone] = time_zone unless time_zone.nil?
+      params[:timeZone]      = time_zone unless time_zone.nil?
+
+      # The default 5s is not always enough
+      params[:timeoutSec]    ||= 10
 
       res = KillBillClient::API.post "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                      {},
@@ -106,23 +108,29 @@ module KillBillIntegrationTests
       increment_kb_clock(nil, nil, years, nil, time_zone, options)
     end
 
-    def wait_for_killbill
-      sleep 3
-    end
+    def wait_for_killbill(options)
+      params              = {}
+      # The default 5s is not always enough
+      params[:timeoutSec] ||= 10
 
+      res = KillBillClient::API.get "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/queues",
+                                    params,
+                                    {
+                                    }.merge(options)
+
+      puts 'wait_for_killbill: timed out' if res.code.to_i != 200
+    end
 
     #
     # Pass a block the will be evaluated until either we match expected value ort we timeout
     #
     def wait_for_expected_clause(expected, args)
-
-
       begin
         Timeout::timeout(TIMEOUT_SEC) do
           while true do
             nb_invoices = yield(args)
             return if nb_invoices == expected
-            sleep 1
+            wait_for_killbill
           end
         end
       rescue Timeout::Error => e
@@ -135,18 +143,16 @@ module KillBillIntegrationTests
 
     private
 
-
-    # Add sleep padding -- the server chekx for notificationq when we move the clock but we still don't have gurantees there is
-    # no bus events left in the queue
     def increment_kb_clock(days, weeks, months, years, time_zone, options)
-      params = {}
-      params[:days] = days unless days.nil?
-      params[:weeks] = weeks unless weeks.nil?
-      params[:months] = months unless months.nil?
-      params[:years] = years unless years.nil?
-      params[:timeZone] = time_zone unless time_zone.nil?
+      params              = {}
+      params[:days]       = days unless days.nil?
+      params[:weeks]      = weeks unless weeks.nil?
+      params[:months]     = months unless months.nil?
+      params[:years]      = years unless years.nil?
+      params[:timeZone]   = time_zone unless time_zone.nil?
 
-      ini=Time.now; sleep 3; fini=Time.now;
+      # The default 5s is not always enough
+      params[:timeoutSec] ||= 10
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                     {},
@@ -154,10 +160,7 @@ module KillBillIntegrationTests
                                     {
                                     }.merge(options)
 
-      ini=Time.now; sleep 5; fini=Time.now;
       JSON.parse res.body
     end
-
-
   end
 end

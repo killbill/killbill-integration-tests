@@ -26,7 +26,7 @@ module KillBillIntegrationTests
 
       catalog_file_xml_result_1 = KillBillClient::Model::Catalog.get_tenant_catalog(@options)
 
-      wait_for_killbill
+      wait_for_killbill(@options)
 
       reset_killbill_client_url(DEFAULT_KB_ADDRESS, '8081')
 

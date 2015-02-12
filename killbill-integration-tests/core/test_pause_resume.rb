@@ -477,7 +477,7 @@ module KillBillIntegrationTests
       pause_bundle(bp.bundle_id, '2013-09-05', @user, @options)
 
       # Here all we can do is wait; we are waiting to check there is NO change in the system, no nothing to check against
-      wait_for_killbill
+      wait_for_killbill(@options)
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
