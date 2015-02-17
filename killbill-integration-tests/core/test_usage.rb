@@ -25,7 +25,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Super', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
 
       # Create Add-on
@@ -62,7 +62,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-08-31' => Should see usage for '2013-08-1'
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -76,7 +76,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-09-30' => Should see usage for '2013-08-31' that was previously recorded
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -90,7 +90,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-10-31' => Should see no usage
       #
       kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -106,7 +106,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
@@ -136,7 +136,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-09-01' (we moved 1 day after BCD on purpose)
       #
       kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -154,7 +154,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
@@ -170,7 +170,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-08-31'
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -189,7 +189,7 @@ module KillBillIntegrationTests
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -210,7 +210,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Super', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
 
       # Create Add-on
@@ -222,7 +222,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-08-31' so as to NOT BE in trial and EOT cancellation works as expected
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -252,7 +252,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-09-30' => The ADD_ON is effectively cancelled and we should see usage for '2013-08-31' that was previously recorded
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -283,7 +283,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Super', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
 
       # Create Add-on
@@ -295,7 +295,7 @@ module KillBillIntegrationTests
       # Move to next invoice => Date = '2013-08-31' so as to NOT BE in trial and EOT cancellation works as expected
       #
       kb_clock_add_days(30, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -321,7 +321,7 @@ module KillBillIntegrationTests
 
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
 
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)

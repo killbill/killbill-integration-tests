@@ -124,13 +124,13 @@ module KillBillIntegrationTests
     #
     # Pass a block the will be evaluated until either we match expected value ort we timeout
     #
-    def wait_for_expected_clause(expected, args)
+    def wait_for_expected_clause(expected, args, options)
       begin
         Timeout::timeout(TIMEOUT_SEC) do
           while true do
             nb_invoices = yield(args)
             return if nb_invoices == expected
-            wait_for_killbill
+            wait_for_killbill(options)
           end
         end
       rescue Timeout::Error => e

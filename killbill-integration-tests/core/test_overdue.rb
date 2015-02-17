@@ -156,13 +156,13 @@ module KillBillIntegrationTests
     def go_through_all_overdue_stages(account, expected_last_stage, start_date=DEFAULT_KB_INIT_DATE, options=@options)
       bp = create_entitlement_base(account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', start_date, nil)
-      wait_for_expected_clause(1, account) do |account|
+      wait_for_expected_clause(1, account, options) do |account|
         account.invoices(false, options).size
       end
 
       # Move out of trial
       kb_clock_add_days(31, nil, options)
-      wait_for_expected_clause(2, account) do |account|
+      wait_for_expected_clause(2, account, options) do |account|
         account.invoices(false, options).size
       end
       # Move to first overdue stage

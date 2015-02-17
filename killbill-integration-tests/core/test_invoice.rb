@@ -26,7 +26,7 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(1, all_invoices.size)
@@ -54,7 +54,7 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(1, all_invoices.size)
@@ -82,14 +82,14 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       dry_run_invoice = create_subscription_dry_run(@account.account_id, bp.bundle_id, nil, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', @options)
       check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
 
 
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -103,10 +103,10 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Super', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       kb_clock_add_days(30, nil, @options) # 31/08/2013
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # First dry run chg in the future by using default policy EOT as configured in the catalog
       requested_date = nil
@@ -126,7 +126,7 @@ module KillBillIntegrationTests
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'CBA_ADJ', 500.00), dry_run_invoice.invoice_id, 500.00, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
 
       bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
@@ -141,10 +141,10 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Super', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       kb_clock_add_days(30, nil, @options) # 31/08/2013
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
 
       # First dry run cancel in the future by using default policy EOT as configured in the catalog
@@ -165,7 +165,7 @@ module KillBillIntegrationTests
 
       bp.cancel(@user, nil, nil, requested_date, nil, billing_policy, nil, @options)
 
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
@@ -179,19 +179,19 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01
       kb_clock_add_days(30, nil, @options) # 31/08/2013
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Add a few days before change takes place to trigger a partial repair
       # Invoice AO with monthly EVERGREEN and BUNDLE aligned from 2013-09-01 -> 2013-09-30
       kb_clock_add_days(1, nil, @options) # 01/09/2013
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013--31 -> 2013-09-30,
       kb_clock_add_days(4, nil, @options) # 05/09/2013
@@ -215,7 +215,7 @@ module KillBillIntegrationTests
       # 2. In the other case whe get a first invoice for the adjustment on the ADD_ON  REPAIR_ADJ -6.41, CBA_ADJ +6.41 and a second invoice with REPAIR_ADJ of  -416.67 and CBA_ADJ  -6.41
 
       #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
-      #wait_for_expected_clause(5, @account, &@proc_account_invoices_nb)
+      #wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
       #all_invoices = @account.invoices(true, @options)
       #sort_invoices!(all_invoices)
       #assert_equal(5, all_invoices.size)
@@ -231,19 +231,19 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01
       kb_clock_add_days(30, nil, @options) # 31/08/2013
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Add a few days before change takes place to trigger a partial repair
       # Invoice AO with monthly EVERGREEN and BUNDLE aligned from 2013-09-01 -> 2013-09-30
       kb_clock_add_days(1, nil, @options) # 01/09/2013
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       kb_clock_add_days(4, nil, @options) # 05/09/2013
 

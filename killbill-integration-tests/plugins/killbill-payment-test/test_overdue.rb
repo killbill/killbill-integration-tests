@@ -40,11 +40,11 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move out of trial
       kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move to first overdue phase and make a payment -- configured to fail
       kb_clock_add_days(30, nil, @options)

@@ -23,12 +23,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
@@ -49,7 +49,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock to create ADD_ON a bit later (BP still in trial)
       kb_clock_add_days(15, nil, @options) # "2013-08-16"
@@ -57,7 +57,7 @@ module KillBillIntegrationTests
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock before cancellation (BP still in trial)
       kb_clock_add_days(5, nil, @options) # "2013-08-21"
@@ -99,7 +99,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock to create ADD_ON a bit later (BP still in trial)
       kb_clock_add_days(15, nil, @options) # 16/08/2013
@@ -107,7 +107,7 @@ module KillBillIntegrationTests
       # Create Add-on
       ao_entitlement = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock after trial before cancellation
       kb_clock_add_days(16, nil, @options) # 01/09/2013
@@ -151,12 +151,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days(BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -196,12 +196,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days(BP after TRIAL)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
@@ -240,12 +240,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days(BP after TRIAL)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
@@ -285,12 +285,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # All default, system will cancel IMM for entitlement and billing EOT since we are past trial
       requested_date = nil
@@ -322,12 +322,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days(BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -356,12 +356,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -388,12 +388,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and by a few days(BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -428,7 +428,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -436,7 +436,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
@@ -475,7 +475,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -483,7 +483,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
@@ -510,7 +510,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -518,7 +518,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
@@ -593,7 +593,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -601,7 +601,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
@@ -676,7 +676,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -684,11 +684,11 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Let's verify invoice completed its work correctly and set the CTD correctly on both subscription
@@ -704,7 +704,7 @@ module KillBillIntegrationTests
 
       # Move clock to pass AO PHASE
       kb_clock_add_days(1, nil, @options) # 01/09/2013
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Will future cancel BP on  2013-09-30 (and AO should reflect that as well)
@@ -766,7 +766,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -774,7 +774,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
       kb_clock_add_days(26, nil, @options) # 31/08/2013
@@ -793,7 +793,7 @@ module KillBillIntegrationTests
 
       # Move clock to pass AO PHASE
       kb_clock_add_days(1, nil, @options) # 01/09/2013
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Will future cancel BP on  2013-09-30 (and AO should reflect that as well)
@@ -864,7 +864,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -872,7 +872,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Let's verify invoice completed its work correctly and set the CTD correctly on both subscription
@@ -920,7 +920,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -928,7 +928,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Let's verify invoice completed its work correctly and set the CTD correctly on both subscription
@@ -984,7 +984,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock and create Add-on 1  (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
@@ -992,7 +992,7 @@ module KillBillIntegrationTests
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Let's verify invoice completed its work correctly and set the CTD correctly on both subscription
@@ -1046,12 +1046,12 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock after before cancellation (BP still in trial)
       kb_clock_add_days(3, nil, @options) # 04/08/2013
@@ -1063,7 +1063,7 @@ module KillBillIntegrationTests
       use_requested_date_for_billing = nil
 
       ao1.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       assert_not_nil(subscriptions)
@@ -1075,7 +1075,7 @@ module KillBillIntegrationTests
       # Create Add-on 2
       ao2 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", nil)
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       requested_date = nil
       entitlement_policy = "END_OF_TERM"

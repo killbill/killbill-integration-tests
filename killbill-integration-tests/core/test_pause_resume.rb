@@ -26,13 +26,13 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -44,7 +44,7 @@ module KillBillIntegrationTests
       pause_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify new invoice is generated for when we block
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(3, all_invoices.size)
@@ -66,7 +66,7 @@ module KillBillIntegrationTests
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify new invoice is generated for when we unblock
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
@@ -98,7 +98,7 @@ module KillBillIntegrationTests
       # First invoice 2013-08-01 -> 2013-08-31 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock 1 day (2013-08-02)
       kb_clock_add_days(1, nil, @options)
@@ -305,13 +305,13 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -321,7 +321,7 @@ module KillBillIntegrationTests
       # Third invoice
       # Move clock
       kb_clock_add_days(30, nil, @options) # 30/09/2013
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -342,7 +342,7 @@ module KillBillIntegrationTests
 
       @account.remove_auto_invoicing_off(@user, 'test_pause_resume_in_the_past', 'Re-enable invoice prior pause/resume', @options)
 
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
@@ -356,7 +356,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
       # Move clock  (BP out of trial)
@@ -375,7 +375,7 @@ module KillBillIntegrationTests
       ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-09-02', nil)
 
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
@@ -389,7 +389,7 @@ module KillBillIntegrationTests
       pause_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify we generated a new invoice
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
@@ -416,7 +416,7 @@ module KillBillIntegrationTests
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify last invoice was adjusted
-      wait_for_expected_clause(5, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       assert_equal(5, all_invoices.size)
       sort_invoices!(all_invoices)
@@ -457,13 +457,13 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
@@ -498,7 +498,7 @@ module KillBillIntegrationTests
       # Move clock to reach pause
       kb_clock_add_days(5, nil, @options) # 5/09/2013
 
-      wait_for_expected_clause(3, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(3, all_invoices.size)
@@ -520,7 +520,7 @@ module KillBillIntegrationTests
       resume_bundle(bp.bundle_id, nil, @user, @options)
 
       # Verify we generate a new invoice
-      wait_for_expected_clause(4, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)

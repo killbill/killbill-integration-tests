@@ -24,7 +24,7 @@ module KillBillIntegrationTests
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      wait_for_expected_clause(1, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
 
       # Check active bundle
@@ -33,7 +33,7 @@ module KillBillIntegrationTests
 
       # Move clock  (BP after trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
-      wait_for_expected_clause(2, @account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock  (BP after trial)
       kb_clock_add_days(1, nil, @options) # 01/09/2013
@@ -42,7 +42,7 @@ module KillBillIntegrationTests
 
       # By default will trigger an EOT cancellation for billing , but immediate transfer
       new_bundle = transfer_bundle(new_account.account_id, bp.bundle_id, nil, nil, @user, @options)
-      wait_for_expected_clause(1, new_account, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, new_account, @options, &@proc_account_invoices_nb)
 
       # Verify state of the old bundle (entitlement and billing cancelled date should be set to the transfer date)
       subscriptions = get_subscriptions(bp.bundle_id, @options)
