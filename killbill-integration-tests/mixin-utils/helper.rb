@@ -118,7 +118,7 @@ module KillBillIntegrationTests
                                     {
                                     }.merge(options)
 
-      puts 'wait_for_killbill: timed out' if res.code.to_i != 200
+      assert(res.code.to_i == 200, 'wait_for_killbill: timed out')
     end
 
     #
