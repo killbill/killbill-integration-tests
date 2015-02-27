@@ -28,7 +28,7 @@ module KillBillIntegrationTests
     def test_authorize_success
       authorize = 'AUTHORIZE'
       success   = 'SUCCESS'
-      payment_key      = 'payment-' + Time.now.to_i.to_s
+      payment_key      = 'payment-' + rand(1000000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -41,7 +41,7 @@ module KillBillIntegrationTests
 
     # The plugin will throw a RuntimeException. Current behavior is to throw 500, so test verifies that, but should we really throw 500? Probably not...
     def test_authorize_plugin_exception
-      payment_key = 'payment1-' + Time.now.to_i.to_s
+      payment_key = 'payment1-' + rand(1000000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -61,7 +61,7 @@ module KillBillIntegrationTests
 
    # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
     def test_authorize_plugin_timedout
-      payment_key = 'payment2-' + Time.now.to_i.to_s
+      payment_key = 'payment2-' + rand(1000000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -77,7 +77,7 @@ module KillBillIntegrationTests
     end
 
     def test_authorize_with_nil_result
-      payment_key      = 'payment3-' + Time.now.to_i.to_s
+      payment_key      = 'payment3-' + rand(1000000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')

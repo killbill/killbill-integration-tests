@@ -8,9 +8,8 @@ module KillBillIntegrationSeed
   class TestBillingAlignment < TestSeedBase
 
     def setup
-      @user = "admin"
       @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_seed_base(@user, @init_clock)
+      setup_seed_base(@init_clock)
     end
 
 

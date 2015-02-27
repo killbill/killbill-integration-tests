@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestInvoiceTemplate < Base
 
     def setup
-      @user = "InvoiceTemplate"
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil

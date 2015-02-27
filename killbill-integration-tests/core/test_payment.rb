@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestPayment < Base
 
     def setup
-      @user = "Payment"
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil
@@ -28,9 +27,9 @@ module KillBillIntegrationTests
       void      = 'VOID'
       success   = 'SUCCESS'
 
-      payment1_key      = 'payment1-' + Time.now.to_i.to_s
+      payment1_key      = 'payment1-' + rand(1000000).to_s
       payment1_currency = 'BTC'
-      payment2_key      = 'payment2-' + Time.now.to_i.to_s
+      payment2_key      = 'payment2-' + rand(1000000).to_s
       payment2_currency = 'USD'
 
       # Auth the first payment
@@ -58,7 +57,7 @@ module KillBillIntegrationTests
 
       # Try to capture the second auth
       assert_raise 'Invalid transition' do
-        create_capture(auth2.payment_id, Time.now.to_i.to_s, '12', payment2_currency, @user, @options)
+        create_capture(auth2.payment_id, rand(1000000).to_s, '12', payment2_currency, @user, @options)
       end
 
       # Partially capture the first auth

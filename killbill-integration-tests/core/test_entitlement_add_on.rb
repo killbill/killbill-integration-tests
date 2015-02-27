@@ -7,9 +7,7 @@ module KillBillIntegrationTests
   class TestEntitlementAddOn < Base
 
     def setup
-      @user = "EntitlementAddOn"
-      setup_base(@user)
-
+      setup_base
       # Create account
       default_time_zone = nil
       @account = create_account(@user, default_time_zone, @options)

@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestTransfer < Base
 
     def setup
-      @user = "EntitlementTransfer"
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil

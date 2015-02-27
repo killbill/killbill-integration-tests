@@ -9,8 +9,7 @@ module KillBillIntegrationTests
   class TestEntitlementChangePlanTest < Base
 
     def setup
-      @user = "EntitlementChangePlanTest"
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil

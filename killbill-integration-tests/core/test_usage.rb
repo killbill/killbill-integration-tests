@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestUsage < Base
 
     def setup
-      @user = "Usage"
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil

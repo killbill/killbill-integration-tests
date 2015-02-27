@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestOverdue < Base
 
     def setup
-      @user = 'Overdue'
-      setup_base(@user)
+      setup_base
 
       # Create a second tenant
       @options2              = {:username => 'admin', :password => 'password'}

@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestPauseResume < Base
 
     def setup
-      @user = 'TestPauseResume'
-      setup_base(@user)
+      setup_base
 
       # Create account
       default_time_zone = nil

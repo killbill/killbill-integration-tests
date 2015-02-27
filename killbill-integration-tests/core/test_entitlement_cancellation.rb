@@ -7,9 +7,7 @@ module KillBillIntegrationTests
   class TestEntitlementCancellation < Base
 
     def setup
-      @user = "EntitlementCancellationTest"
-      setup_base(@user)
-
+      setup_base
       # Create account
       default_time_zone = nil
       @account = create_account(@user, default_time_zone, @options)

@@ -1,6 +1,7 @@
 module KillBillIntegrationTests
   module EntitlementHelper
 
+
     def transfer_bundle(new_account_id, bundle_id, requested_date, billing_policy, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.account_id = new_account_id
@@ -56,7 +57,7 @@ module KillBillIntegrationTests
 
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id if category == 'BASE'
-      result.external_key = "#{account_id}-" + Time.now.to_i.to_s if category == 'BASE'
+      result.external_key = "#{account_id}-" + rand(1000000).to_s if category == 'BASE'
       result.bundle_id = bundle_id if category == 'ADD_ON'
       result.product_name = product_name
       result.product_category = category

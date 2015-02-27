@@ -6,7 +6,7 @@ module KillBillIntegrationSeed
 
   class TestSeedBase < KillBillIntegrationTests::Base
 
-    def setup_seed_base(user, init_clock)
+    def setup_seed_base(init_clock)
 
       tenant_info = {}
       tenant_info[:use_multi_tenant] = true
@@ -14,7 +14,7 @@ module KillBillIntegrationSeed
       tenant_info[:external_key] = 'SEED_KEY'
       tenant_info[:api_key] = 'SEED_API_KEY'
       tenant_info[:api_secret] = 'SEED_API_$3CR3T'
-      setup_base(user, tenant_info, init_clock)
+      setup_base(self.method_name, tenant_info, init_clock)
     end
   end
 end

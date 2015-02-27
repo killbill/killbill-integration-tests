@@ -7,8 +7,8 @@ module KillBillIntegrationTests
   class TestCatalog < Base
 
     def setup
-      @user = 'Catalog'
-      setup_base(@user)
+
+      setup_base
 
       upload_catalog('Catalog-v1.xml', @user, @options)
 

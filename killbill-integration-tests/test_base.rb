@@ -22,8 +22,9 @@ module KillBillIntegrationTests
     DEFAULT_MULTI_TENANT_INFO = {:use_multi_tenant => true,
                                  :create_multi_tenant => true}
 
-    def setup_base(user, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
+    def setup_base(user=self.method_name, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
 
+      @user = user
       # Default running instance of Kill Bill server
       reset_killbill_client_url(killbill_address, killbill_port)
 

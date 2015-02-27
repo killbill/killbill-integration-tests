@@ -7,8 +7,7 @@ module KillBillIntegrationTests
   class TestTenant < Base
 
     def setup
-      @user = 'Tenant'
-      setup_base(@user)
+      setup_base
 
       # Create a second tenant
       @options2              = {:username => 'admin', :password => 'password'}
