@@ -56,6 +56,31 @@ module KillBillIntegrationTests
       tenant
     end
 
+    def create_tenant_if_does_not_exist(external_key, api_key, api_secret, user, options)
+
+
+      begin
+        tenant = KillBillClient::Model::Tenant.find_by_api_key(api_key, options)
+        tenant.api_secret = api_secret
+        return
+      rescue KillBillClient::API::Unauthorized => e
+      end
+
+
+      tenant = KillBillClient::Model::Tenant.new
+      tenant.external_key = external_key
+      tenant.api_key = api_key
+      tenant.api_secret = api_secret
+
+      tenant = tenant.create(user, nil, nil, options)
+      assert_not_nil(tenant)
+      assert_not_nil(tenant.tenant_id)
+      # Set the secret key again before returning as this is not returned by the server
+      tenant.api_secret = api_secret
+      tenant
+
+    end
+
     def add_payment_method(account_id, plugin_name, is_default, plugin_info, user, options)
       pm = KillBillClient::Model::PaymentMethod.new
       pm.account_id = account_id

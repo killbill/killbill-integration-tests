@@ -16,6 +16,10 @@ module KillBillIntegrationTests
       all_invoices
     end
 
+    def get_invoice_payment(payment_id, options)
+      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, options)
+    end
+
     def get_invoice_by_id(id, options)
       KillBillClient::Model::Invoice.find_by_id_or_number(id, true, "NONE", options)
     end

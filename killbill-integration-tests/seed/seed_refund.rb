@@ -1,17 +1,18 @@
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
 
-require 'test_base'
+require 'seed_base'
 
 module KillBillIntegrationSeed
 
-  class TestRefund < KillBillIntegrationTests::Base
+  class TestRefund < TestSeedBase
 
     def setup
       @user = "admin"
       @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_base(@user, false, @init_clock)
-
+      setup_seed_base(@user, @init_clock)
     end
+
 
     def teardown
       teardown_base
@@ -53,7 +54,7 @@ module KillBillIntegrationSeed
 
       payments = get_payments_for_account(@jeanpoquelin.account_id, @options)
 
-      refund(payments[0].payment_id, payments[0].amount, false, nil, @user, @options)
+      refund(payments[0].payment_id, payments[0].purchased_amount, nil, @user, @options)
 
     end
 
@@ -93,14 +94,16 @@ module KillBillIntegrationSeed
 
       payments = get_payments_for_account(@agostinogiordano.account_id, @options)
 
-      invoice = get_invoice_by_id(payments[0].invoice_id, @options)
+      invoice_payment = get_invoice_payment(payments[0].payment_id, @options)
+
+      invoice = get_invoice_by_id(invoice_payment.target_invoice_id, @options)
 
       adjustments = []
       adjustments << {:invoice_item_id => invoice.items[0].invoice_item_id,
                       :currency => 'EUR',
                       :amount => invoice.items[0].amount}
 
-      refund(payments[0].payment_id, payments[0].amount, true, adjustments, @user, @options)
+      refund(payments[0].payment_id, payments[0].purchased_amount, adjustments, @user, @options)
 
     end
 

@@ -1,16 +1,16 @@
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
 
-require 'test_base'
+require 'seed_base'
 
 module KillBillIntegrationSeed
 
-  class TestSubscriptionAlignment < KillBillIntegrationTests::Base
+  class TestSubscriptionAlignment < TestSeedBase
 
     def setup
       @user = "admin"
       @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_base(@user, false, @init_clock)
-
+      setup_seed_base(@user, @init_clock)
     end
 
     def teardown
@@ -67,8 +67,6 @@ module KillBillIntegrationSeed
       kb_clock_add_days(3, nil, @options)   # 03/14/2013
 
       base.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
-      ao1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
-      ao2.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
     end
 
   end

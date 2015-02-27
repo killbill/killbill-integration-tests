@@ -1,17 +1,18 @@
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
 
-require 'test_base'
+require 'seed_base'
 
 module KillBillIntegrationSeed
 
-  class TestBillingAlignment < KillBillIntegrationTests::Base
+  class TestBillingAlignment < TestSeedBase
 
     def setup
       @user = "admin"
       @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_base(@user, false, @init_clock)
-
+      setup_seed_base(@user, @init_clock)
     end
+
 
     def teardown
       teardown_base

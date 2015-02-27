@@ -62,6 +62,17 @@ namespace :test do
                             "#{BASE_DIR}/plugins/multi-nodes/test_*.rb"]
     t.verbose    = true
   end
+
+  Rake::TestTask.new('seed') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/seed/seed_account_timezone.rb",
+                            "#{BASE_DIR}/seed/seed_billing_alignment.rb",
+                            "#{BASE_DIR}/seed/seed_refund.rb",
+                            "#{BASE_DIR}/seed/seed_subscription_alignment.rb",
+                            "#{BASE_DIR}/seed/seed_subscription_cancellation.rb"]
+    t.verbose    = true
+  end
+
 end
 
 # Run tests by default
