@@ -26,6 +26,24 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+
+    def test_plugin_config
+      plugin_name = 'PLUGIN_XXX'
+      result = upload_plugin_config(plugin_name, 'plugin.yml', @user, @options2)
+      assert_equal('PLUGIN_CONFIG_PLUGIN_XXX', result.key)
+      assert_equal(1, result.values.size)
+
+      result = get_plugin_config(plugin_name, @options2)
+      assert_equal('PLUGIN_CONFIG_PLUGIN_XXX', result.key)
+      assert_equal(1, result.values.size)
+
+      delete_plugin_config(plugin_name, @user, @options2)
+      result = get_plugin_config(plugin_name, @options2)
+      assert_equal('PLUGIN_CONFIG_PLUGIN_XXX', result.key)
+      assert_equal(0, result.values.size)
+
+    end
+
     def test_cross_tenants_operations
       check_clean_accounts
 
@@ -72,4 +90,5 @@ module KillBillIntegrationTests
       assert_equal(0, account.payments(options).size)
     end
   end
+
 end
