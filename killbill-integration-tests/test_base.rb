@@ -24,7 +24,9 @@ module KillBillIntegrationTests
 
     def setup_base(user=self.method_name, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
 
-      @user = user
+      # make sure this fits into 50 characters
+      @user = user.slice(0..45)
+
       # Default running instance of Kill Bill server
       reset_killbill_client_url(killbill_address, killbill_port)
 
@@ -34,14 +36,14 @@ module KillBillIntegrationTests
       # Create tenant and provide options for multi-tenants headers(X-Killbill-ApiKey/X-Killbill-ApiSecret)
       if tenant_info[:use_multi_tenant]
         if tenant_info[:create_multi_tenant]
-          tenant = setup_create_tenant(user, @options)
+          tenant = setup_create_tenant(@user, @options)
           @options[:api_key] = tenant.api_key
           @options[:api_secret] = tenant.api_secret
         # Reuse mt
         else
           @options[:api_key] = tenant_info[:api_key]
           @options[:api_secret] = tenant_info[:api_secret]
-          create_tenant_if_does_not_exist(tenant_info[:external_key], tenant_info[:api_key], tenant_info[:api_secret], user, @options)
+          create_tenant_if_does_not_exist(tenant_info[:external_key], tenant_info[:api_key], tenant_info[:api_secret], @user, @options)
         end
       end
 
