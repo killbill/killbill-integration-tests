@@ -14,78 +14,87 @@ end
 test do
   header COMMON_HEADERS
 
-  threads count: NB_THREADS.to_i, rampup: 30, duration: DURATION.to_i do
-    uuid = '${__UUID()}'
-    counter = '${__counter(false)}'
+  threads count: NB_THREADS.to_i, rampup: 30, duration: DURATION.to_i, on_sample_error: 'startnextloop' do
 
-    #
-    # Create account
-    #
+    transaction 'Create an account and trigger a payment' do
+      counter = '${__counter(false)}'
 
-    first, last = "John #{counter}", "Bill"
-    account = {
-      name: "#{first} #{last}",
-      email: "johny#{counter}-#{START_TIME}@killbill.test",
-      currency: 'USD'
-    }
-    post name: :'Create Account',
-         url: KB_ACCOUNTS_URL,
-         raw_body: account.to_json,
-         headers: true do
-      extract name: 'account_id',
-              regex: LOCATION_ID_REGEX,
-              headers: true
-    end
+      #
+      # Create account
+      #
 
-    #
-    # Add default payment method
-    #
-
-    payment_method_body_body = {
-      pluginName: PLUGIN,
-      pluginInfo: {
-        properties: [
-          { key: 'email', value: account[:email] },
-          { key: 'description', value: START_TIME },
-          { key: 'ccFirstName', value: first },
-          { key: 'ccLastName',  value: last },
-          { key: 'ccNumber', value: '4242424242424242' },
-          { key: 'ccExpirationYear', value: '2020' },
-          { key: 'ccExpirationMonth', value: '10' },
-        ]
+      first, last = "John #{counter}", "Bill"
+      account = {
+          name: "#{first} #{last}",
+          email: "johny#{counter}-#{START_TIME}@killbill.test",
+          currency: 'USD'
       }
-    }
-    post name: :'Add default Payment Method',
-         url: "#{KB_ACCOUNTS_URL}/${account_id}/paymentMethods?isDefault=true&#{PLUGIN_PROPERTIES}",
-         raw_path: true,
-         raw_body: payment_method_body_body.to_json do
-      extract name: 'payment_method_id',
-              regex: LOCATION_ID_REGEX,
-              headers: true
-    end
+      post name: :'Create Account',
+           url: KB_ACCOUNTS_URL,
+           raw_body: account.to_json,
+           headers: true do
+        assert equals: 201, test_field: 'Assertion.response_code'
+        extract name: 'account_id',
+                regex: LOCATION_ID_REGEX,
+                headers: true
+      end
 
-    #
-    # Trigger payment
-    #
+      exists 'account_id' do
+        #
+        # Add default payment method
+        #
 
-    payment_body = {
-      transactionType: 'PURCHASE',
-      amount: 10,
-      currency: account['currency']
-    }
-    post name: :"Purchase Payment",
-         url: "#{KB_ACCOUNTS_URL}/${account_id}/payments?#{PLUGIN_PROPERTIES}",
-         raw_path: true,
-         raw_body: payment_body.to_json do
+        payment_method_body_body = {
+            pluginName: PLUGIN,
+            pluginInfo: {
+                properties: [
+                    {key: 'email', value: account[:email]},
+                    {key: 'description', value: START_TIME},
+                    {key: 'ccFirstName', value: first},
+                    {key: 'ccLastName', value: last},
+                    {key: 'ccNumber', value: '4242424242424242'},
+                    {key: 'ccExpirationYear', value: '2020'},
+                    {key: 'ccExpirationMonth', value: '10'},
+                ]
+            }
+        }
+        post name: :'Add default Payment Method',
+             url: "#{KB_ACCOUNTS_URL}/${account_id}/paymentMethods?isDefault=true&#{PLUGIN_PROPERTIES}",
+             raw_path: true,
+             raw_body: payment_method_body_body.to_json do
+          assert equals: 201, test_field: 'Assertion.response_code'
+          extract name: 'payment_method_id',
+                  regex: LOCATION_ID_REGEX,
+                  headers: true
+        end
+
+        exists 'payment_method_id' do
+          #
+          # Trigger payment
+          #
+
+          payment_body = {
+              transactionType: 'PURCHASE',
+              amount: 10,
+              currency: account['currency']
+          }
+          post name: :"Purchase Payment",
+               url: "#{KB_ACCOUNTS_URL}/${account_id}/payments?#{PLUGIN_PROPERTIES}",
+               raw_path: true,
+               raw_body: payment_body.to_json do
+            assert equals: 201, test_field: 'Assertion.response_code'
+          end
+        end
+      end
     end
   end
 
   set_up_thread_group &DEFAULT_SETUP
   tear_down_thread_group &DEFAULT_TEARDOWN
 end.run(
-  debug: ENV['DEBUG'] || false,
-  properties: "#{BASE_DIR}/jmeter.properties",
-  file: "#{LOGS_PREFIX}.jmx",
-  log:  "#{LOGS_PREFIX}.log",
-  jtl:  "#{LOGS_PREFIX}.jtl"
+    debug: ENV['DEBUG'] || false,
+    properties: "#{BASE_DIR}/jmeter.properties",
+    file: "#{LOGS_PREFIX}.jmx",
+    log: "#{LOGS_PREFIX}.log",
+    jtl: "#{LOGS_PREFIX}.jtl"
 )
