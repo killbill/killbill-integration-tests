@@ -2,6 +2,7 @@ require 'rubygems'
 require 'ruby-jmeter'
 
 require 'ext/regular_expression_extractor.rb'
+require 'ext/save_responses_to_a_file.rb'
 require 'ext/dsl.rb'
 
 BASE_DIR = "#{File.expand_path(File.dirname(__FILE__))}"
