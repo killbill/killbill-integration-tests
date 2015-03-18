@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'ruby-jmeter'
+require 'base64'
 
 require 'ext/regular_expression_extractor.rb'
 require 'ext/save_responses_to_a_file.rb'
@@ -21,7 +22,7 @@ KB_ROOT = File.join(KB_URL, '/1.0/kb')
 KB_ACCOUNTS_URL = "#{KB_ROOT}/accounts"
 
 COMMON_HEADERS = [
-  { name: 'Authorization', value: 'Basic YWRtaW46cGFzc3dvcmQ=' },
+  { name: 'Authorization', value: 'Basic ' + Base64.encode64("#{ENV['USERNAME'] || 'admin'}:#{ENV['PASSWORD'] || 'password'}").chomp },
   { name: 'X-Killbill-ApiKey',    value: ENV['API_KEY'] || 'bob' },
   { name: 'X-Killbill-ApiSecret', value: ENV['API_SECRET'] || 'lazar' },
   { name: 'X-Killbill-CreatedBy', value: ENV['CREATED_BY'] || 'JMeter' },
