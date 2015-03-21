@@ -31,6 +31,10 @@ module KillBillIntegrationTests
       resource_content
     end
 
+    def get_tenant_catalog(options)
+      KillBillClient::Model::Catalog.get_tenant_catalog(options)
+    end
+
     def upload_catalog(name, user, options)
       catalog_file_xml = get_resource_as_string(name)
       KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
