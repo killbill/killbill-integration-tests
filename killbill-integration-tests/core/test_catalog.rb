@@ -268,7 +268,7 @@ module KillBillIntegrationTests
     end
 
     def create_ao_entitlement(bp, invoice_nb, product, billing_period='MONTHLY', start_date='2013-08-01', amount=1000.0, invoice_date=start_date)
-      ao = create_entitlement_ao(bp.bundle_id, product, billing_period, 'DEFAULT', @user, @options)
+      ao = create_entitlement_ao(@account.account_id, bp.bundle_id, product, billing_period, 'DEFAULT', @user, @options)
       check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', start_date, nil, start_date, nil)
       check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, start_date)
       ao

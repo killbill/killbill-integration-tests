@@ -371,7 +371,7 @@ module KillBillIntegrationTests
       # Move clock  and create ao
       # Third invoice : 2/09/2013 -> 30/09/2013
       kb_clock_add_days(2, nil, @options) # 2/09/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-09-02', nil)
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)

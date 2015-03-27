@@ -24,7 +24,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -53,7 +53,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(15, nil, @options) # "2013-08-16"
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -103,7 +103,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(15, nil, @options) # 16/08/2013
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -152,7 +152,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -197,7 +197,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -241,7 +241,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -286,7 +286,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -323,7 +323,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -357,7 +357,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -389,7 +389,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -432,7 +432,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -479,7 +479,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -514,7 +514,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -597,7 +597,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -680,7 +680,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -770,7 +770,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -868,7 +868,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -924,7 +924,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -988,7 +988,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice  05/08/2013 ->  31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -1047,7 +1047,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -1071,7 +1071,7 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-04", "2013-08-01", "2013-08-04")
 
       # Create Add-on 2
-      ao2 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao2 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", nil)
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
@@ -1107,7 +1107,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(4, nil, @options) # 05/08/2013
 
       # Second invoice 05/08/2013 -> 31/08/2013
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
       all_invoices   = check_next_invoice_amount(2, 3.35, '2013-08-05', @account, @options, &@proc_account_invoices_nb)
       second_invoice = all_invoices[1]
@@ -1118,7 +1118,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(10, nil, @options) # 15/08/2013
 
       # Third invoice 15/08/2013 -> 31/08/2013
-      ao2 = create_entitlement_ao(bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options) # (Subscription Aligned)
+      ao2 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options) # (Subscription Aligned)
       check_entitlement(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil)
       all_invoices  = check_next_invoice_amount(3, 4.13, '2013-08-15', @account, @options, &@proc_account_invoices_nb)
       third_invoice = all_invoices[2]

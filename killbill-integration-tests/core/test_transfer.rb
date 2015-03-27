@@ -80,7 +80,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(1, nil, @options) # 02/08/2013
 
       # Create Add-on 1
-      ao1 = create_entitlement_ao(bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-02", nil)
 
       # Check active bundle

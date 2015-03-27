@@ -28,7 +28,7 @@ module KillBillIntegrationTests
 
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       # Add usage on first day for prev period and first day of new period
@@ -108,7 +108,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       usage_input = [ {:unit_type => 'gallons',
@@ -156,7 +156,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       usage_input = [ {:unit_type => 'gallons',
@@ -213,7 +213,7 @@ module KillBillIntegrationTests
 
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
 
@@ -286,7 +286,7 @@ module KillBillIntegrationTests
 
 
       # Create Add-on
-      ao_entitlement = create_entitlement_ao(bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
 

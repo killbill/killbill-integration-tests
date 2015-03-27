@@ -26,8 +26,8 @@ module KillBillIntegrationTests
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, user, options)
     end
 
-    def create_entitlement_ao(bundle_id, product_name, billing_period, price_list, user, options)
-      create_entitlement('ADD_ON', nil, bundle_id, product_name, billing_period, price_list, user, options)
+    def create_entitlement_ao(account_id, bundle_id, product_name, billing_period, price_list, user, options)
+      create_entitlement('ADD_ON', account_id, bundle_id, product_name, billing_period, price_list, user, options)
     end
 
     def get_subscription(id, options)
@@ -56,7 +56,7 @@ module KillBillIntegrationTests
     def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, user, options)
 
       result = KillBillClient::Model::Subscription.new
-      result.account_id = account_id if category == 'BASE'
+      result.account_id = account_id
       result.external_key = "#{account_id}-" + rand(1000000).to_s if category == 'BASE'
       result.bundle_id = bundle_id if category == 'ADD_ON'
       result.product_name = product_name
