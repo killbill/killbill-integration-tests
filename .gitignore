@@ -2,3 +2,6 @@
 Gemfile.lock
 pkg
 examples
+jmeter.log
+killbill-integration-tests/load/jmeter/logs
+.DS_Store
