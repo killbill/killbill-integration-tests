@@ -15,11 +15,11 @@ module KillBillIntegrationTests
       account.time_zone = time_zone.nil? ? 'UTC' : time_zone
       account.address1 = '7, yoyo road'
       account.address2 = 'Apt 5'
-      account.postal_code = 10293
+      account.postal_code = 94105
       account.company = 'Unemployed'
       account.city = 'Foo'
       account.state = 'California'
-      account.country = 'LalaLand'
+      account.country = 'US'
       account.locale = 'fr_FR'
       account.is_notified_for_invoices = false
       assert_nil(account.account_id)
