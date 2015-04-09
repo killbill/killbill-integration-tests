@@ -42,4 +42,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'killbill-client', '~> 0.10.7'
   s.add_development_dependency 'rake', '>= 10.0.0'
   s.add_development_dependency 'thread', '>= 0.1.4'
+  s.add_development_dependency 'mini-smtp-server', '~> 0.0.2'
 end
