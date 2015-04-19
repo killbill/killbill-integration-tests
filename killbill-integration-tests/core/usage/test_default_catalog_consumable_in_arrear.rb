@@ -1,17 +1,15 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
 
-  class TestUsage < Base
+  class TestDefaultCatalogConsumableInArrear < Base
 
     def setup
       setup_base
 
-      # Create account
-      default_time_zone = nil
-      @account = create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown
