@@ -9,9 +9,7 @@ module KillBillIntegrationTests
     def setup
       setup_base
 
-      # Create account
-      default_time_zone = nil
-      @account = create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown
@@ -37,7 +35,7 @@ module KillBillIntegrationTests
       # Move clock  (BP after trial)
       kb_clock_add_days(1, nil, @options) # 01/09/2013
 
-      new_account = create_account(@user, nil, @options)
+      new_account = create_account(@user, @options)
 
       # By default will trigger an EOT cancellation for billing , but immediate transfer
       new_bundle = transfer_bundle(new_account.account_id, bp.bundle_id, nil, nil, @user, @options)
@@ -90,7 +88,7 @@ module KillBillIntegrationTests
       # Move clock  (BP still in trial)
       kb_clock_add_days(3, nil, @options) # 05/08/2013
 
-      new_account = create_account(@user, nil, @options)
+      new_account = create_account(@user, @options)
       new_bundle = transfer_bundle(new_account.account_id, bp.bundle_id, nil, 'IMMEDIATE', @user, @options)
 
       # Verify state of the old bundle (entitlement and billing cancelled date should be set to the transfer date)

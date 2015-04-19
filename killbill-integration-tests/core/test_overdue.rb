@@ -18,8 +18,8 @@ module KillBillIntegrationTests
       upload_overdue('Overdue.xml', @user, @options)
       upload_overdue('Overdue-v1.xml', @user, @options2)
 
-      @account  = create_account(@user, nil, @options)
-      @account2 = create_account(@user, nil, @options2)
+      @account  = create_account(@user, @options)
+      @account2 = create_account(@user, @options2)
     end
 
     def teardown
@@ -76,7 +76,7 @@ module KillBillIntegrationTests
 
       upload_overdue('Overdue-v1.xml', @user, @options)
 
-      other_account = create_account(@user, nil, @options)
+      other_account = create_account(@user, @options)
       bp            = go_through_all_overdue_stages(other_account, 'OD4', '2013-10-31')
       check_entitlement_with_events(bp,
                                     '2013-10-31',

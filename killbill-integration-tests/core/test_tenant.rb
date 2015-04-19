@@ -18,8 +18,8 @@ module KillBillIntegrationTests
       upload_catalog('Catalog-v1.xml', @user, @options)
       upload_catalog('Catalog-v2.xml', @user, @options2)
 
-      @account  = create_account(@user, nil, @options)
-      @account2 = create_account(@user, nil, @options2)
+      @account  = create_account(@user, @options)
+      @account2 = create_account(@user, @options2)
     end
 
     def teardown

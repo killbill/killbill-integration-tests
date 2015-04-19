@@ -9,8 +9,7 @@ module KillBillIntegrationTests
     def setup
       setup_base
       # Create account
-      default_time_zone = nil
-      @account = create_account(@user, default_time_zone, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown

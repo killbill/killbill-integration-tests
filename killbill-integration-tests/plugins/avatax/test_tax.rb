@@ -12,7 +12,7 @@ module KillBillIntegrationTests
       setup_base(@user, DEFAULT_MULTI_TENANT_INFO, '2014-08-01')
 
       # Create account
-      @account = create_account(@user, nil, @options)
+      @account = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
 

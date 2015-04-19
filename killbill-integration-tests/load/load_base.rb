@@ -112,7 +112,7 @@ module KillBillIntegrationTests
     end
 
     def setup_account(options)
-      account = op_create_account(@name, nil, options)
+      account = op_create_account(@name, options)
       op_add_payment_method(account.account_id, 'killbill-payment-test', true, @name, options)
       add_property('TEST_MODE', 'CONTROL', options)
       account

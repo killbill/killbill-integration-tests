@@ -7,12 +7,9 @@ module KillBillIntegrationTests
   class TestCatalog < Base
 
     def setup
-
       setup_base
-
       upload_catalog('Catalog-v1.xml', @user, @options)
-
-      @account = create_account(@user, nil, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown

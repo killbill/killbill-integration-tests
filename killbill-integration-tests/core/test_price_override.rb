@@ -8,7 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
-      @account = create_account(@user, nil, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown
