@@ -23,19 +23,24 @@ module KillBillIntegrationTests
     end
 
     def create_entitlement_base_with_overrides(account_id, product_name, billing_period, price_list, overrides, user, options)
-      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, overrides, user, options)
+      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, overrides, nil, user, options)
     end
 
+    def create_entitlement_base_with_date(account_id, product_name, billing_period, price_list, requested_date, user, options)
+      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, requested_date, user, options)
+    end
+
+
     def create_entitlement_base(account_id, product_name, billing_period, price_list, user, options)
-      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, user, options)
+      create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, nil, user, options)
     end
 
     def create_entitlement_ao_with_overrides(account_id, bundle_id, product_name, billing_period, price_list, overrides, user, options)
-      create_entitlement('ADD_ON', account_id, bundle_id, product_name, billing_period, price_list, overrides, user, options)
+      create_entitlement('ADD_ON', account_id, bundle_id, product_name, billing_period, price_list, overrides, nil, user, options)
     end
 
     def create_entitlement_ao(account_id, bundle_id, product_name, billing_period, price_list, user, options)
-      create_entitlement('ADD_ON', account_id, bundle_id, product_name, billing_period, price_list, nil, user, options)
+      create_entitlement('ADD_ON', account_id, bundle_id, product_name, billing_period, price_list, nil, nil, user, options)
     end
 
     def get_subscription(id, options)
@@ -61,7 +66,7 @@ module KillBillIntegrationTests
 
     private
 
-    def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, overrides, user, options)
+    def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, overrides, requested_date, user, options)
 
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id
@@ -73,7 +78,7 @@ module KillBillIntegrationTests
       result.price_list = price_list
       result.price_overrides = overrides unless overrides.nil?
 
-      result = result.create(user, nil, nil, options)
+      result = result.create(user, nil, nil, requested_date, nil, options)
       assert_not_nil(result.subscription_id)
 
       result
