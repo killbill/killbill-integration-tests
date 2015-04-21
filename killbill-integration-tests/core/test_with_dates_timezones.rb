@@ -33,7 +33,6 @@ module KillBillIntegrationTests
       test_scenario_fixed_price_with_future_invoice("2013-08-02T06:00:00.000Z", 'Pacific/Samoa', '2013-08-02', '2013-08-02', '2013-08-02', 1)
     end
 
-
     def test_create_subscription_with_tz_plus_9_no_requested_date
       # No requested date -> will take today's date (and all conversion in account timezone will lead to '2013-08-03' and NOT '2013-08-02')
       test_scenario_fixed_price("2013-08-02T18:00:00.000Z", 'Asia/Tokyo', nil, '2013-08-03', '2013-08-03')
@@ -64,13 +63,15 @@ module KillBillIntegrationTests
 
       @account = setup_account(account_time_zone)
 
+      bp = create_entitlement_base_with_date(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', requested_date, @user, @options)
+
       if days_before_next_invoice
         kb_clock_add_days(days_before_next_invoice, nil, @options)
+        bp = get_subscription(bp.subscription_id, @options)
       end
-      bp = create_entitlement_base_with_date(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', requested_date, @user, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
-
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', expected_subscription_date, nil, expected_subscription_date, nil)
+
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(1, all_invoices.size)
