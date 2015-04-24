@@ -15,6 +15,7 @@ module KillBillIntegrationTests
     def teardown
       teardown_base
     end
+
     #
     # Test correct usage is generated when specifying boundaries date
     #
@@ -96,6 +97,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(fourth_invoice, 1000.00, 'USD', '2013-10-31')
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-10-31', '2013-11-30')
     end
+
     #
     # Test with a few different records for the same period
     #
@@ -128,6 +130,7 @@ module KillBillIntegrationTests
       assert_equal(recorded_usage.rolled_up_units.size, 1)
       assert_equal(recorded_usage.rolled_up_units[0].amount, 10)
       assert_equal(recorded_usage.rolled_up_units[0].unit_type, 'gallons')
+
 
       #
       # Move to next invoice => Date = '2013-09-01' (we moved 1 day after BCD on purpose)
@@ -196,8 +199,52 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
       check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 79.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
       check_usage_invoice_item(third_invoice.items[2], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
-    end
 
+      #
+      # Add more usage for the last 2 periods and also new period
+      #
+      usage_input = [ {:unit_type => 'gallons',
+                       :usage_records => [{:record_date => '2013-09-3', :amount => 5 },
+                                          {:record_date => '2013-10-3', :amount => 10 }]
+                      }]
+
+      record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
+
+      kb_clock_add_days(31, nil, @options)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(4, all_invoices.size)
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 559.25, 'USD', '2013-10-31')
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-10-31', '2013-11-30')
+      check_usage_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
+      check_usage_invoice_item(fourth_invoice.items[2], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-30', '2013-10-31')
+
+      #
+      # Add more usage for the last period and the period from '2013-08-1' -> '2013-08-31'. That one should NOT be invoiced because org.killbill.invoice.readMaxRawUsagePreviousPeriod is set to 2 by default
+      #
+      usage_input = [ {:unit_type => 'gallons',
+                       :usage_records => [{:record_date => '2013-08-14', :amount => 20 },
+                                          {:record_date => '2013-11-3', :amount => 10 }]
+                      }]
+
+      record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
+
+      kb_clock_add_days(30, nil, @options)
+      wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(5, all_invoices.size)
+      fifth_invoice = all_invoices[4]
+      check_invoice_no_balance(fifth_invoice, 539.50, 'USD', '2013-11-30')
+      check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-11-30', '2013-12-31')
+      check_usage_invoice_item(fifth_invoice.items[1], fifth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-31', '2013-11-30')
+
+
+    end
 
 
     #
@@ -328,5 +375,6 @@ module KillBillIntegrationTests
       check_invoice_no_balance(third_invoice, -960.50, 'USD', '2013-08-31')
       check_usage_invoice_item(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
     end
+
   end
 end
