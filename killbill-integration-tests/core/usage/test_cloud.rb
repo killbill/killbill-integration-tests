@@ -29,7 +29,7 @@ module KillBillIntegrationTests
 
 
       #
-      # Step 1. Create a subscription associated with the account `@account` (or Project in Packet's terminology)
+      # Step 1. Create a subscription associated with the account `@account` 
       #
       bp = create_entitlement_base(@account.account_id, 'Server', 'MONTHLY', 'DEFAULT', @user, @options)
       # Test waits synchronously until the first invoice was generated ($0 invoice since no usage was recorded yet)
@@ -144,7 +144,7 @@ module KillBillIntegrationTests
       check_invoice_item(last_invoice.items[0], last_invoice.invoice_id, 0.0, 'USD', 'RECURRING', 'server-monthly', 'server-monthly-evergreen', '2013-09-01', '2013-10-01')
     end
 
-    
+
     private
 
     COMMON_YEAR_DAYS_IN_MONTH = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
