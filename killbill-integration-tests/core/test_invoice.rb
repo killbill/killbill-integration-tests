@@ -62,7 +62,8 @@ module KillBillIntegrationTests
 
 
       # Move clock to switch to next phase and generate another invoice
-      dry_run_invoice = trigger_invoice_dry_run(@account.account_id, '2013-09-01', nil, @options)
+      # Let the system compute the targetDate
+      dry_run_invoice = trigger_invoice_dry_run(@account.account_id, nil, true, @options)
       check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
 
       kb_clock_add_days(31, nil, @options)
