@@ -37,8 +37,8 @@ module KillBillIntegrationTests
       invoice_item.create(user, nil, nil, options)
     end
 
-    def trigger_invoice_dry_run(account_id, target_date, options = {})
-      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, options);
+    def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})
+      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options);
     end
 
     def create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category, billing_period,
