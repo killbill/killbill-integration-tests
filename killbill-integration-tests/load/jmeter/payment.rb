@@ -11,7 +11,7 @@ else
 end
 
 # Usage example: NB_THREADS=10 DURATION=30 SKIP_GW=true PLUGIN=killbill-litle DEBUG=true ruby payment.rb
-test do
+scenario = test do
   header COMMON_HEADERS
 
   threads count: NB_THREADS.to_i, rampup: 30, duration: DURATION.to_i, on_sample_error: 'startnextloop' do
@@ -91,10 +91,6 @@ test do
 
   set_up_thread_group &DEFAULT_SETUP
   tear_down_thread_group &DEFAULT_TEARDOWN
-end.run(
-    debug: ENV['DEBUG'] || false,
-    properties: "#{BASE_DIR}/jmeter.properties",
-    file: "#{LOGS_PREFIX}.jmx",
-    log: "#{LOGS_PREFIX}.log",
-    jtl: "#{LOGS_PREFIX}.jtl"
-)
+end
+
+run!(scenario, LOGS_PREFIX)

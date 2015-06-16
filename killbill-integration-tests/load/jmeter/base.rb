@@ -56,3 +56,22 @@ DEFAULT_TEARDOWN = Proc.new do
 end
 
 START_TIME = Time.now.strftime('%Y-%m-%d-%H:%M')
+
+def run!(scenario, logs_prefix="#{LOGS_DIR}/run_#{START_TIME}")
+  if ENV['FLOOD_API_TOKEN']
+    scenario.flood(
+      ENV['FLOOD_API_TOKEN'],
+      name: ENV['FLOOD_NAME'] || 'Load test',
+      privacy_flag: ENV['FLOOD_PRIVACY_FLAG'] || 'private',
+      grid: ENV['FLOOD_GRID']
+    )
+  else
+    scenario.run(
+        debug: ENV['DEBUG'] || false,
+        properties: "#{BASE_DIR}/jmeter.properties",
+        file: "#{logs_prefix}.jmx",
+        log: "#{logs_prefix}.log",
+        jtl: "#{logs_prefix}.jtl"
+    )
+  end
+end
