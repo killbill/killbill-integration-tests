@@ -26,7 +26,7 @@ scenario = test do
       first, last = "John #{counter}", "Bill"
       account = {
           name: "#{first} #{last}",
-          email: "johny#{counter}-#{START_TIME}@killbill.test",
+          email: "johny#{counter}-#{START_TIME}@killbill.io",
           currency: 'USD'
       }
       post name: :'Create Account',
@@ -48,10 +48,15 @@ scenario = test do
             pluginName: PLUGIN,
             pluginInfo: {
                 properties: [
-                    {key: 'email', value: account[:email]},
+                    {key: 'email', value: 'tom@killbill.io'},
                     {key: 'description', value: START_TIME},
                     {key: 'ccFirstName', value: first},
                     {key: 'ccLastName', value: last},
+                    {key: 'address1', value: '5th street'},
+                    {key: 'city', value: 'San Francisco'},
+                    {key: 'zip', value: '94111'},
+                    {key: 'state', value: 'CA'},
+                    {key: 'country', value: 'US'},
                     {key: 'ccNumber', value: '4242424242424242'},
                     {key: 'ccExpirationYear', value: '2020'},
                     {key: 'ccExpirationMonth', value: '10'},
