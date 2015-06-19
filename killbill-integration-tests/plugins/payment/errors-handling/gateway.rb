@@ -1,0 +1,76 @@
+require 'logger'
+require 'socket'
+
+class Gateway
+
+  attr_reader :host, :port
+  attr_accessor :next_response_code, :next_response, :trigger_broken_pipe, :trigger_eof_error
+
+  def initialize(logger = Logger.new(STDOUT), host = 'localhost', port = 2000)
+    @logger = logger
+    @host = host
+    @port = port
+    reset
+  end
+
+  def start
+    @server = TCPServer.new(@host, @port)
+    Thread.new do
+      while (client = @server.accept) do
+        unless @trigger_broken_pipe
+          headers = get_headers(client)
+          request = get_request(client, headers['Content-Length'])
+          write_response(client) unless @trigger_eof_error
+        end
+
+        client.close
+      end
+    end
+    @logger.info('Gateway initialized')
+  end
+
+  def stop
+    @server.close
+    @logger.info('Gateway shut down')
+  end
+
+  def reset
+    @next_response_code = 200
+    @next_response = 'OK'
+    @trigger_broken_pipe = false
+    @trigger_eof_error = false
+  end
+
+  private
+
+  def get_headers(stream)
+    request = {}
+
+    request_line = stream.readline("\r\n")
+    return unless request_line.include?('HTTP/')
+
+    stream.each_line("\r\n") do |header|
+      unless (header.include?(': ') || header.include?(":\t"))
+        # End of the request
+        break if header == "\r\n"
+      else
+        keys_and_values = header.split(':')
+        request[keys_and_values.shift] = keys_and_values.join(':').strip
+      end
+    end
+
+    @logger.info "Processing request #{request_line} with headers #{request}"
+    request
+  rescue IOError, SystemCallError => e
+    @logger.warn "Problem with request: #{e} #{request}"
+    request
+  end
+
+  def get_request(stream, length)
+    stream.read(length.to_i)
+  end
+
+  def write_response(stream)
+    stream.print "HTTP/1.1 #{@next_response_code}/Nothing\r\nContent-type:text/plain\r\n\r\n#{@next_response}"
+  end
+end
