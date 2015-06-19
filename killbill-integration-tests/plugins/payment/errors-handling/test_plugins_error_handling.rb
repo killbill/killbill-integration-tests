@@ -53,19 +53,21 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+    #
     # Tests with mis-behaving gateway
+    #
 
     def test_direct_purchase_with_broken_pipe
       setup_plugin(build_gateway_config)
 
       @@gateway.trigger_broken_pipe = true
 
-      transaction = trigger_purchase
+      transaction = trigger_purchase('UNKNOWN', 'Broken pipe - Broken pipe', 'Errno::EPIPE')
 
       @@gateway.reset
 
-      # Check the recovery behavior for the Janitor
-      check_purchase(transaction.payment_id)
+      # Check the recovery behavior for the Janitor (no-op by default)
+      check_purchase(transaction.payment_id, 'UNKNOWN', 'Broken pipe - Broken pipe', 'Errno::EPIPE')
     end
 
     def test_direct_purchase_with_eof_error
@@ -73,25 +75,28 @@ module KillBillIntegrationTests
 
       @@gateway.trigger_eof_error = true
 
-      transaction = trigger_purchase
+      transaction = trigger_purchase('UNKNOWN', 'End of file reached', 'EOFError')
 
       @@gateway.reset
 
-      # Check the recovery behavior for the Janitor
-      check_purchase(transaction.payment_id)
+      # Check the recovery behavior for the Janitor (no-op by default)
+      check_purchase(transaction.payment_id, 'UNKNOWN', 'End of file reached', 'EOFError')
     end
 
+    #
     # Tests with proxy and network issues
+    #
 
     def test_proxy_down
       setup_plugin(build_proxy_config)
 
+      transaction = nil
       toxiproxy.down do
-        transaction = trigger_purchase
+        transaction = trigger_purchase('PLUGIN_FAILURE', 'Connection refused - Connection refused', 'Errno::ECONNREFUSED')
       end
 
-      # Check the recovery behavior for the Janitor
-      check_purchase(transaction.payment_id)
+      # Check the recovery behavior for the Janitor (no-op by default)
+      check_purchase(transaction.payment_id, 'PLUGIN_FAILURE', 'Connection refused - Connection refused', 'Errno::ECONNREFUSED')
     end
 
     def test_proxy_high_latency
@@ -102,45 +107,48 @@ module KillBillIntegrationTests
         transaction = trigger_purchase
       end
 
-      # Check the recovery behavior for the Janitor
+      # Check the recovery behavior for the Janitor (no-op by default)
       check_purchase(transaction.payment_id)
     end
 
     def test_proxy_slow_close
       setup_plugin(build_proxy_config)
 
+      transaction = nil
       toxiproxy.upstream(:slow_close, :delay => 1000).downstream(:slow_close, :delay => 2000).apply do
         transaction = trigger_purchase
       end
 
-      # Check the recovery behavior for the Janitor
+      # Check the recovery behavior for the Janitor (no-op by default)
       check_purchase(transaction.payment_id)
     end
 
     def test_proxy_timeout
       setup_plugin(build_proxy_config)
 
+      transaction = nil
       toxiproxy.upstream(:timeout, :timeout => 2000).downstream(:latency, :timeout => 5000).apply do
-        transaction = trigger_purchase
+        transaction = trigger_purchase('UNKNOWN', 'End of file reached', 'EOFError')
       end
 
-      # Check the recovery behavior for the Janitor
-      check_purchase(transaction.payment_id)
+      # Check the recovery behavior for the Janitor (no-op by default)
+      check_purchase(transaction.payment_id, 'UNKNOWN', 'End of file reached', 'EOFError')
     end
 
     private
 
-    def trigger_purchase(status = 'FAILURE', gateway_error = nil, gateway_error_code = nil)
+    # Note: by default, the gateway returns 200 but with a buggy body, which is interpreted as a failed payment
+    def trigger_purchase(status = 'PAYMENT_FAILURE', gateway_error = nil, gateway_error_code = nil)
       payment_key = Time.now.to_i.to_s
       transaction = create_purchase(@account.account_id, payment_key, payment_key, 10, @account.currency, @user, @options)
 
       assert_equal(status, transaction.status)
-      assert_equal(gateway_error, transaction.gateway_error)
+      assert_equal(gateway_error, transaction.gateway_error_msg)
       assert_equal(gateway_error_code, transaction.gateway_error_code)
       transaction
     end
 
-    def check_purchase(payment_id, status = 'FAILURE', gateway_error = nil, gateway_error_code = nil)
+    def check_purchase(payment_id, status = 'PAYMENT_FAILURE', gateway_error = nil, gateway_error_code = nil)
       # TODO Implement this in the client library
       payment = KillBillClient::Model::Payment.get("#{KillBillClient::Model::Payment::KILLBILL_API_PAYMENTS_PREFIX}/#{payment_id}",
                                                    {:withPluginInfo => true},
@@ -149,7 +157,7 @@ module KillBillIntegrationTests
       transaction = payment.transactions.first
 
       assert_equal(status, transaction.status)
-      assert_equal(gateway_error, transaction.gateway_error)
+      assert_equal(gateway_error, transaction.gateway_error_msg)
       assert_equal(gateway_error_code, transaction.gateway_error_code)
       transaction
     end
@@ -157,6 +165,7 @@ module KillBillIntegrationTests
     def setup_plugin(config = build_default_config)
       # Configure the plugin to go to our gateway
       KillBillClient::Model::Tenant.upload_tenant_plugin_config(@@plugin_name, config, @user, @reason, @comment, @options)
+      sleep 1 # Wait for invalidation...
     end
 
     def build_gateway_config
