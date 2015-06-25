@@ -59,7 +59,7 @@ class Gateway
       end
     end
 
-    @logger.info "Processing request #{request_line} with headers #{request}"
+    @logger.info "Processing request #{request_line.chomp} with headers #{request}"
     request
   rescue IOError, SystemCallError => e
     @logger.warn "Problem with request: #{e} #{request}"
