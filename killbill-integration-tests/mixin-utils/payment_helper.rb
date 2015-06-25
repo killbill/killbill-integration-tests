@@ -68,7 +68,7 @@ module KillBillIntegrationTests
 
     def refreshed_transaction(payment, transaction_external_key)
       # There is no refresh in case of plugin timeout for instance
-      payment.is_a?(KillBillClient::Model::Transaction) ? payment : payment.transactions.find { |t| t.transaction_external_key == transaction_external_key }
+      payment.is_a?(KillBillClient::Model::Transaction) ? payment : payment.transactions.find { |t| t.transaction_external_key == transaction_external_key.to_s }
     end
   end
 end
