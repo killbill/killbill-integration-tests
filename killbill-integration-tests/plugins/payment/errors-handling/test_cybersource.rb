@@ -43,8 +43,9 @@ module KillBillIntegrationTests
 
       setup_plugin(build_config_with_on_demand_api)
 
-      # Should it be SUCCESS? See https://github.com/killbill/killbill/issues/341
-      transaction = trigger_purchase('UNKNOWN', 'End of file reached', 'EOFError')
+      # The transaction will be fixed on the fly (see https://github.com/killbill/killbill/issues/341)
+      # but the logs should show that the ActiveMerchant purchase call resulted in an EOFError / End of file reached error
+      trigger_purchase('SUCCESS', 'Request was processed successfully.', nil)
     end
 
     private
