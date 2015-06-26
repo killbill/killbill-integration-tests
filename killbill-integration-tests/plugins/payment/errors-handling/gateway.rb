@@ -4,7 +4,7 @@ require 'socket'
 class Gateway
 
   attr_reader :host, :port
-  attr_accessor :next_response_code, :next_response, :trigger_broken_pipe, :trigger_eof_error
+  attr_accessor :next_response_code, :next_response, :trigger_eof_error
 
   def initialize(logger = Logger.new(STDOUT), host = 'localhost', port = 2000)
     @logger = logger
@@ -17,12 +17,9 @@ class Gateway
     @server = TCPServer.new(@host, @port)
     Thread.new do
       while (client = @server.accept) do
-        unless @trigger_broken_pipe
-          headers = get_headers(client)
-          request = get_request(client, headers['Content-Length'])
-          write_response(client) unless @trigger_eof_error
-        end
-
+        headers = get_headers(client)
+        request = get_request(client, headers['Content-Length'])
+        write_response(client) unless @trigger_eof_error
         client.close
       end
     end
@@ -37,7 +34,6 @@ class Gateway
   def reset
     @next_response_code = 200
     @next_response = 'OK'
-    @trigger_broken_pipe = false
     @trigger_eof_error = false
   end
 

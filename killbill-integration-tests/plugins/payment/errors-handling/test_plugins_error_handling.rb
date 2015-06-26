@@ -48,19 +48,6 @@ module KillBillIntegrationTests
     # Tests with mis-behaving gateway
     #
 
-    def test_direct_purchase_with_broken_pipe
-      setup_plugin(build_gateway_config)
-
-      @@gateway.trigger_broken_pipe = true
-
-      transaction = trigger_purchase('UNKNOWN', 'Broken pipe - Broken pipe', 'Errno::EPIPE')
-
-      @@gateway.reset
-
-      # Check the recovery behavior for the Janitor (no-op by default)
-      check_purchase(transaction.payment_id, 'UNKNOWN', 'Broken pipe - Broken pipe', 'Errno::EPIPE')
-    end
-
     def test_direct_purchase_with_eof_error
       setup_plugin(build_gateway_config)
 
