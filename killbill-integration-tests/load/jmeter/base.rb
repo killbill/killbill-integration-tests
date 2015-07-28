@@ -20,6 +20,7 @@ KB_METRICS_URL = "#{KB_URL}/1.0/metrics?pretty=true"
 
 KB_ROOT = File.join(KB_URL, '/1.0/kb')
 KB_ACCOUNTS_URL = "#{KB_ROOT}/accounts"
+KB_PAYMENTS_URL = "#{KB_ROOT}/payments"
 
 COMMON_HEADERS = [
   ENV['JSESSIONID'] ?
