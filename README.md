@@ -27,11 +27,17 @@ First setup correct version of ruby (using rvm, or default installed ruby versio
 From there you can check the list of tests:
 ```
 > rake -T
-rake test:all              # Run tests for all
-rake test:entitlement      # Run tests for entitlement
-rake test:invoice          # Run tests for invoice
-rake test:payment          # Run tests for payment
-rake test:payment:control  # Run tests for payment:control
+rake test:all                            # Run tests for all
+rake test:core                           # Run tests for core
+rake test:core:entitlement               # Run tests for core:entitlement
+rake test:core:invoice                   # Run tests for core:invoice
+rake test:core:payment                   # Run tests for core:payment
+rake test:core:tag                       # Run tests for core:tag
+rake test:core:usage                     # Run tests for core:usage
+rake test:multi-nodes                    # Run tests for multi-nodes
+rake test:plugins:killbill-invoice-test  # Run tests for plugins:killbill-invoice-test
+rake test:plugins:killbill-payment-test  # Run tests for plugins:killbill-payment-test
+rake test:seed                           # Run tests for seed
 ```
 
 Most tests should be able to run with default kill Bill version except for the test:payment:control, which requires
@@ -64,7 +70,7 @@ By default the tests will point to the local instance of Kill Bill `KillBillClie
 
 From killbill-integration-tests, and after the setup is done, run some tests. for e.g:
 ```
-> rake test:entitlement
+> rake test:core:entitlement
 ```
 
 All tests should pass.
