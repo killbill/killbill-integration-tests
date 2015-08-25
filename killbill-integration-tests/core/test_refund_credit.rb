@@ -74,7 +74,7 @@ module KillBillIntegrationTests
       check_invoice_item(updated_second_invoice.items[1], updated_second_invoice.invoice_id, -333.33, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
       assert_equal(updated_second_invoice.balance, 0)
 
-      # Verify the account balance is 0 and there is credit available on the account
+      # Verify the account balance is 0 and there is NO credit available on the account
       refreshed_account = get_account(@account.account_id, true, true, @options)
       assert_equal(refreshed_account.account_balance, 0.0)
       assert_equal(refreshed_account.account_cba, 0.0)
