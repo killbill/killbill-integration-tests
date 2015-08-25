@@ -38,21 +38,6 @@ module KillBillIntegrationTests
     end
 
 
-    def create_refund_adj(payment_id, amount, adjustments, user, options = {})
-      item_adjustments = nil
-      if adjustments
-        item_adjustments = adjustments.map do |e|
-          item = KillBillClient::Model::InvoiceItemAttributes.new
-          item.invoice_item_id = e['invoice_item_id']
-          item.amount = e['amount']
-          item
-        end
-      end
-
-      KillBillClient::Model::InvoicePayment.refund(payment_id, amount, item_adjustments, user, nil, nil, options)
-    end
-
-
 
 
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})
