@@ -151,8 +151,7 @@ module KillBillIntegrationTests
       increment_kb_clock(nil, nil, years, nil, time_zone, options)
     end
 
-    def wait_for_killbill(options)
-      params              = {}
+    def wait_for_killbill(options, params = {})
       # The default 5s is not always enough
       params[:timeoutSec] ||= 10
 

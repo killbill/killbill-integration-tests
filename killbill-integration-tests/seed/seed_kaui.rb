@@ -1,0 +1,247 @@
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+
+require 'concurrent'
+require 'faker'
+require 'logger'
+require 'logger_colored'
+
+require 'seed_base'
+
+# Requires the SpyCarAdvanced catalog
+module KillBillIntegrationSeed
+  class TestSeedKaui < TestSeedBase
+
+    def setup
+      log_dir = '/var/tmp/'
+      now = Time.now.strftime('%Y-%m-%d-%H:%M')
+      kb_log_path = "#{log_dir}/kaui_seed.#{now}.killbill.log"
+      KillBillClient.logger = Logger.new(kb_log_path)
+      KillBillClient.logger.level = Logger::DEBUG
+
+      @logger = Logger.new(STDOUT)
+      @logger.level = Logger::INFO
+
+      @pool = Concurrent::CachedThreadPool.new
+
+      @base_subscriptions = Concurrent::Array.new
+      @ao_subscriptions = Concurrent::Hash.new
+
+      tenant_info = {
+          :use_multi_tenant => true,
+          :api_key => 'bob',
+          :api_secret => 'lazar'
+      }
+      setup_base('kaui_seed', tenant_info, '2013-02-08T08:00:00.000Z')
+    end
+
+    def teardown
+      @pool.shutdown
+      teardown_base
+    end
+
+    def test_seed_kaui
+      initial_date = DateTime.parse('2015-04-01').to_date
+      last_date = DateTime.now.to_date
+
+      run_with_clock(initial_date, last_date) { |date| run_one_day(date) }
+    end
+
+    private
+
+    def run_one_day(date)
+      task = lambda { create_account_with_subscription }
+      nb_accounts = case date.wday
+                      when 0 then # Sunday
+                        rand(0..2)
+                      when 1..5 then
+                        rand(3..8)
+                      else # Saturday
+                        rand(2..5)
+                    end
+
+      @logger.info "Creating #{nb_accounts} accounts on #{date.to_s}"
+      run_in_parallel(nb_accounts, task)
+
+      # Trigger a few cancellations
+      task = lambda { cancel_random_subscription }
+      nb_cancellations = nb_accounts >= 5 ? 2 : 1
+      run_in_parallel(nb_cancellations, task)
+    end
+
+    def create_account_with_subscription(nb_retries = 3)
+      account = create_account
+      create_payment_method(account)
+
+      base = create_base_subscription(account)
+      create_add_on(account, base)
+    rescue => e
+      raise e if nb_retries <= 0
+
+      # Maybe we generated random data which a plugin didn't support, or we got an exception with Faker and obscure locales
+      @logger.warn "Exception when generating data #{e.message}, trying again..."
+      create_account_with_subscription(nb_retries - 1)
+    end
+
+    def create_account
+      # Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
+      Faker::Config.locale = [:de, :en, :es, :fa, :fr, :it, :ja, :ko, :ru].sample
+
+      first_name = Faker::Name.first_name
+      last_name = Faker::Name.last_name
+      data = {
+          :name => "#{first_name} #{last_name}",
+          :first_name_length => first_name.length,
+          :external_key => Faker::Code.npi,
+          :email => Faker::Internet.email,
+          :locale => Faker::Config.locale,
+          # Limited by the catalog
+          :currency => %w(USD GBP EUR).sample,
+          :phone => Faker::PhoneNumber.phone_number,
+          :time_zone => Faker::Address.time_zone,
+          :address1 => Faker::Address.street_address,
+          :address2 => Faker::Address.secondary_address,
+          :postal_code => Faker::Address.postcode,
+          :city => Faker::Address.city,
+          :state => Faker::Address.state,
+          :country => Faker::Address.country_code,
+          :company => "#{Faker::Company.name}: #{Faker::Company.catch_phrase}"
+      }
+      account = create_account_with_data(@user, data, @options)
+      @logger.info "Created account #{account.account_id}: #{account.name}"
+
+      account
+    end
+
+    def create_payment_method(account)
+      cc_type = [:visa, :mastercard, :american_express].sample
+      cybersource_cc_type = cc_type == :mastercard ? 'master' : cc_type.to_s
+
+      expiry_date = Faker::Business.credit_card_expiry_date
+
+      plugin_info = {
+          'ccNumber' => Faker::Finance.credit_card(cc_type).tr('-', ''),
+          'ccExpirationMonth' => expiry_date.month,
+          'ccExpirationYear' => expiry_date.year,
+          'ccVerificationValue' => '723',
+          'ccFirstName' => Faker::Name.first_name,
+          'ccLastName' => Faker::Name.last_name,
+          'ccType' => cybersource_cc_type,
+          # CyberSource is really picky about emails
+          'email' => Faker::Internet.free_email('john'),
+          'address1' => Faker::Address.street_address,
+          'city' => Faker::Address.city,
+          'state' => Faker::Address.state,
+          'zip' => Faker::Address.postcode,
+          'country' => Faker::Address.country_code
+      }
+
+      @logger.debug "Plugin info: #{plugin_info}"
+
+      add_payment_method(account.account_id, 'killbill-cybersource', true, plugin_info, @user, @options)
+    end
+
+    def create_base_subscription(account)
+      product = case rand(10)
+                  when 0..5 then
+                    'Standard'
+                  when 6..8 then
+                    'Sports'
+                  else
+                    'Super'
+                end
+
+      # Assume the bulk of the subscriptions are monthly
+      billing_period = rand(10) > 8 && product == 'Standard' ? 'ANNUAL' : 'MONTHLY'
+
+      base = create_entitlement_base(account.account_id, product, billing_period, 'DEFAULT', @user, @options)
+      @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
+
+      @base_subscriptions << base
+
+      base
+    end
+
+    def create_add_on(account, base)
+      # Not available
+      return if base.product_name == 'Standard'
+
+      ao_product = case rand(10)
+                     when 0..4 then
+                       nil
+                     when 5..7 then
+                       'OilSlick'
+                     else
+                       'RemoteControl'
+                   end
+      return if ao_product.nil? || (ao_product == 'OilSlick' && base.product_name == 'Super') # Already included?
+
+      # Only monthly add-ons are supported
+      billing_period = 'MONTHLY'
+
+      ao = create_entitlement_ao(account.account_id, base.bundle_id, ao_product, billing_period, 'DEFAULT', @user, @options)
+      @logger.info "Created #{ao_product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
+
+      @ao_subscriptions[base.bundle_id] ||= []
+      @ao_subscriptions[base.bundle_id] << ao
+
+      ao
+    end
+
+    def cancel_random_subscription
+      # Wait to have created enough subscriptions
+      return if @base_subscriptions.size < 100
+
+      # Assume most of the cancellations are for add-ons
+      if rand(10) > 3
+        bundle_id = @ao_subscriptions.keys.sample
+        sub = @ao_subscriptions[bundle_id].shuffle.pop
+      else
+        sub = @base_subscriptions.shuffle.pop
+        @ao_subscriptions.delete(sub.bundle_id)
+      end
+
+      # Use default policies
+      sub.cancel(@user, nil, nil, nil, nil, nil, nil, @options)
+      @logger.info "Cancelled #{sub.product_name}-#{sub.billing_period.downcase} subscription for account id #{sub.account_id}"
+    end
+
+    def run_in_parallel(nb_times, task)
+      latch = Concurrent::CountDownLatch.new(nb_times)
+
+      nb_times.times do
+        @pool.post do
+          begin
+            task.call
+          rescue => e
+            @logger.warn "Exception in task: #{e.message}\n#{e.backtrace.join("\n")}"
+          ensure
+            latch.count_down
+          end
+        end
+      end
+
+      latch.wait
+      wait_for_killbill(@options) rescue nil
+    end
+
+    # We ignore timeouts here, to make sure we always advance the clock
+    def run_with_clock(initial_date, last_date)
+      date = initial_date.prev_day
+      kb_clock_set("#{date.to_s}T08:00:00.000Z", nil, @options) rescue nil
+
+      while date <= last_date do
+        @logger.info "Moving clock to #{date}"
+        kb_clock_add_days(1, nil, @options) rescue nil
+
+        yield date if block_given?
+
+        date = date.next_day
+      end
+    end
+
+    def wait_for_killbill(options)
+      super(options, {:timeoutSec => 30})
+    end
+  end
+end

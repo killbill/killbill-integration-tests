@@ -12,6 +12,7 @@ module KillBillIntegrationTests
     def create_account_with_data(user, data, options)
       account = KillBillClient::Model::Account.new
       account.name = data[:name].nil? ? 'KillBillClient' : data[:name]
+      account.first_name_length = data[:first_name_length]
       account.external_key = data[:external_key].nil? ? (Time.now.to_i.to_s + "-" + rand(1000000).to_s) : data[:external_key]
       account.email = data[:email].nil? ? 'kill@bill.com' : data[:email]
       account.currency = data[:currency].nil? ? 'USD' : data[:currency]
@@ -24,6 +25,7 @@ module KillBillIntegrationTests
       account.state = data[:state].nil? ? 'California' : data[:state]
       account.country = data[:country].nil? ? 'US' : data[:country]
       account.locale = data[:locale].nil? ? 'fr_FR' : data[:locale]
+      account.phone = data[:phone]
       account.is_notified_for_invoices = false
       assert_nil(account.account_id)
 
