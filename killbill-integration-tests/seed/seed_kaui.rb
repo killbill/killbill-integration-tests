@@ -42,6 +42,7 @@ module KillBillIntegrationSeed
 
       @base_subscriptions = Concurrent::Array.new
       @ao_subscriptions = Concurrent::Hash.new
+      @subs_mutex = Mutex.new
 
       tenant_info = {
           :use_multi_tenant => true,
@@ -216,13 +217,16 @@ module KillBillIntegrationSeed
       # Wait to have created enough subscriptions
       return if @base_subscriptions.size < 100
 
-      # Assume most of the cancellations are for add-ons
-      if rand(10) > 3
-        bundle_id = @ao_subscriptions.keys.sample
-        sub = @ao_subscriptions[bundle_id].shuffle.pop
-      else
-        sub = @base_subscriptions.shuffle.pop
-        @ao_subscriptions.delete(sub.bundle_id)
+      sub = @subs_mutex.synchronize do
+        # Assume most of the cancellations are for add-ons
+        if rand(10) > 3
+          bundle_id = @ao_subscriptions.keys.sample
+          sub = @ao_subscriptions[bundle_id].shuffle.pop
+        else
+          sub = @base_subscriptions.shuffle.pop
+          @ao_subscriptions.delete(sub.bundle_id)
+        end
+        sub
       end
 
       # Use default policies
