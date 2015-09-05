@@ -8,6 +8,22 @@ require 'logger_colored'
 
 require 'seed_base'
 
+module Faker
+  class Base
+    class << self
+      def fetch(key, options = {})
+        fetched = translate("faker.#{key}", options)
+        fetched = fetched.sample if fetched.respond_to?(:sample)
+        if fetched.match(/^\//) and fetched.match(/\/$/) # A regex
+          regexify(fetched)
+        else
+          fetched
+        end
+      end
+    end
+  end
+end
+
 # Requires the SpyCarAdvanced catalog
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
@@ -98,7 +114,8 @@ module KillBillIntegrationSeed
           # Limited by the catalog
           :currency => %w(USD GBP EUR).sample,
           :phone => Faker::PhoneNumber.phone_number,
-          :time_zone => Faker::Address.time_zone,
+          # We don't want the timezone to be translated
+          :time_zone => Faker::Address.fetch('address.time_zone', {:locale => :en}),
           :address1 => Faker::Address.street_address,
           :address2 => Faker::Address.secondary_address,
           :postal_code => Faker::Address.postcode,
