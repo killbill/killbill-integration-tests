@@ -133,19 +133,24 @@ module KillBillIntegrationSeed
     end
 
     def create_payment_method(account)
-      cc_type = [:visa, :mastercard, :american_express].sample
-      cybersource_cc_type = cc_type == :mastercard ? 'master' : cc_type.to_s
+      # Faker::Finance.credit_card doesn't seem to produce only valid ones
+      cc_nums = {
+          'visa' => 4111111111111111,
+          'master' => 5555555555554444,
+          'american_express' => 378282246310005
+      }
+      cc_type = cc_nums.keys.sample
 
       expiry_date = Faker::Business.credit_card_expiry_date
 
       plugin_info = {
-          'ccNumber' => Faker::Finance.credit_card(cc_type).tr('-', ''),
+          'ccNumber' => cc_nums[cc_type],
           'ccExpirationMonth' => expiry_date.month,
           'ccExpirationYear' => expiry_date.year,
           'ccVerificationValue' => '723',
           'ccFirstName' => Faker::Name.first_name,
           'ccLastName' => Faker::Name.last_name,
-          'ccType' => cybersource_cc_type,
+          'ccType' => cc_type,
           # CyberSource is really picky about emails
           'email' => Faker::Internet.free_email('john'),
           'address1' => Faker::Address.street_address,
