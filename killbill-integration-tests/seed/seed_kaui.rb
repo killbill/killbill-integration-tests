@@ -86,8 +86,8 @@ module KillBillIntegrationSeed
 
       # Trigger a few cancellations
       task = lambda { cancel_random_subscription }
-      nb_cancellations = nb_accounts >= 5 ? 2 : 1
-      run_in_parallel(nb_cancellations, task)
+      nb_cancellations = (nb_accounts * 20 / 100.0).to_i
+      run_in_parallel(nb_cancellations == 0 ? 2 : nb_cancellations, task)
     end
 
     def create_account_with_subscription(nb_retries = 3)
@@ -226,6 +226,7 @@ module KillBillIntegrationSeed
     end
 
     def run_in_parallel(nb_times, task)
+      return if nb_times == 0
       latch = Concurrent::CountDownLatch.new(nb_times)
 
       nb_times.times do
