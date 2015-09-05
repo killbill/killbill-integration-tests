@@ -66,6 +66,11 @@ module KillBillIntegrationSeed
     private
 
     def run_one_day(date)
+      # Notes:
+      # * The config is global, so set it before creating accounts in parallel
+      # * Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
+      Faker::Config.locale = [:de, :en, :es, :fa, :fr, :it, :ja, :ko, :ru].sample
+
       task = lambda { create_account_with_subscription }
       nb_accounts = case date.wday
                       when 0 then # Sunday
@@ -76,7 +81,7 @@ module KillBillIntegrationSeed
                         rand(2..5)
                     end
 
-      @logger.info "Creating #{nb_accounts} accounts on #{date.to_s}"
+      @logger.info "Creating #{nb_accounts} accounts on #{date.to_s} (locale #{Faker::Config.locale})"
       run_in_parallel(nb_accounts, task)
 
       # Trigger a few cancellations
@@ -100,9 +105,6 @@ module KillBillIntegrationSeed
     end
 
     def create_account
-      # Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
-      Faker::Config.locale = [:de, :en, :es, :fa, :fr, :it, :ja, :ko, :ru].sample
-
       first_name = Faker::Name.first_name
       last_name = Faker::Name.last_name
       data = {
