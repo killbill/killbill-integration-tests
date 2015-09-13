@@ -16,6 +16,7 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+
     #
     # Test correct usage is generated when specifying boundaries date
     #
@@ -32,10 +33,10 @@ module KillBillIntegrationTests
 
       # Add usage on first day for prev period and first day of new period
       # Only the '2013-08-1' with 10 units, should be taken into account for the next upcoming invoice
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-01', :amount => 10 },
-                                          {:record_date => '2013-08-31', :amount => 5 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-01', :amount => 10},
+                                         {:record_date => '2013-08-31', :amount => 5}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -111,14 +112,14 @@ module KillBillIntegrationTests
       ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-11', :amount => 2 },
-                                          {:record_date => '2013-08-12', :amount => 1 },
-                                          {:record_date => '2013-08-13', :amount => 3 },
-                                          {:record_date => '2013-08-14', :amount => 1 },
-                                          {:record_date => '2013-08-15', :amount => 1 },
-                                          {:record_date => '2013-08-17', :amount => 2 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-11', :amount => 2},
+                                         {:record_date => '2013-08-12', :amount => 1},
+                                         {:record_date => '2013-08-13', :amount => 3},
+                                         {:record_date => '2013-08-14', :amount => 1},
+                                         {:record_date => '2013-08-15', :amount => 1},
+                                         {:record_date => '2013-08-17', :amount => 2}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -160,9 +161,9 @@ module KillBillIntegrationTests
       ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
       check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-11', :amount => 10 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-11', :amount => 10}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -182,10 +183,10 @@ module KillBillIntegrationTests
 
       # Add more usage for previous period and also new period
 
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-13', :amount => 20 },
-                                          {:record_date => '2013-09-2', :amount => 5 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-13', :amount => 20},
+                                         {:record_date => '2013-09-2', :amount => 5}]
+                     }]
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
       kb_clock_add_days(30, nil, @options)
@@ -203,10 +204,10 @@ module KillBillIntegrationTests
       #
       # Add more usage for the last 2 periods and also new period
       #
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-09-3', :amount => 5 },
-                                          {:record_date => '2013-10-3', :amount => 10 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-09-3', :amount => 5},
+                                         {:record_date => '2013-10-3', :amount => 10}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -225,10 +226,10 @@ module KillBillIntegrationTests
       #
       # Add more usage for the last period and the period from '2013-08-1' -> '2013-08-31'. That one should NOT be invoiced because org.killbill.invoice.readMaxRawUsagePreviousPeriod is set to 2 by default
       #
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-14', :amount => 20 },
-                                          {:record_date => '2013-11-3', :amount => 10 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-14', :amount => 20},
+                                         {:record_date => '2013-11-3', :amount => 10}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -278,9 +279,9 @@ module KillBillIntegrationTests
 
       # Add usage on first day for prev period and first day of new period
       # Only the '2013-08-1', 10 should be taken into account for the next upcoming invoice
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-1', :amount => 10 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-1', :amount => 10}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -307,9 +308,9 @@ module KillBillIntegrationTests
 
 
       # Attempt to record more usage, but that should fail because ADD_ON is not active
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-09-5', :amount => 5 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-09-5', :amount => 5}]
+                     }]
 
       got_exception = false
       begin
@@ -351,9 +352,9 @@ module KillBillIntegrationTests
 
       # Add usage on first day for prev period and first day of new period
       # Only the '2013-08-1', 10 should be taken into account for the next upcoming invoice
-      usage_input = [ {:unit_type => 'gallons',
-                       :usage_records => [{:record_date => '2013-08-1', :amount => 10 }]
-                      }]
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-1', :amount => 10}]
+                     }]
 
       record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
 
@@ -375,6 +376,123 @@ module KillBillIntegrationTests
       check_invoice_no_balance(third_invoice, -960.50, 'USD', '2013-08-31')
       check_usage_invoice_item(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
     end
+
+
+    def test_with_multiple_subscriptions
+
+      # 2008-8-2 Start (So BCD ends up being on the first)
+      kb_clock_add_days(1, nil, @options)
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # 2008-8-13 Create Add-on 1
+      kb_clock_add_days(11, nil, @options)
+      ao_entitlement1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+
+      # 2008-8-17
+      kb_clock_add_days(4, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-17', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+
+      # 2013-09-01 Next invoice
+      kb_clock_add_days(15, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(2, all_invoices.size)
+      second_invoice = all_invoices[1]
+      check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
+
+
+      # 2008-9-04
+      kb_clock_add_days(3, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-09-04', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+
+
+      # 2008-9-17 Create Add-on 1
+      kb_clock_add_days(13, nil, @options)
+      ao_entitlement2 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+
+
+      # 2008-9-23
+      kb_clock_add_days(6, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-09-23', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+      record_usage(ao_entitlement2.subscription_id, usage_input, @user, @options)
+
+
+      # 2013-10-01 Next invoice
+      kb_clock_add_days(8, nil, @options)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(3, all_invoices.size)
+      third_invoice = all_invoices[2]
+      check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items), third_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
+      check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items), third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-17', '2013-10-01')
+
+
+      # 2008-10-02
+      kb_clock_add_days(1, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-10-02', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+      record_usage(ao_entitlement2.subscription_id, usage_input, @user, @options)
+
+
+      # 2008-10-04 Create Add-on 3
+      kb_clock_add_days(2, nil, @options)
+      ao_entitlement3 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+
+
+      # 2008-10-20
+      kb_clock_add_days(16, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-10-20', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+      record_usage(ao_entitlement2.subscription_id, usage_input, @user, @options)
+      record_usage(ao_entitlement3.subscription_id, usage_input, @user, @options)
+
+      # 2013-11-01 Next invoice
+      kb_clock_add_days(12, nil, @options)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
+
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(4, all_invoices.size)
+      fourth_invoice = all_invoices[3]
+      check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
+      check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
+      check_usage_invoice_item(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-04', '2013-11-01')
+
+
+    end
+
+
+    private
+
+    def find_usage_ii(subscription_id, items)
+      filtered = items.select do |ii|
+        ii.subscription_id == subscription_id && ii.item_type == 'USAGE'
+      end
+      assert_equal(1, filtered.size)
+      return filtered[0]
+    end
+
 
   end
 end
