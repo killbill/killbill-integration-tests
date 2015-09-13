@@ -16,7 +16,6 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-
     #
     # Test correct usage is generated when specifying boundaries date
     #
@@ -377,13 +376,12 @@ module KillBillIntegrationTests
       check_usage_invoice_item(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
     end
 
-
     def test_with_multiple_subscriptions
 
       # 2008-8-2 Start (So BCD ends up being on the first)
       kb_clock_add_days(1, nil, @options)
 
-      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'ANNUAL', 'DEFAULT', @user, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # 2008-8-13 Create Add-on 1
@@ -479,11 +477,67 @@ module KillBillIntegrationTests
       check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
       check_usage_invoice_item(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-04', '2013-11-01')
 
-
     end
 
 
-    private
+    def test_with_usage_holes
+
+      # 2008-8-2 Start (So BCD ends up being on the first)
+      kb_clock_add_days(1, nil, @options)
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'ANNUAL', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # 2008-8-13 Create Add-on 1
+      kb_clock_add_days(11, nil, @options)
+      ao_entitlement1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+
+      # 2008-8-17
+      kb_clock_add_days(4, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-17', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+
+      # 2013-09-01 Next invoice
+      kb_clock_add_days(15, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(2, all_invoices.size)
+      second_invoice = all_invoices[1]
+      check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
+
+
+      # 2013-09-02 Next invoice
+      kb_clock_add_days(31, nil, @options)
+      # Should see no invoice
+      sleep 1
+
+
+      # 2008-9-17
+      kb_clock_add_days(15, nil, @options)
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-09-17', :amount => 10}]
+                     }]
+      record_usage(ao_entitlement1.subscription_id, usage_input, @user, @options)
+
+      # 2013-10-01 Next invoice
+      kb_clock_add_days(15, nil, @options)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(3, all_invoices.size)
+      third_invoice = all_invoices[2]
+      check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
+
+    end
+
+      private
 
     def find_usage_ii(subscription_id, items)
       filtered = items.select do |ii|

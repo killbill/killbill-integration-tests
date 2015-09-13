@@ -32,8 +32,9 @@ module KillBillIntegrationTests
       # Step 1. Create a subscription associated with the account `@account` 
       #
       bp = create_entitlement_base(@account.account_id, 'Server', 'MONTHLY', 'DEFAULT', @user, @options)
-      # Test waits synchronously until the first invoice was generated ($0 invoice since no usage was recorded yet)
-      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+      # No invoice generated for $0 items, we still want to add a little lag
+      sleep 1
+
 
 
       # Step 2. Record usage: For each usage type, we generate random usage value per day, each point between [USAGE_MIN, USAGE_MAX)
@@ -67,91 +68,32 @@ module KillBillIntegrationTests
       # Step 3. Move the clock to the beginning of the next month '2013-09-01' to trigger the first invoice with usage items
       #
       kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Verify we see an invoice with:
       # * 3 usage items (one for each type) for the previous month (in arrear usage billing)
-      # * 1 recurring item of $0 for the next month
       #
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
-      assert_equal(2, all_invoices.size)
-      last_invoice = all_invoices[1]
+      assert_equal(1, all_invoices.size)
+      last_invoice = all_invoices[0]
       check_invoice_no_balance(last_invoice, expected_dollar_amount_total, 'USD', '2013-09-01')
-      check_invoice_item(last_invoice.items[0], last_invoice.invoice_id, 0.0, 'USD', 'RECURRING', 'server-monthly', 'server-monthly-evergreen', '2013-09-01', '2013-10-01')
+      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
+      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
+      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-1', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01')
 
-      check_usage_invoice_item(last_invoice.items[1], last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
-      check_usage_invoice_item(last_invoice.items[2], last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
-        check_usage_invoice_item(last_invoice.items[3], last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01')
-
-    end
-
-
-    def test_with_multiple_units
-
-
-      bps = []
-      nb_subscriptions = 100
-      nb_subscriptions.times do |i|
-        bp = create_entitlement_base(@account.account_id, 'Server', 'MONTHLY', 'DEFAULT', @user, @options)
-        wait_for_expected_clause(i + 1, @account, @options, &@proc_account_invoices_nb)
-        bps << bp
-      end
-
-
-
-      expected_usage_unit_amount_for_bps = {}
-      bps.each do |bp|
-
-
-        usage_input = []
-
-        bp_expected_usage_unit_amount = 0
-
-        3.times do |i|
-
-          raw_usage = generate_random_usage_values(8, 2013, 0, 178)
-          expected_usage_unit_amount = raw_usage.inject(0) { |sum, e| sum += e}
-          expected_usage_unit_amount = expected_usage_unit_amount * (i + 1)
-
-          bp_expected_usage_unit_amount += expected_usage_unit_amount
-
-          usage_input << {:unit_type => "server-hourly-type-#{i + 1}",
-                          :usage_records => generate_usage_for_each_day(8, 2013, raw_usage)
-          }
-
-        end
-
-        expected_usage_unit_amount_for_bps[bp.subscription_id] = bp_expected_usage_unit_amount
-        record_usage(bp.subscription_id, usage_input, @user, @options)
-
-      end
-
-      all_expected_usage_unit_amount = expected_usage_unit_amount_for_bps.values.inject(0) { |sum, e| sum += e }
-
-      kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(nb_subscriptions + 1, @account, @options, &@proc_account_invoices_nb)
-
-      all_invoices = @account.invoices(true, @options)
-
-      puts "all_invoices  = #{all_invoices.size}"
-
-      sort_invoices!(all_invoices)
-      assert_equal(nb_subscriptions + 1, all_invoices.size)
-      last_invoice = all_invoices[nb_subscriptions]
-      check_invoice_no_balance(last_invoice, all_expected_usage_unit_amount, 'USD', '2013-09-01')
-      check_invoice_item(last_invoice.items[0], last_invoice.invoice_id, 0.0, 'USD', 'RECURRING', 'server-monthly', 'server-monthly-evergreen', '2013-09-01', '2013-10-01')
     end
 
 
     private
 
-    COMMON_YEAR_DAYS_IN_MONTH = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-    def days_in_month(month, year)
-      return 29 if month == 2 && Date.gregorian_leap?(year)
-      COMMON_YEAR_DAYS_IN_MONTH[month]
+    def find_usage_ii(usage_name, items)
+      filtered = items.select do |ii|
+        ii.usage_name == usage_name && ii.item_type == 'USAGE'
+      end
+      assert_equal(1, filtered.size)
+      return filtered[0]
     end
 
     def generate_random_usage_values(month, year, min_included, max_excluded)
@@ -173,6 +115,12 @@ module KillBillIntegrationTests
       res
     end
 
+    COMMON_YEAR_DAYS_IN_MONTH = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    def days_in_month(month, year)
+      return 29 if month == 2 && Date.gregorian_leap?(year)
+      COMMON_YEAR_DAYS_IN_MONTH[month]
+    end
 
   end
 end
