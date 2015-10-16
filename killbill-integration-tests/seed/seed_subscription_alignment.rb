@@ -16,9 +16,6 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-=begin
-    Need to explain each invoice (various alignment/ pro-ration because of different AO alignments)
-=end
 
     def test_seed_subscriptions_alignment
 
@@ -47,22 +44,16 @@ module KillBillIntegrationSeed
       ao1 = create_entitlement_ao(@brianking.account_id, base.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_killbill(@options)
 
-      # generate third invoice : Remote  2013-02-13 ->  2013-03-10 (subscription aligned, but BILLING is ACCOUNT aligned, so computed until BCD !!)
-      ao2 = create_entitlement_ao(@brianking.account_id, base.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options)
-      wait_for_killbill(@options)
-
-      # generate fourth invoice : OilSlick 2013-03-08 ->  2013-03-10 (Recurring phase and BILLING aligned so invoice up to BCD)
-      kb_clock_add_days(24, nil, @options)  # 03/09/2013
+      # generate thid invoice : OilSlick 2013-03-08 ->  2013-03-10 (Recurring phase and BILLING aligned so invoice up to BCD)
+      kb_clock_add_days(23, nil, @options)  # 03/08/2013
 
       # Move after BP trial
       # generate third invoice
       # - BP : 2013-03-13 ->  2013-04-10
       # - Oil Slick 2013-03-10 -> 2013-04-10
-      # - Remote 2013-03-10 -> 2013-03-13 (invoice until end of the phase)
-      kb_clock_add_days(2, nil, @options)   # 03/11/2013
+      kb_clock_add_days(2, nil, @options)   # 03/10/2013
 
 
-      # - Remote 2013-03-13 -> 2013-04-10 (invoice up to BCD)
       kb_clock_add_days(3, nil, @options)   # 03/14/2013
 
       base.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
