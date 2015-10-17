@@ -15,6 +15,8 @@ module KillBillIntegrationSeed
       tenant_info[:api_key] = 'SEED_API_KEY'
       tenant_info[:api_secret] = 'SEED_API_$3CR3T'
       setup_base(self.method_name, tenant_info, init_clock)
+
+      upload_catalog('SeedCloudCatalog.xml', true,  @user, @options)
     end
   end
 end

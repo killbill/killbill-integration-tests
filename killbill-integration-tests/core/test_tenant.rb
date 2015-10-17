@@ -15,8 +15,8 @@ module KillBillIntegrationTests
       @options2[:api_key]    = tenant.api_key
       @options2[:api_secret] = tenant.api_secret
 
-      upload_catalog('Catalog-v1.xml', @user, @options)
-      upload_catalog('Catalog-v2.xml', @user, @options2)
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
+      upload_catalog('Catalog-v2.xml', false, @user, @options2)
 
       @account  = create_account(@user, @options)
       @account2 = create_account(@user, @options2)

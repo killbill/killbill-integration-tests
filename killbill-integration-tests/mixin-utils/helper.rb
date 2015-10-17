@@ -35,9 +35,18 @@ module KillBillIntegrationTests
       KillBillClient::Model::Catalog.get_tenant_catalog(options)
     end
 
-    def upload_catalog(name, user, options)
-      catalog_file_xml = get_resource_as_string(name)
-      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
+    def upload_catalog(name, check_if_exists, user, options)
+
+      proceed_with_upload = !check_if_exists
+      if check_if_exists
+        res = KillBillClient::Model::Tenant.get_tenant_user_key_value('CATALOG', options)
+        proceed_with_upload = res.values.empty?
+      end
+
+      if proceed_with_upload
+        catalog_file_xml = get_resource_as_string(name)
+        KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
+      end
     end
 
     def upload_plugin_config(plugin_name, plugin_config_name, user, options)

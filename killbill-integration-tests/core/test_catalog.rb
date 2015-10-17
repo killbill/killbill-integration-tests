@@ -8,7 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
-      upload_catalog('Catalog-v1.xml', @user, @options)
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
       @account = create_account(@user, @options)
     end
 
@@ -21,7 +21,7 @@ module KillBillIntegrationTests
       create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
 
       # Effective date of the second catalog is 2013-09-01
-      upload_catalog('Catalog-v2.xml', @user, @options)
+      upload_catalog('Catalog-v2.xml', false, @user, @options)
 
       # Original subscription is grandfathered
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
@@ -39,7 +39,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
 
       # Effective date of the second catalog is 2013-10-01
-      upload_catalog('Catalog-v3.xml', @user, @options)
+      upload_catalog('Catalog-v3.xml', false, @user, @options)
 
       # Original subscription is grandfathered
       add_days_and_check_invoice_item(30, 3, 'basic-monthly', '2013-10-01', '2013-11-01', 1000.0)
@@ -52,7 +52,7 @@ module KillBillIntegrationTests
 
     # Remove a phase in a subsequent catalog
     def test_remove_phase
-      upload_catalog('Catalog-WithTrial.xml', @user, @options)
+      upload_catalog('Catalog-WithTrial.xml', false, @user, @options)
 
       # The first subscription has a trial phase
       create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
@@ -61,7 +61,7 @@ module KillBillIntegrationTests
       add_days(14)
 
       # Effective date of the second catalog is 2013-08-15
-      upload_catalog('Catalog-NoTrial.xml', @user, @options)
+      upload_catalog('Catalog-NoTrial.xml', false, @user, @options)
 
       # The new subscription doesn't have a trial phase
       # Because of the ACCOUNT billing alignment, there is a leading proration
@@ -83,7 +83,7 @@ module KillBillIntegrationTests
     end
 
     def test_create_alignment
-      upload_catalog('Catalog-CreateAlignment.xml', @user, @options)
+      upload_catalog('Catalog-CreateAlignment.xml', false, @user, @options)
 
       bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
 
@@ -230,7 +230,7 @@ module KillBillIntegrationTests
     #   * move the clock to 2013-08-15
     # test_change_alignment_* tests will then change the add-on plan using different alignments
     def setup_change_alignment_test
-      upload_catalog('Catalog-ChangeAlignment.xml', @user, @options)
+      upload_catalog('Catalog-ChangeAlignment.xml', false, @user, @options)
 
       bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
 
