@@ -8,8 +8,7 @@ module KillBillIntegrationSeed
   class TestRefund < TestSeedBase
 
     def setup
-      @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_seed_base(@init_clock)
+      setup_seed_base
     end
 
 
@@ -41,19 +40,20 @@ module KillBillIntegrationSeed
       @jeanpoquelin = create_account_with_data(@user, data, @options)
       add_payment_method(@jeanpoquelin.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
-      # Generate first invoice for the annual plan
-      base1 = create_entitlement_base(@jeanpoquelin.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      base1 = create_entitlement_base(@jeanpoquelin.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @jeanpoquelin, @options, &@proc_account_invoices_nb)
 
-      # Generate first invoice for monthly  03/10/2013 -> 04/10/2013
-      kb_clock_add_days(31, nil, @options)  # 03/11/2013
+      # Second invoice
+      kb_clock_add_days(31, nil, @options)  # 2015-09-01
+      wait_for_expected_clause(2, @jeanpoquelin, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(1, nil, @options)  # 03/16/2013
+      kb_clock_add_days(1, nil, @options)  # 2015-09-02
 
       base1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
 
       payments = get_payments_for_account(@jeanpoquelin.account_id, @options)
 
-      refund(payments[0].payment_id, payments[0].purchased_amount, nil, @user, @options)
+      refund(payments[1].payment_id, payments[1].purchased_amount, nil, @user, @options)
 
     end
 
@@ -82,18 +82,21 @@ module KillBillIntegrationSeed
       add_payment_method(@agostinogiordano.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice for the annual plan
-      base1 = create_entitlement_base(@agostinogiordano.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      base1 = create_entitlement_base(@agostinogiordano.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @agostinogiordano, @options, &@proc_account_invoices_nb)
 
-      # Generate first invoice for monthly  03/10/2013 -> 04/10/2013
-      kb_clock_add_days(31, nil, @options)  # 03/11/2013
 
-      kb_clock_add_days(1, nil, @options)  # 03/16/2013
+      # Second invoice
+      kb_clock_add_days(31, nil, @options)  # 2015-09-01
+      wait_for_expected_clause(2, @agostinogiordano, @options, &@proc_account_invoices_nb)
+
+      kb_clock_add_days(1, nil, @options)  # 2015-09-02
 
       base1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
 
       payments = get_payments_for_account(@agostinogiordano.account_id, @options)
 
-      invoice_payment = get_invoice_payment(payments[0].payment_id, @options)
+      invoice_payment = get_invoice_payment(payments[1].payment_id, @options)
 
       invoice = get_invoice_by_id(invoice_payment.target_invoice_id, @options)
 
@@ -102,7 +105,7 @@ module KillBillIntegrationSeed
                       :currency => 'EUR',
                       :amount => invoice.items[0].amount}
 
-      refund(payments[0].payment_id, payments[0].purchased_amount, adjustments, @user, @options)
+      refund(payments[1].payment_id, payments[1].purchased_amount, adjustments, @user, @options)
 
     end
 

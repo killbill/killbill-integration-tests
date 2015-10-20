@@ -8,16 +8,13 @@ module KillBillIntegrationSeed
   class TestSubscriptionCancellation < TestSeedBase
 
     def setup
-      @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_seed_base(@init_clock)
+      setup_seed_base
     end
 
     def teardown
       teardown_base
     end
 
-=begin
-=end
 
     def test_seed_subscriptions_cancellation_imm_eot
 
@@ -39,10 +36,16 @@ module KillBillIntegrationSeed
       add_payment_method(@allisongreenwich.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice
-      base = create_entitlement_base(@allisongreenwich.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      base = create_entitlement_base(@allisongreenwich.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @allisongreenwich, @options, &@proc_account_invoices_nb)
 
-      # Generate second invoice after trial
+      # Generate second invoice
       kb_clock_add_days(31, nil, @options)
+      wait_for_expected_clause(2, @allisongreenwich, @options, &@proc_account_invoices_nb)
+
+      # Move clock to end up with partial repair.
+      kb_clock_add_days(10, nil, @options)
+
 
       # Cancel BP  in trial with no arguments
       requested_date = nil
@@ -74,10 +77,15 @@ module KillBillIntegrationSeed
       add_payment_method(@christianlolipop.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice
-      base = create_entitlement_base(@christianlolipop.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      base = create_entitlement_base(@christianlolipop.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @christianlolipop, @options, &@proc_account_invoices_nb)
 
-      # Generate second invoice after trial
+      # Generate second invoice
       kb_clock_add_days(31, nil, @options)
+      wait_for_expected_clause(2, @christianlolipop, @options, &@proc_account_invoices_nb)
+
+      # Move clock to end up with partial repair.
+      kb_clock_add_days(10, nil, @options)
 
       # Cancel BP  in trial with no arguments
       requested_date = nil

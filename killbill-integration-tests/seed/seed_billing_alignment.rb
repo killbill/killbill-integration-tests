@@ -8,8 +8,7 @@ module KillBillIntegrationSeed
   class TestBillingAlignment < TestSeedBase
 
     def setup
-      @init_clock = '2013-02-08T01:00:00.000Z'
-      setup_seed_base(@init_clock)
+      setup_seed_base
     end
 
 
@@ -17,9 +16,6 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-=begin
-    Verify that the invoice for the annual goes to the 15 and the 10 which is the BCD because it is on its own timeline
-=end
 
     def test_seed_billing_alignments
 
@@ -42,19 +38,18 @@ module KillBillIntegrationSeed
       add_payment_method(@pierrequiroule.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       # Generate first invoice for the annual plan
-      base1 = create_entitlement_base(@pierrequiroule.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      base1 = create_entitlement_base(@pierrequiroule.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @pierrequiroule, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(5, nil, @options)  # 02/13/2013
-      base2 = create_entitlement_base(@pierrequiroule.account_id, 'Standard', 'ANNUAL', 'DEFAULT', @user, @options)
+      kb_clock_add_days(5 , nil, @options)  # 2015-08-06
+      base2 = create_entitlement_base(@pierrequiroule.account_id, 'reserved-metal', 'ANNUAL', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(2, @pierrequiroule, @options, &@proc_account_invoices_nb)
 
-      # Generate first invoice for monthly  03/10/2013 -> 04/10/2013
-      kb_clock_add_days(26, nil, @options)  # 03/11/2013
+      # Generate second invoice for monthly
+      kb_clock_add_days(26, nil, @options)  # 2015-09-01
 
-      # Generate first invoice for annual  03/15/2013 -> 03/15/2014
-      kb_clock_add_days(5, nil, @options)  # 03/16/2013
 
       base1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
-
       base2.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
 
     end

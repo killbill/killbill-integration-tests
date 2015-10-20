@@ -8,8 +8,7 @@ module KillBillIntegrationSeed
   class TestAccountTimezone < TestSeedBase
 
     def setup
-      @init_clock = '2015-01-08T01:00:00.000Z'
-      setup_seed_base(@init_clock)
+      setup_seed_base
     end
 
     def teardown
@@ -98,13 +97,13 @@ Create a few accounts with different currencies, locale, timezone:
 
 
       pbs = []
-      pbs << create_entitlement_base(@brianking.account_id, 'metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      pbs << create_entitlement_base(@brianking.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
 
-      pbs << create_entitlement_base(@johnsilver.account_id, 'metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      pbs << create_entitlement_base(@johnsilver.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
 
-      pbs << create_entitlement_base(@pauldupond.account_id, 'metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      pbs << create_entitlement_base(@pauldupond.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
 
-      pbs << create_entitlement_base(@yokurimatsumoto.account_id, 'metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      pbs << create_entitlement_base(@yokurimatsumoto.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
 
       kb_clock_add_days(31, nil, @options)
 

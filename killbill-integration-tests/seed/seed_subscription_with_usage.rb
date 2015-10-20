@@ -5,7 +5,7 @@ require 'seed_base'
 
 module KillBillIntegrationSeed
 
-  class TestAccountTimezone < TestSeedBase
+  class TestSubscriptionWithUsage < TestSeedBase
 
     def setup
       setup_seed_base
@@ -15,24 +15,15 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-=begin
-Create a few accounts with different currencies, locale, timezone:
-- Check BCD is 10 for all except John Silver for which this is 9   (explain why 9 and 10)
-- Check currency is correctly represented
-- Check invoice template works for various locale -> TODO  (missing invoice template and catalog translation)
-- Explain failed payments
-- Explain why subscription start at different dates (similar to BCD)
-=end
-
-    def test_seed_timezone
+    def test_subscription_with_pure_usage
 
       data = {}
-      data[:name] = 'Brian King'
-      data[:external_key] = 'brianking'
-      data[:email] = 'brianking@kb.com'
+      data[:name] = 'James Bond'
+      data[:external_key] = 'jamesbond'
+      data[:email] = 'jamesbond@kb.com'
       data[:currency] = 'GBP'
       data[:time_zone] = 'Europe/London'
-      data[:address1] = '5 Downing street'
+      data[:address1] = '20 Downing street'
       data[:address2] = nil
       data[:postal_code] = 'E11 8QS'
       data[:company] = nil
@@ -40,78 +31,64 @@ Create a few accounts with different currencies, locale, timezone:
       data[:state] = 'Greater London'
       data[:country] = 'England'
       data[:locale] = 'en_GB'
-      @brianking = create_account_with_data(@user, data, @options)
-      add_payment_method(@brianking.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
-
-      data = {}
-      data[:name] = 'John Silver'
-      data[:external_key] = 'johnsilver'
-      data[:email] = 'johnsilver@kb.com'
-      data[:currency] = 'USD'
-      data[:time_zone] = 'Pacific/Samoa'
-      data[:address1] = '1234, Alabama street'
-      data[:address2] = nil
-      data[:postal_code] = '66799'
-      data[:company] = nil
-      data[:city] = 'Pago Pago'
-      data[:state] = 'Pago Pago'
-      data[:country] = 'USA'
-      data[:locale] = 'en_US'
-      @johnsilver = create_account_with_data(@user, data, @options)
-      add_payment_method(@johnsilver.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+      @jamesbond = create_account_with_data(@user, data, @options)
+      add_payment_method(@jamesbond.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
 
-      data = {}
-      data[:name] = 'Paul Dupond'
-      data[:external_key] = 'pauldupond'
-      data[:email] = 'pauldupond@kb.com'
-      data[:currency] = 'EUR'
-      data[:time_zone] = 'Europe/Paris'
-      data[:address1] = '5, rue des ecoles'
-      data[:address2] = nil
-      data[:postal_code] = '25000'
-      data[:company] = nil
-      data[:city] = 'Besancon'
-      data[:state] = 'Franche Comte'
-      data[:country] = 'France'
-      data[:locale] = 'fr_FR'
-      @pauldupond = create_account_with_data(@user, data, @options)
-      add_payment_method(@pauldupond.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
-
-      data = {}
-      data[:name] = 'Yokuri Matsumoto'
-      data[:external_key] = 'yokurimatsumoto'
-      data[:email] = 'yokurimatsumoto@kb.com'
-      data[:currency] = 'JPY'
-      data[:time_zone] = 'Asia/Tokyo'
-      data[:address1] = 'block 5'
-      data[:address2] = nil
-      data[:postal_code] = '25000'
-      data[:company] = nil
-      data[:city] = 'Tokyo'
-      data[:state] = 'Kanto Region'
-      data[:country] = 'Japan'
-      data[:locale] = 'ja_JP'
-      @yokurimatsumoto = create_account_with_data(@user, data, @options)
-      add_payment_method(@yokurimatsumoto.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
 
-      pbs = []
-      pbs << create_entitlement_base(@brianking.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      bp = create_entitlement_base(@jamesbond.account_id, 'on-demand-metal', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
 
-      pbs << create_entitlement_base(@johnsilver.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      # 20015-08-05
+      kb_clock_add_days(4, nil, @options)
+      usage_input = [{:unit_type => 'cpu-hour',
+                      :usage_records => [{:record_date => '2015-08-05', :amount => 10}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
 
-      pbs << create_entitlement_base(@pauldupond.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
+      # 20015-09-01
+      kb_clock_add_days(27, nil, @options)
+      wait_for_expected_clause(1, @jamesbond, @options, &@proc_account_invoices_nb)
 
-      pbs << create_entitlement_base(@yokurimatsumoto.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
-
-      kb_clock_add_days(31, nil, @options)
-
-      # Cancel all plans so we stop invoicing those accounts in the future
-      pbs.each do |bp|
-        bp.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
-      end
     end
+
+    def test_recurring_subscription_with_usage
+
+      data = {}
+      data[:name] = 'Sean Connery'
+      data[:external_key] = 'seanconnery'
+      data[:email] = 'seanconnery@kb.com'
+      data[:currency] = 'GBP'
+      data[:time_zone] = 'Europe/London'
+      data[:address1] = '67 Downing street'
+      data[:address2] = nil
+      data[:postal_code] = 'E11 8QS'
+      data[:company] = nil
+      data[:city] = 'London'
+      data[:state] = 'Greater London'
+      data[:country] = 'England'
+      data[:locale] = 'en_GB'
+      @seanconnery = create_account_with_data(@user, data, @options)
+      add_payment_method(@seanconnery.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
+
+      bp = create_entitlement_base(@seanconnery.account_id, 'reserved-metal', 'ANNUAL', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @seanconnery, @options, &@proc_account_invoices_nb)
+
+      # 20015-08-05
+      kb_clock_add_days(4, nil, @options)
+      usage_input = [{:unit_type => 'cpu-hour',
+                      :usage_records => [{:record_date => '2015-08-05', :amount => 100}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 20015-09-01
+      kb_clock_add_days(27, nil, @options)
+      wait_for_expected_clause(2, @seanconnery, @options, &@proc_account_invoices_nb)
+
+
+    end
+
 
   end
 end

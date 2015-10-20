@@ -83,7 +83,8 @@ namespace :test do
                             "#{BASE_DIR}/seed/seed_billing_alignment.rb",
                             "#{BASE_DIR}/seed/seed_refund.rb",
                             "#{BASE_DIR}/seed/seed_subscription_alignment.rb",
-                            "#{BASE_DIR}/seed/seed_subscription_cancellation.rb"]
+                            "#{BASE_DIR}/seed/seed_subscription_cancellation.rb",
+                            "#{BASE_DIR}/seed/seed_subscription_with_usage.rb"]
     t.verbose    = true
   end
 
