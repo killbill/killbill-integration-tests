@@ -33,17 +33,22 @@
 
   <units>
     <unit name="cpu-hour"/>
-    <unit name="bandwidth-mb"/>
   </units>
 
   <products>
-    <product name="metal">
+    <product name="on-demand-metal">
       <category>BASE</category>
       <included>
         <addonProduct>backup-daily</addonProduct>
       </included>
     </product>
-    <product name="vm">
+    <product name="reserved-metal">
+      <category>BASE</category>
+      <included>
+        <addonProduct>backup-daily</addonProduct>
+      </included>
+    </product>
+    <product name="reserved-vm">
       <category>BASE</category>
       <available>
         <addonProduct>backup-daily</addonProduct>
@@ -72,10 +77,6 @@
     </cancelPolicy>
     <createAlignment>
       <createAlignmentCase>
-        <product>backup-daily</product>
-        <alignment>START_OF_SUBSCRIPTION</alignment>
-      </createAlignmentCase>
-      <createAlignmentCase>
         <alignment>START_OF_BUNDLE</alignment>
       </createAlignmentCase>
     </createAlignment>
@@ -96,110 +97,14 @@
   </rules>
 
   <plans>
-    <plan name="metal-annual">
-      <product>metal</product>
+    <plan name="on-demand-metal-no-bp">
+      <product>on-demand-metal</product>
       <finalPhase type="EVERGREEN">
         <duration>
           <unit>UNLIMITED</unit>
         </duration>
-        <recurring>
-          <billingPeriod>ANNUAL</billingPeriod>
-          <recurringPrice>
-            <price>
-              <currency>USD</currency>
-              <value>1000.00</value>
-            </price>
-            <price>
-              <currency>GBP</currency>
-              <value>800.00</value>
-            </price>
-            <price>
-              <currency>EUR</currency>
-              <value>900.00</value>
-            </price>
-            <price>
-              <currency>JPY</currency>
-              <value>100.00</value>
-            </price>
-            <price>
-              <currency>BTC</currency>
-              <value>50.00</value>
-            </price>
-          </recurringPrice>
-        </recurring>
         <usages>
-          <usage name="metal-annual-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
-            <billingPeriod>MONTHLY</billingPeriod>
-            <tiers>
-              <tier>
-                <blocks>
-                  <tieredBlock>
-                    <unit>cpu-hour</unit>
-                    <size>1</size>
-                    <prices>
-                      <price>
-                        <currency>USD</currency>
-                        <value>0.05</value>
-                      </price>
-                      <price>
-                        <currency>GBP</currency>
-                        <value>0.04</value>
-                      </price>
-                      <price>
-                        <currency>EUR</currency>
-                        <value>0.09</value>
-                      </price>
-                      <price>
-                        <currency>JPY</currency>
-                        <value>0.005</value>
-                      </price>
-                      <price>
-                        <currency>BTC</currency>
-                        <value>0.0025</value>
-                      </price>
-                    </prices>
-                    <max>100000</max>
-                  </tieredBlock>
-                </blocks>
-              </tier>
-            </tiers>
-          </usage>
-        </usages>
-      </finalPhase>
-    </plan>
-    <plan name="metal-monthly">
-      <product>metal</product>
-      <finalPhase type="EVERGREEN">
-        <duration>
-          <unit>UNLIMITED</unit>
-        </duration>
-        <recurring>
-          <billingPeriod>MONTHLY</billingPeriod>
-          <recurringPrice>
-            <price>
-              <currency>USD</currency>
-              <value>100.00</value>
-            </price>
-            <price>
-              <currency>GBP</currency>
-              <value>80.00</value>
-            </price>
-            <price>
-              <currency>EUR</currency>
-              <value>90.00</value>
-            </price>
-            <price>
-              <currency>JPY</currency>
-              <value>10.00</value>
-            </price>
-            <price>
-              <currency>BTC</currency>
-              <value>5.00</value>
-            </price>
-          </recurringPrice>
-        </recurring>
-        <usages>
-          <usage name="metal-monthly-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+          <usage name="on-demand-metal-no-bp-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
             <billingPeriod>MONTHLY</billingPeriod>
             <tiers>
               <tier>
@@ -214,19 +119,19 @@
                       </price>
                       <price>
                         <currency>GBP</currency>
-                        <value>0.08</value>
+                        <value>0.06</value>
                       </price>
                       <price>
                         <currency>EUR</currency>
-                        <value>0.09</value>
+                        <value>0.08</value>
                       </price>
                       <price>
                         <currency>JPY</currency>
-                        <value>0.01</value>
+                        <value>10.00</value>
                       </price>
                       <price>
                         <currency>BTC</currency>
-                        <value>0.005</value>
+                        <value>0.00038</value>
                       </price>
                     </prices>
                     <max>100000</max>
@@ -238,13 +143,155 @@
         </usages>
       </finalPhase>
     </plan>
-    <plan name="metal-monthly-trial">
-      <product>metal</product>
+    <plan name="reserved-metal-annual-bp">
+      <product>reserved-metal</product>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>ANNUAL</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>1000.00</value>
+            </price>
+            <price>
+              <currency>GBP</currency>
+              <value>650.00</value>
+            </price>
+            <price>
+              <currency>EUR</currency>
+              <value>880.00</value>
+            </price>
+            <price>
+              <currency>JPY</currency>
+              <value>100000.00</value>
+            </price>
+            <price>
+              <currency>BTC</currency>
+              <value>3.78</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+        <usages>
+          <usage name="reserved-metal-annual-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>cpu-hour</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>0.05</value>
+                      </price>
+                      <price>
+                        <currency>GBP</currency>
+                        <value>0.03</value>
+                      </price>
+                      <price>
+                        <currency>EUR</currency>
+                        <value>0.04</value>
+                      </price>
+                      <price>
+                        <currency>JPY</currency>
+                        <value>5.00</value>
+                      </price>
+                      <price>
+                        <currency>BTC</currency>
+                        <value>0.00019</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
+        </usages>
+      </finalPhase>
+    </plan>
+    <plan name="reserved-metal-monthly-bp">
+      <product>reserved-metal</product>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>MONTHLY</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>100.00</value>
+            </price>
+            <price>
+              <currency>GBP</currency>
+              <value>65.00</value>
+            </price>
+            <price>
+              <currency>EUR</currency>
+              <value>88.00</value>
+            </price>
+            <price>
+              <currency>JPY</currency>
+              <value>10000.00</value>
+            </price>
+            <price>
+              <currency>BTC</currency>
+              <value>0.38</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+        <usages>
+          <usage name="reserved-metal-monthly-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>cpu-hour</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>0.10</value>
+                      </price>
+                      <price>
+                        <currency>GBP</currency>
+                        <value>0.065</value>
+                      </price>
+                      <price>
+                        <currency>EUR</currency>
+                        <value>0.088</value>
+                      </price>
+                      <price>
+                        <currency>JPY</currency>
+                        <value>10.00</value>
+                      </price>
+                      <price>
+                        <currency>BTC</currency>
+                        <value>0.00038</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
+        </usages>
+      </finalPhase>
+    </plan>
+    <plan name="reserved-metal-monthly-trial-bp">
+      <product>reserved-metal</product>
       <initialPhases>
         <phase type="TRIAL">
           <duration>
             <unit>DAYS</unit>
-            <number>30</number>
+            <number>14</number>
           </duration>
           <fixed>
             <fixedPrice>
@@ -265,24 +312,24 @@
             </price>
             <price>
               <currency>GBP</currency>
-              <value>80.00</value>
+              <value>65.00</value>
             </price>
             <price>
               <currency>EUR</currency>
-              <value>90.00</value>
+              <value>88.00</value>
             </price>
             <price>
               <currency>JPY</currency>
-              <value>10.00</value>
+              <value>10000.00</value>
             </price>
             <price>
               <currency>BTC</currency>
-              <value>5.00</value>
+              <value>0.38</value>
             </price>
           </recurringPrice>
         </recurring>
         <usages>
-          <usage name="metal-monthly-trial-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+          <usage name="reserved-metal-monthly-trial-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
             <billingPeriod>MONTHLY</billingPeriod>
             <tiers>
               <tier>
@@ -297,19 +344,19 @@
                       </price>
                       <price>
                         <currency>GBP</currency>
-                        <value>0.08</value>
+                        <value>0.065</value>
                       </price>
                       <price>
                         <currency>EUR</currency>
-                        <value>0.09</value>
+                        <value>0.088</value>
                       </price>
                       <price>
                         <currency>JPY</currency>
-                        <value>0.01</value>
+                        <value>10.00</value>
                       </price>
                       <price>
                         <currency>BTC</currency>
-                        <value>0.005</value>
+                        <value>0.00038</value>
                       </price>
                     </prices>
                     <max>100000</max>
@@ -321,8 +368,8 @@
         </usages>
       </finalPhase>
     </plan>
-    <plan name="vm-monthly">
-      <product>vm</product>
+    <plan name="reserved-vm-monthly-bp">
+      <product>reserved-vm</product>
       <finalPhase type="EVERGREEN">
         <duration>
           <unit>UNLIMITED</unit>
@@ -336,24 +383,24 @@
             </price>
             <price>
               <currency>GBP</currency>
-              <value>50.00</value>
+              <value>48.48</value>
             </price>
             <price>
               <currency>EUR</currency>
-              <value>60.00</value>
+              <value>66.21</value>
             </price>
             <price>
               <currency>JPY</currency>
-              <value>7.00</value>
+              <value>7500.00</value>
             </price>
             <price>
               <currency>BTC</currency>
-              <value>3.50</value>
+              <value>0.28</value>
             </price>
           </recurringPrice>
         </recurring>
         <usages>
-          <usage name="vm-monthly-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+          <usage name="reserved-vm-monthly-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
             <billingPeriod>MONTHLY</billingPeriod>
             <tiers>
               <tier>
@@ -368,19 +415,19 @@
                       </price>
                       <price>
                         <currency>GBP</currency>
-                        <value>0.04</value>
+                        <value>0.03</value>
                       </price>
                       <price>
                         <currency>EUR</currency>
-                        <value>0.05</value>
+                        <value>0.04</value>
                       </price>
                       <price>
                         <currency>JPY</currency>
-                        <value>0.005</value>
+                        <value>5.00</value>
                       </price>
                       <price>
                         <currency>BTC</currency>
-                        <value>0.0025</value>
+                        <value>0.00019</value>
                       </price>
                     </prices>
                     <max>100000</max>
@@ -392,18 +439,149 @@
         </usages>
       </finalPhase>
     </plan>
+    <plan name="reserved-vm-monthly-trial-bp">
+      <product>reserved-vm</product>
+      <initialPhases>
+        <phase type="TRIAL">
+          <duration>
+            <unit>DAYS</unit>
+            <number>14</number>
+          </duration>
+          <fixed>
+            <fixedPrice>
+            </fixedPrice>
+          </fixed>
+        </phase>
+      </initialPhases>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>MONTHLY</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>75.00</value>
+            </price>
+            <price>
+              <currency>GBP</currency>
+              <value>48.48</value>
+            </price>
+            <price>
+              <currency>EUR</currency>
+              <value>66.21</value>
+            </price>
+            <price>
+              <currency>JPY</currency>
+              <value>7500.00</value>
+            </price>
+            <price>
+              <currency>BTC</currency>
+              <value>0.28</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+        <usages>
+          <usage name="reserved-vm-monthly-trial-cpu-usage" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>cpu-hour</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>0.05</value>
+                      </price>
+                      <price>
+                        <currency>GBP</currency>
+                        <value>0.03</value>
+                      </price>
+                      <price>
+                        <currency>EUR</currency>
+                        <value>0.04</value>
+                      </price>
+                      <price>
+                        <currency>JPY</currency>
+                        <value>5.00</value>
+                      </price>
+                      <price>
+                        <currency>BTC</currency>
+                        <value>0.00019</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
+        </usages>
+      </finalPhase>
+    </plan>
+    <plan name="backup-daily-monthly-trial-bp">
+      <product>backup-daily</product>
+      <initialPhases>
+        <phase type="TRIAL">
+          <duration>
+            <unit>DAYS</unit>
+            <number>14</number>
+          </duration>
+          <fixed>
+            <fixedPrice>
+            </fixedPrice>
+          </fixed>
+        </phase>
+      </initialPhases>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>MONTHLY</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>10.00</value>
+            </price>
+            <price>
+              <currency>GBP</currency>
+              <value>6.50</value>
+            </price>
+            <price>
+              <currency>EUR</currency>
+              <value>8.800</value>
+            </price>
+            <price>
+              <currency>JPY</currency>
+              <value>1000.00</value>
+            </price>
+            <price>
+              <currency>BTC</currency>
+              <value>0.038</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+      </finalPhase>
+    </plan>
   </plans>
   <priceLists>
     <defaultPriceList name="DEFAULT">
       <plans>
-        <plan>metal-annual</plan>
-        <plan>metal-monthly</plan>
-        <plan>vm-monthly</plan>
+        <plan>on-demand-metal-no-bp</plan>
+        <plan>reserved-metal-annual-bp</plan>
+        <plan>reserved-metal-monthly-bp</plan>
+        <plan>reserved-vm-monthly-bp</plan>
       </plans>
     </defaultPriceList>
     <childPriceList name="TRIAL">
       <plans>
-        <plan>metal-monthly-trial</plan>
+        <plan>reserved-metal-monthly-trial-bp</plan>
+        <plan>reserved-vm-monthly-trial-bp</plan>
+        <plan>backup-daily-monthly-trial-bp</plan>
       </plans>
     </childPriceList>
   </priceLists>
