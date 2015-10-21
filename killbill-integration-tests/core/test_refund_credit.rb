@@ -193,11 +193,21 @@ module KillBillIntegrationTests
       assert_equal(1, payments.size)
       payment_for_second_invoice = payments[0]
 
-      #
-      # Issue a refund
-      #
       second_invoice = all_invoices[1]
-      adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
+
+      #
+      # Issue a refund with invoice item adjustments
+      # The refund will fail because the subscription has already been repaired and there is only (500 - 333.222 = 166.67) left
+      #
+      begin
+        adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
+        refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
+        raise MiniTest::Assertion, "Unexpected success on refund"
+      rescue KillBillClient::API::BadRequest => e
+      end
+
+      # However if we do a 333.33 refund with a 166.67 adjustment that should pass
+      adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 166.67}]
       refund = refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
       assert_equal(refund.transactions.size, 2)
       assert_equal(refund.transactions[1].amount, 333.33)
@@ -211,17 +221,16 @@ module KillBillIntegrationTests
       # As expected we see a new negative credit item (showing that we consumed the previously allocated credit) because the refund with NO ADJUSTMENT
       # brought the invoice balance to a positive level and so the system used the existing credit on the account
       #
-      check_invoice_item(updated_second_invoice.items[1], updated_second_invoice.invoice_id, -333.33, 'USD', 'ITEM_ADJ', nil, nil, '2013-09-10', '2013-09-10')
+      check_invoice_item(updated_second_invoice.items[1], updated_second_invoice.invoice_id, -166.67, 'USD', 'ITEM_ADJ', nil, nil, '2013-09-10', '2013-09-10')
       assert_equal(updated_second_invoice.balance, 0)
 
       #
       # This time we can verify that there is a credit of $333 because the credit was generated before we did the refund and the refund included an item adjustment, the existing
       # remains
       refreshed_account = get_account(@account.account_id, true, true, @options)
-      assert_equal(refreshed_account.account_balance, -333.33)
-      assert_equal(refreshed_account.account_cba, 333.33)
+      assert_equal(refreshed_account.account_balance, -166.67)
+      assert_equal(refreshed_account.account_cba, 166.67)
     end
-
 
     #
     # The fourth scenario is similar to the second one with this time we issue a refund with INVOICE ITEM ADJUSTMENT.
@@ -231,7 +240,6 @@ module KillBillIntegrationTests
     # specifies an amount and not a service period so the invoicing code cannot know which part was adjusted and the current behavior today
     # after we perform the cancellation is to calculate the largest available amount left (500 - 333.36)
     #
-    # !!! Therefore, we see that when doing an refund with INVOICE ITEM ADJUSTMENT, the order of operations between the cancellation and the refund matters !!!
     #
     def test_refund_and_cancel_with_item_adjustments
 
