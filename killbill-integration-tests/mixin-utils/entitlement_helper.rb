@@ -22,6 +22,13 @@ module KillBillIntegrationTests
       bundle.resume(requested_date, user, nil, nil, options)
     end
 
+    def set_blocking_state(bundle_id, state_name, service, block_change, block_entitlement, block_billing, requested_date, user, options)
+      bundle = KillBillClient::Model::Bundle.new
+      bundle.bundle_id = bundle_id
+      bundle.set_blocking_state(state_name, service, block_change, block_entitlement, block_billing, requested_date, user, nil, nil, options)
+    end
+
+
     def create_entitlement_base_with_overrides(account_id, product_name, billing_period, price_list, overrides, user, options)
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, overrides, nil, user, options)
     end
