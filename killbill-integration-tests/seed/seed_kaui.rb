@@ -24,7 +24,6 @@ module Faker
   end
 end
 
-# Requires the SpyCarAdvanced catalog
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
 
@@ -46,10 +45,11 @@ module KillBillIntegrationSeed
 
       tenant_info = {
           :use_multi_tenant => true,
-          :api_key => 'bob',
-          :api_secret => 'lazar'
+          :api_key => 'SEED_ANAL2',
+          :api_secret => 'SEED_ANAL2'
       }
-      setup_base('kaui_seed', tenant_info, '2013-02-08T08:00:00.000Z')
+      setup_base('kaui_seed', tenant_info, '2015-08-08T08:00:00.000Z')
+      upload_catalog('SeedCloudCatalog.xml', true,  @user, @options)
     end
 
     def teardown
@@ -58,7 +58,7 @@ module KillBillIntegrationSeed
     end
 
     def test_seed_kaui
-      initial_date = DateTime.parse('2015-04-01').to_date
+      initial_date = DateTime.parse('2015-09-15').to_date
       last_date = DateTime.now.to_date
 
       run_with_clock(initial_date, last_date) { |date| run_one_day(date) }
@@ -163,21 +163,28 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, 'killbill-cybersource', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, 'killbill-stripe', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
       product = case rand(10)
                   when 0..5 then
-                    'Standard'
+                    'reserved-metal'
                   when 6..8 then
-                    'Sports'
+                    'reserved-vm'
                   else
-                    'Super'
+                    'on-demand-metal'
                 end
 
       # Assume the bulk of the subscriptions are monthly
-      billing_period = rand(10) > 8 && product == 'Standard' ? 'ANNUAL' : 'MONTHLY'
+
+      if product == 'reserved-metal'
+        billing_period = rand(10) > 8 ? 'ANNUAL' : 'MONTHLY'
+      elsif product == 'reserved-vm'
+        billing_period = 'MONTHLY'
+      elsif product == 'on-demand-metal'
+        billing_period = 'NO_BILLING_PERIOD'
+      end
 
       base = create_entitlement_base(account.account_id, product, billing_period, 'DEFAULT', @user, @options)
       @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
@@ -189,17 +196,10 @@ module KillBillIntegrationSeed
 
     def create_add_on(account, base)
       # Not available
-      return if base.product_name == 'Standard'
+      return if base.product_name != 'reserved-vm'
 
-      ao_product = case rand(10)
-                     when 0..4 then
-                       nil
-                     when 5..7 then
-                       'OilSlick'
-                     else
-                       'RemoteControl'
-                   end
-      return if ao_product.nil? || (ao_product == 'OilSlick' && base.product_name == 'Super') # Already included?
+      ao_product = 'backup-daily'
+      return ao_product
 
       # Only monthly add-ons are supported
       billing_period = 'MONTHLY'
@@ -260,7 +260,7 @@ module KillBillIntegrationSeed
       kb_clock_set("#{date.to_s}T08:00:00.000Z", nil, @options) rescue nil
 
       while date <= last_date do
-        @logger.info "Moving clock to #{date}"
+        @logger.info "Moving clock to #{date.next_day}"
         kb_clock_add_days(1, nil, @options) rescue nil
 
         yield date if block_given?
