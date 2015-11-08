@@ -30,6 +30,7 @@ COMMON_HEADERS = [
   { name: 'X-Killbill-ApiSecret', value: ENV['API_SECRET'] || 'lazar' },
   { name: 'X-Killbill-CreatedBy', value: ENV['CREATED_BY'] || 'JMeter' },
   { name: 'Accept', value: 'application/json' },
+  { name: 'X-Killbill-Profiling-Req', value: 'DAO_DETAILS' },
   { name: 'Content-Type', value: 'application/json' }
 ]
 
