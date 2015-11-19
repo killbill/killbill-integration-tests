@@ -88,6 +88,11 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('seed:kaui') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/seed/seed_kaui.rb"]
+    t.verbose    = true
+  end
 end
 
 # Run tests by default

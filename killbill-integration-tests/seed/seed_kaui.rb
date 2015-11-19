@@ -2,6 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift File.expand_path('..', __FILE__)
 
 require 'concurrent'
+require 'date'
 require 'faker'
 require 'logger'
 require 'logger_colored'
@@ -24,7 +25,6 @@ module Faker
   end
 end
 
-# Requires the SpyCarAdvanced catalog
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
 
@@ -46,10 +46,13 @@ module KillBillIntegrationSeed
 
       tenant_info = {
           :use_multi_tenant => true,
-          :api_key => 'bob',
-          :api_secret => 'lazar'
+          :api_key => ENV['api_key'] || 'bob',
+          :api_secret => ENV['api_secret'] || 'lazar'
       }
-      setup_base('kaui_seed', tenant_info, '2013-02-08T08:00:00.000Z')
+
+      @start_date = ENV['start_date'] || Date.today.to_s
+      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z")
+      upload_catalog(ENV['catalog'], true, @user, @options) if ENV['catalog']
     end
 
     def teardown
@@ -58,7 +61,7 @@ module KillBillIntegrationSeed
     end
 
     def test_seed_kaui
-      initial_date = DateTime.parse('2015-04-01').to_date
+      initial_date = DateTime.parse(@start_date).to_date
       last_date = DateTime.now.to_date
 
       run_with_clock(initial_date, last_date) { |date| run_one_day(date) }
@@ -163,7 +166,7 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, 'killbill-cybersource', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-cybersource', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
@@ -260,7 +263,7 @@ module KillBillIntegrationSeed
       kb_clock_set("#{date.to_s}T08:00:00.000Z", nil, @options) rescue nil
 
       while date <= last_date do
-        @logger.info "Moving clock to #{date}"
+        @logger.info "Moving clock to #{date.next_day}"
         kb_clock_add_days(1, nil, @options) rescue nil
 
         yield date if block_given?
