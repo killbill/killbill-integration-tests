@@ -51,7 +51,7 @@ module KillBillIntegrationSeed
       }
 
       @start_date = ENV['start_date'] || Date.today.to_s
-      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z")
+      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z", ENV['kb_host'] || DEFAULT_KB_ADDRESS, ENV['kb_port'] || DEFAULT_KB_PORT)
       upload_catalog(ENV['catalog'], true, @user, @options) if ENV['catalog']
     end
 
