@@ -2,6 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift File.expand_path('..', __FILE__)
 
 require 'concurrent'
+require 'date'
 require 'faker'
 require 'logger'
 require 'logger_colored'
@@ -45,11 +46,13 @@ module KillBillIntegrationSeed
 
       tenant_info = {
           :use_multi_tenant => true,
-          :api_key => 'SEED_ANAL2',
-          :api_secret => 'SEED_ANAL2'
+          :api_key => ENV['api_key'] || 'bob',
+          :api_secret => ENV['api_secret'] || 'lazar'
       }
-      setup_base('kaui_seed', tenant_info, '2015-08-08T08:00:00.000Z')
-      upload_catalog('SeedCloudCatalog.xml', true,  @user, @options)
+
+      @start_date = ENV['start_date'] || Date.today.to_s
+      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z")
+      upload_catalog(ENV['catalog'], true, @user, @options) if ENV['catalog']
     end
 
     def teardown
@@ -58,7 +61,7 @@ module KillBillIntegrationSeed
     end
 
     def test_seed_kaui
-      initial_date = DateTime.parse('2015-09-15').to_date
+      initial_date = DateTime.parse(@start_date).to_date
       last_date = DateTime.now.to_date
 
       run_with_clock(initial_date, last_date) { |date| run_one_day(date) }
@@ -163,7 +166,7 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, 'killbill-stripe', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-cybersource', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
