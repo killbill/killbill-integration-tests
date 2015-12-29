@@ -5,7 +5,7 @@ require 'test/unit'
 require 'killbill_client'
 require 'helper'
 require 'checker'
-
+require 'logger'
 
 module KillBillIntegrationTests
   class Base < Test::Unit::TestCase
@@ -29,6 +29,9 @@ module KillBillIntegrationTests
 
       # Default running instance of Kill Bill server
       reset_killbill_client_url(killbill_address, killbill_port)
+
+      # If needed we can activate client logger
+      #setup_logger
 
       # RBAC default options
       @options = {:username => 'admin', :password => 'password'}
@@ -58,6 +61,12 @@ module KillBillIntegrationTests
 
     def reset_killbill_client_url(killbill_address, killbill_port)
       KillBillClient.url = "http://#{killbill_address}:#{killbill_port}"
+    end
+
+    def setup_logger
+      logger = Logger.new(STDOUT)
+      logger.level = Logger::INFO
+      KillBillClient.logger = logger
     end
 
     def teardown_base

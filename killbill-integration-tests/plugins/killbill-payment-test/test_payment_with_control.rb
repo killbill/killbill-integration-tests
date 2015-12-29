@@ -1,15 +1,25 @@
 $LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
-require 'test_base'
+require 'plugin_base'
 
 module KillBillIntegrationTests
 
-  class TestPaymentWithControl < Base
+  class TestPaymentWithControl < KillBillIntegrationTests::PluginBase
+
+    PLUGIN_KEY = "payment-test"
+    # Default to latest
+    PLUGIN_VERSION = nil
+
+
+    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'payment-test-plugin'},
+                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.ruby'},
+                    {:key => 'pluginType', :value => 'ruby'},
+    ]
 
     def setup
 
-      @user = "PaymentWithControl"
-      setup_base(@user)
+      setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
 
       @account = create_account(@user, @options)
       add_payment_method(@account.account_id, 'killbill-payment-test', true, nil, @user, @options)
@@ -20,7 +30,7 @@ module KillBillIntegrationTests
     end
 
     def teardown
-      teardown_base
+      teardown_plugin_base(PLUGIN_KEY)
     end
 
     def test_authorize_success
@@ -69,9 +79,12 @@ module KillBillIntegrationTests
       auth1_amount = '123.5'
       got_exception = false
 
+      begin
       auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-      # 202 in case of timeout
-      assert_equal(202, auth.response.code.to_i)
+      flunk("Call should have timedout")
+      rescue KillBillClient::API::InternalServerError => e
+        # 202 in case of timeout
+      end
     end
 
     def test_authorize_with_nil_result
