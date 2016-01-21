@@ -37,7 +37,6 @@ module KillBillIntegrationTests
       set_blocking_state(bp1.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, '2012-08-01', @user, @options)
       set_blocking_state(bp1.bundle_id, 'CUTOFF_MIGRATION', 'MigrationService', false, false, false, '2013-07-01', @user, @options)
 
-
       # 10/08/2012
       kb_clock_add_days(9, nil, @options)
 
@@ -48,11 +47,10 @@ module KillBillIntegrationTests
       set_blocking_state(bp2.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, '2012-08-10', @user, @options)
       set_blocking_state(bp2.bundle_id, 'CUTOFF_MIGRATION', 'MigrationService', false, false, false, '2013-08-10', @user, @options)
 
-
-      @account.remove_auto_invoicing_off(@user, 'test_migration_scenario', 'Disable invoice prior block/unblock', @options)
-
       # Add 11 months
       kb_clock_set('2013-07-01T06:00:05.000Z', nil, @options)
+
+      @account.remove_auto_invoicing_off(@user, 'test_migration_scenario', 'Disable invoice prior block/unblock', @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
