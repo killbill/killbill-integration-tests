@@ -180,7 +180,7 @@ module KillBillIntegrationSeed
                                              when 6..8 then
                                                ['reserved-vm', 'MONTHLY', 'TRIAL']
                                              else
-                                               ['on-demand-metal', 'MONTHLY', 'DEFAULT']
+                                               ['on-demand-metal', 'NO_BILLING_PERIOD', 'DEFAULT']
                                            end
 
       base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
