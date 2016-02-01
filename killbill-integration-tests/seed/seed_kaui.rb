@@ -176,7 +176,7 @@ module KillBillIntegrationSeed
                                              when 0..4 then
                                                ['reserved-metal', 'MONTHLY', 'TRIAL']
                                              when 5 then
-                                               ['reserved-vm', 'ANNUAL', 'DEFAULT']
+                                               ['reserved-metal', 'ANNUAL', 'DEFAULT']
                                              when 6..8 then
                                                ['reserved-vm', 'MONTHLY', 'TRIAL']
                                              else
