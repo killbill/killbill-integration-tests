@@ -25,6 +25,7 @@ module Faker
   end
 end
 
+
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
 
@@ -166,30 +167,23 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-cybersource', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-stripe', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
-      product = case rand(10)
-                  when 0..5 then
-                    'reserved-metal'
-                  when 6..8 then
-                    'reserved-vm'
-                  else
-                    'on-demand-metal'
-                end
 
-      # Assume the bulk of the subscriptions are monthly
+      product, billing_period, price_list = case rand(10)
+                                             when 0..4 then
+                                               ['reserved-metal', 'MONTHLY', 'TRIAL']
+                                             when 5 then
+                                               ['reserved-vm', 'ANNUAL', 'DEFAULT']
+                                             when 6..8 then
+                                               ['reserved-vm', 'MONTHLY', 'TRIAL']
+                                             else
+                                               ['on-demand-metal', 'MONTHLY', 'DEFAULT']
+                                           end
 
-      if product == 'reserved-metal'
-        billing_period = rand(10) > 8 ? 'ANNUAL' : 'MONTHLY'
-      elsif product == 'reserved-vm'
-        billing_period = 'MONTHLY'
-      elsif product == 'on-demand-metal'
-        billing_period = 'NO_BILLING_PERIOD'
-      end
-
-      base = create_entitlement_base(account.account_id, product, billing_period, 'DEFAULT', @user, @options)
+      base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
       @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
 
       @base_subscriptions << base
@@ -199,7 +193,7 @@ module KillBillIntegrationSeed
 
     def create_add_on(account, base)
       # Not available
-      return if base.product_name != 'reserved-vm'
+      return if base.product_name != 'reserved-vm' || base.price_list != 'TRIAL'
 
       ao_product = 'backup-daily'
       return ao_product
