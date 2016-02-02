@@ -184,7 +184,7 @@ module KillBillIntegrationSeed
                                            end
 
       base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
-      @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
+      @logger.info "Created #{product.downcase}-#{billing_period.downcase}-#{price_list} subscription for account id #{account.account_id}"
 
       @base_subscriptions << base
 
@@ -193,6 +193,9 @@ module KillBillIntegrationSeed
 
     def create_add_on(account, base)
       # Not available
+
+      @logger.info "create_add_on: base = #{base.inspect}"
+
       return if base.product_name != 'reserved-vm' || base.price_list != 'TRIAL'
 
       ao_product = 'backup-daily'
@@ -217,8 +220,10 @@ module KillBillIntegrationSeed
       sub = @subs_mutex.synchronize do
         # Assume most of the cancellations are for add-ons
         if rand(10) > 3
-          bundle_id = @ao_subscriptions.keys.sample
-          sub = @ao_subscriptions[bundle_id].shuffle.pop
+          if  ! @ao_subscriptions.empty?
+            bundle_id = @ao_subscriptions.keys.sample
+            sub = @ao_subscriptions[bundle_id].shuffle.pop
+          end
         else
           sub = @base_subscriptions.shuffle.pop
           @ao_subscriptions.delete(sub.bundle_id)
