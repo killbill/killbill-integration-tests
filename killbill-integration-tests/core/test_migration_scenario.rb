@@ -34,7 +34,9 @@ module KillBillIntegrationTests
       bp1 = create_entitlement_base(@account.account_id, 'Basic', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp1, 'Basic', 'BASE', 'MONTHLY', 'DEFAULT', '2012-08-01', nil)
 
-      set_blocking_state(bp1.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, '2012-08-01', @user, @options)
+      # We are using a nil effective_date to make sure that BlockingState event is created with clock.getUTCNow() and correct ordering between 'ENT_STARTED' and 'INIT_MIGRATION' occurs
+      # and therefore junction correctly realize that we are in blockedBilling mode.
+      set_blocking_state(bp1.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, nil, @user, @options)
       set_blocking_state(bp1.bundle_id, 'CUTOFF_MIGRATION', 'MigrationService', false, false, false, '2013-07-01', @user, @options)
 
       # 10/08/2012
@@ -44,7 +46,9 @@ module KillBillIntegrationTests
       bp2 = create_entitlement_base(@account.account_id, 'Basic', 'ANNUAL', 'DEFAULT', @user, @options)
       check_entitlement(bp2, 'Basic', 'BASE', 'ANNUAL', 'DEFAULT', '2012-08-10', nil)
 
-      set_blocking_state(bp2.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, '2012-08-10', @user, @options)
+
+      # Same remark here regarding the nil effective_date
+      set_blocking_state(bp2.bundle_id, 'INIT_MIGRATION', 'MigrationService', true, true, true, nil, @user, @options)
       set_blocking_state(bp2.bundle_id, 'CUTOFF_MIGRATION', 'MigrationService', false, false, false, '2013-08-10', @user, @options)
 
       # Add 11 months
