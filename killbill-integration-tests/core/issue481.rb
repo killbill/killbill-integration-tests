@@ -36,7 +36,7 @@ module KillBillIntegrationTests
       upload_catalog('Issue481/Issue481-2.xml', false, @user, @options)
 
       # 2016-02-01
-      # we still expect the original price because we did not reach 'effectiveDateForExistingSubscriptons' for Issue481-2.xml
+      # we still expect the original price because we did not reach 'effectiveDateForExistingSubscriptions' for Issue481-2.xml
       kb_clock_add_months(1, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 

@@ -55,7 +55,7 @@
     <plans>
         <plan name="something-monthly">
 
-            <effectiveDateForExistingSubscriptons>2016-03-14T00:00:00+00:00</effectiveDateForExistingSubscriptons>
+            <effectiveDateForExistingSubscriptions>2016-03-14T00:00:00+00:00</effectiveDateForExistingSubscriptions>
 
           <product>Something</product>
             <finalPhase type="EVERGREEN">
