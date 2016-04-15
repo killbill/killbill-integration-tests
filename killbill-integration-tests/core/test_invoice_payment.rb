@@ -126,30 +126,5 @@ module KillBillIntegrationTests
       assert_equal(0.0, refreshed_account.account_cba)
     end
 
-    def test_external_payment_with_multiple_partial_adjustments
-      charge = create_charge(@account.account_id, '50.0', 'USD', 'My charge', @user, @options)
-
-      pay_all_unpaid_invoices(@account.account_id, true, '50.0', @user, @options)
-
-      account = get_account(@account.account_id, true, true, @options)
-      assert_equal(0, account.account_balance)
-      assert_equal(0, account.account_cba)
-
-      invoice = get_invoice_by_id(charge.invoice_id, @options)
-      invoice_item_id = invoice.items.first.invoice_item_id
-      assert_equal(0.0, invoice.balance)
-
-      payment_id = account.payments(@options).first.payment_id
-
-      refund(payment_id, '20.0', [{:invoice_item_id => invoice_item_id, :amount => '20'}], @user, @options)
-      invoice = get_invoice_by_id(charge.invoice_id, @options)
-      assert_equal(0.0, invoice.balance)
-      assert_equal(-20.0, invoice.refund_adj)
-
-      refund(payment_id, '30.0', [{:invoice_item_id => invoice_item_id, :amount => '30'}], @user, @options)
-      invoice = get_invoice_by_id(charge.invoice_id, @options)
-      assert_equal(0.0, invoice.balance)
-      assert_equal(-50.0, invoice.refund_adj)
-    end
   end
 end
