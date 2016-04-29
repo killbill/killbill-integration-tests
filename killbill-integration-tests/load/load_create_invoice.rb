@@ -50,16 +50,21 @@ module KillBillIntegrationTests
 
 
     def parse_envs
+
+      @kb_host = ENV['kb_host'] || DEFAULT_KB_ADDRESS
+      @kb_port = ENV['kb_port'] || DEFAULT_KB_PORT
+
+      @api_key = ENV['api_key'] || 'invoice'
+      @api_secret = ENV['api_secret'] || 'invoice'
+
       @nb_accounts = ENV['nb_accounts'] || 10
       @sleep_time =  ENV['sleep_time'] ?  ENV['sleep_time'].to_f : nil
       @start_date = ENV['start_date'] || Date.today.to_s
-      @kb_host = ENV['kb_host'] || DEFAULT_KB_ADDRESS
-      @kb_port = ENV['kb_port'] || DEFAULT_KB_PORT
-      @api_key = ENV['api_key'] || 'invoice'
-      @api_secret = ENV['api_secret'] || 'invoice'
+      @subscription_create_delay = ENV['subscription_create_delay'] ? ENV['subscription_create_delay'].to_i : nil
+
       @catalog = ENV['catalog']
 
-      @logger.info "Starting TestInvoiceGeneration @nb_accounts=#{@nb_accounts}, @start_date=#{@start_date}, @kb_host=#{@kb_host}, @kb_port=#{@kb_port}, @api_key=#{@api_key}, @catalog=#{@catalog}, @sleep_time=#{@sleep_time}"
+      @logger.info "Starting TestInvoiceGeneration @nb_accounts=#{@nb_accounts}, @start_date=#{@start_date}, @kb_host=#{@kb_host}, @kb_port=#{@kb_port}, @api_key=#{@api_key}, @catalog=#{@catalog}, @sleep_time=#{@sleep_time}, @subscription_create_delay=#{@subscription_create_delay}"
 
     end
 
@@ -122,8 +127,7 @@ module KillBillIntegrationTests
 
       billing_period = 'MONTHLY'
 
-      #
-      requested_date = date.next_day
+      requested_date = @subscription_create_delay.nil? ? date : date + @subscription_create_delay
 
       base = create_entitlement_base_with_date(account.account_id, product, billing_period, 'DEFAULT', requested_date, @user, @options)
       @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id} on date #{requested_date}"
