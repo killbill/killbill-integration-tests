@@ -30,23 +30,11 @@ module KillBillIntegrationTests
       payment2_key      = 'payment2-' + rand(1000000).to_s
       payment2_currency = 'USD'
 
-      # Auth the first payment
-      auth1_key         = payment1_key + '-auth1'
-      auth1_amount      = '240922.1504832'
-      auth1             = create_auth(@account.account_id, payment1_key, auth1_key, auth1_amount, payment1_currency, @user, @options)
-      check_transaction(auth1, payment1_key, auth1_key, authorize, auth1_amount, payment1_currency, success)
-
       # Auth the second payment
       auth2_key    = payment2_key + '-auth1'
       auth2_amount = '23.23'
       auth2        = create_auth(@account.account_id, payment2_key, auth2_key, auth2_amount, payment2_currency, @user, @options)
       check_transaction(auth2, payment2_key, auth2_key, authorize, auth2_amount, payment2_currency, success)
-
-      # Partially capture the first auth
-      capture11_key    = payment1_key + '-capture1'
-      capture11_amount = '483.22'
-      capture11        = create_capture(auth1.payment_id, capture11_key, capture11_amount, payment1_currency, @user, @options)
-      check_transaction(capture11, payment1_key, capture11_key, capture, capture11_amount, payment1_currency, success)
 
       # Void the second auth
       void2_key = payment2_key + '-void'
