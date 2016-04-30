@@ -57,7 +57,7 @@ module KillBillIntegrationTests
       @api_key = ENV['api_key'] || 'invoice'
       @api_secret = ENV['api_secret'] || 'invoice'
 
-      @nb_accounts = ENV['nb_accounts'] || 10
+      @nb_accounts = ENV['nb_accounts'] ? ENV['nb_accounts'].to_i : 10
       @sleep_time =  ENV['sleep_time'] ?  ENV['sleep_time'].to_f : nil
       @start_date = ENV['start_date'] || Date.today.to_s
       @subscription_create_delay = ENV['subscription_create_delay'] ? ENV['subscription_create_delay'].to_i : nil
