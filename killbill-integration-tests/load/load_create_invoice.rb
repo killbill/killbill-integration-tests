@@ -86,10 +86,12 @@ module KillBillIntegrationTests
       log_dir = '/var/tmp/'
       now = Time.now.strftime('%Y-%m-%d-%H:%M')
       kb_log_path = "#{log_dir}/invoice.#{now}.killbill.log"
-      KillBillClient.logger = Logger.new(kb_log_path)
-      KillBillClient.logger.level = Logger::DEBUG
+      kb_log_client_path = "#{log_dir}/invoice.#{now}.client.log"
 
-      @logger = Logger.new(STDOUT)
+      KillBillClient.logger = Logger.new(kb_log_client_path)
+      KillBillClient.logger.level = Logger::WARN
+
+      @logger = Logger.new(kb_log_path)
       @logger.level = Logger::INFO
     end
 
