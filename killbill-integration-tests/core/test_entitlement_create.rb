@@ -84,7 +84,6 @@ module KillBillIntegrationTests
 
     end
 
-
     def test_create_ao_subscription_aligned_skip_trial
 
 
@@ -110,9 +109,11 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-discount', '2013-08-16', '2013-08-31')
 
       kb_clock_add_days(15, nil, @options) # "2013-08-31"
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
 
       #
-      # Because we are SUBSCRIPTION aligned the discount period that starts on the 2013-08-01 and because it lasts a month we see a first pro-ration until 2013-09-01 and then
+      # Because we are SUBSCRIPTION aligned the discount period that starts on the 2013-08-16 and because it lasts a month we see a first pro-ration until 2013-09-01 and then
       # when we move the clock again by 16 day, we see the remaining piece.
       #
       all_invoices = @account.invoices(true, @options)
@@ -124,12 +125,31 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 4.27, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-discount', '2013-08-31', '2013-09-16')
 
       kb_clock_add_days(16, nil, @options) # "2013-09-16"
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 8.11, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-evergreen', '2013-09-16', '2013-09-30')
+
+
+      # Change plan EOT
+      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
+
+      # Change plan becomes effective: We verify that the changePlan correctly skips the initial TRIAL for the new plan
+      kb_clock_add_days(14, nil, @options) # "2013-09-30"
+      wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
+
+      ao_entitlement = get_subscription(ao_entitlement.subscription_id, @options)
+      assert_equal('EVERGREEN', ao_entitlement.phase_type)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(5, all_invoices.size)
+      fifth_invoice = all_invoices[4]
+      check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 37.95, 'USD', 'RECURRING', 'remotecontroladvanced-monthly', 'remotecontroladvanced-monthly-evergreen', '2013-09-30', '2013-10-31')
 
     end
 
