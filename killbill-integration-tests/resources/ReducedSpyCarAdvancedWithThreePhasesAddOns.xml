@@ -33,15 +33,19 @@
             <category>BASE</category>
             <available>
                 <addonProduct>OilSlick</addonProduct>
-                <addonProduct>RemoteControl</addonProduct>
+              <addonProduct>RemoteControl</addonProduct>
+              <addonProduct>RemoteControlAdvanced</addonProduct>
             </available>
         </product>
         <product name="OilSlick">
             <category>ADD_ON</category>
         </product>
-        <product name="RemoteControl">
-            <category>ADD_ON</category>
-        </product>
+      <product name="RemoteControl">
+        <category>ADD_ON</category>
+      </product>
+      <product name="RemoteControlAdvanced">
+        <category>ADD_ON</category>
+      </product>
     </products>
 
     <rules>
@@ -55,10 +59,16 @@
             </changePolicyCase>
         </changePolicy>
         <changeAlignment>
-            <changeAlignmentCase>
-                <toProductCategory>ADD_ON</toProductCategory>
-                <alignment>START_OF_BUNDLE</alignment>
-            </changeAlignmentCase>
+
+          <changeAlignmentCase>
+            <fromProduct>RemoteControl</fromProduct>
+            <alignment>START_OF_SUBSCRIPTION</alignment>
+          </changeAlignmentCase>
+
+          <changeAlignmentCase>
+            <toProductCategory>ADD_ON</toProductCategory>
+            <alignment>START_OF_BUNDLE</alignment>
+          </changeAlignmentCase>
             <changeAlignmentCase>
                 <alignment>START_OF_SUBSCRIPTION</alignment>
             </changeAlignmentCase>
@@ -183,56 +193,101 @@
                 </recurring>
             </finalPhase>
         </plan>
-        <plan name="remotecontrol-monthly">
-            <product>RemoteControl</product>
-            <initialPhases>
-              <phase type="TRIAL">
-                <duration>
-                  <unit>DAYS</unit>
-                  <number>30</number>
-                </duration>
-                <fixed>
-                  <fixedPrice> <!-- empty price implies $0 -->
-                  </fixedPrice>
-                </fixed>
-              </phase>
-              <phase type="DISCOUNT">
-                    <duration>
-                        <unit>MONTHS</unit>
-                        <number>1</number>
-                    </duration>
-                    <recurring>
-                        <billingPeriod>MONTHLY</billingPeriod>
-                        <recurringPrice>
-                            <price>
-                                <currency>USD</currency>
-                                <value>8.00</value>
-                            </price>
-                        </recurringPrice>
-                    </recurring>
-                </phase>
-            </initialPhases>
-            <finalPhase type="EVERGREEN">
-                <duration>
-                    <unit>UNLIMITED</unit>
-                </duration>
-                <recurring>
-                    <billingPeriod>MONTHLY</billingPeriod>
-                    <recurringPrice>
-                        <price>
-                            <currency>USD</currency>
-                            <value>17.95</value>
-                        </price>
-                    </recurringPrice>
-                </recurring>
-            </finalPhase>
-        </plan>
+      <plan name="remotecontrol-monthly">
+        <product>RemoteControl</product>
+        <initialPhases>
+          <phase type="TRIAL">
+            <duration>
+              <unit>DAYS</unit>
+              <number>30</number>
+            </duration>
+            <fixed>
+              <fixedPrice> <!-- empty price implies $0 -->
+              </fixedPrice>
+            </fixed>
+          </phase>
+          <phase type="DISCOUNT">
+            <duration>
+              <unit>MONTHS</unit>
+              <number>1</number>
+            </duration>
+            <recurring>
+              <billingPeriod>MONTHLY</billingPeriod>
+              <recurringPrice>
+                <price>
+                  <currency>USD</currency>
+                  <value>8.00</value>
+                </price>
+              </recurringPrice>
+            </recurring>
+          </phase>
+        </initialPhases>
+        <finalPhase type="EVERGREEN">
+          <duration>
+            <unit>UNLIMITED</unit>
+          </duration>
+          <recurring>
+            <billingPeriod>MONTHLY</billingPeriod>
+            <recurringPrice>
+              <price>
+                <currency>USD</currency>
+                <value>17.95</value>
+              </price>
+            </recurringPrice>
+          </recurring>
+        </finalPhase>
+      </plan>
+      <plan name="remotecontroladvanced-monthly">
+        <product>RemoteControlAdvanced</product>
+        <initialPhases>
+          <phase type="TRIAL">
+            <duration>
+              <unit>DAYS</unit>
+              <number>30</number>
+            </duration>
+            <fixed>
+              <fixedPrice> <!-- empty price implies $0 -->
+              </fixedPrice>
+            </fixed>
+          </phase>
+          <phase type="DISCOUNT">
+            <duration>
+              <unit>MONTHS</unit>
+              <number>1</number>
+            </duration>
+            <recurring>
+              <billingPeriod>MONTHLY</billingPeriod>
+              <recurringPrice>
+                <price>
+                  <currency>USD</currency>
+                  <value>18.00</value>
+                </price>
+              </recurringPrice>
+            </recurring>
+          </phase>
+        </initialPhases>
+        <finalPhase type="EVERGREEN">
+          <duration>
+            <unit>UNLIMITED</unit>
+          </duration>
+          <recurring>
+            <billingPeriod>MONTHLY</billingPeriod>
+            <recurringPrice>
+              <price>
+                <currency>USD</currency>
+                <value>37.95</value>
+              </price>
+            </recurringPrice>
+          </recurring>
+        </finalPhase>
+      </plan>
     </plans>
     <priceLists>
         <defaultPriceList name="DEFAULT">
             <plans>
                 <plan>sports-monthly</plan>
-                <plan>remotecontrol-monthly</plan>
+              <plan>remotecontrol-monthly</plan>
+              <plan>remotecontroladvanced-monthly</plan>
                 <plan>oilslick-monthly</plan>
             </plans>
         </defaultPriceList>
