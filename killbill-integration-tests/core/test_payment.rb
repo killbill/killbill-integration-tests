@@ -102,7 +102,7 @@ module KillBillIntegrationTests
       check_payment(payments[1],
                     @account.account_id,
                     payment2_key,
-                    auth2_amount,
+                    0,
                     0,
                     0,
                     0,
