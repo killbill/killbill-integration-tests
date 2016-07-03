@@ -34,7 +34,7 @@ module KillBillIntegrationTests
       invoice_item.amount      = amount
       invoice_item.currency    = currency
       invoice_item.description = description
-      invoice_item.create(user, nil, nil, options)
+      invoice_item.create(true, user, nil, nil, options)
     end
 
 
