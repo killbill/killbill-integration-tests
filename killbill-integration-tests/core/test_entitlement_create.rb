@@ -149,7 +149,9 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       assert_equal(5, all_invoices.size)
       fifth_invoice = all_invoices[4]
-      check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 37.95, 'USD', 'RECURRING', 'remotecontroladvanced-monthly', 'remotecontroladvanced-monthly-evergreen', '2013-09-30', '2013-10-31')
+      sort_items_by_descending_price!(fifth_invoice.items)
+      check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(fifth_invoice.items[1], fifth_invoice.invoice_id, 37.95, 'USD', 'RECURRING', 'remotecontroladvanced-monthly', 'remotecontroladvanced-monthly-evergreen', '2013-09-30', '2013-10-31')
 
     end
 
