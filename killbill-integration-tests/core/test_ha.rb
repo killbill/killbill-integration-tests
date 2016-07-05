@@ -240,11 +240,9 @@ module KillBillIntegrationTests
       # New invoice with REPAIR_ADJ and CBA_ADJ
       wait_for_expected_clause(3, @child_account, @options, &@proc_account_invoices_nb)
 
-      # Verify we see the parent invoice (which includes the repair)
+      # Verify there is **NO** new invoice for the parent (since the previous cancellation only resulted in a child account credit)
       kb_clock_add_days(1, nil, @options)
-      wait_for_expected_clause(3, @parent_account, @options, &@proc_account_invoices_nb)
-      parent_invoice = get_and_check_parent_invoice(@parent_account, 3, -483.33, 'USD', '2013-09-01')
-      check_parent_invoice_item(parent_invoice, 1, -483.33, 'USD', @child_account.account_id)
+      wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
 
       # Move again to next month
       kb_clock_add_days(29, nil, @options)
@@ -253,8 +251,9 @@ module KillBillIntegrationTests
       assert_equal(3, child_account_invoices.size)
 
       parent_account_invoices = @parent_account.invoices(true, @options)
-      assert_equal(3, parent_account_invoices.size)
+      assert_equal(2, parent_account_invoices.size)
     end
+
 
     #
     # Create  a BP + AO
@@ -416,21 +415,21 @@ module KillBillIntegrationTests
       # '2013-09-30' : Next recurring
       kb_clock_add_days(28, nil, @options)
       wait_for_expected_clause(4, @child_account, @options, &@proc_account_invoices_nb)
-      # TODO Parent should not inherit from the child credit (498.93)
-=begin
       child_invoice = get_and_check_child_invoice(@child_account, 4, 500.00, 'USD', '2013-09-30')
-      check_child_invoice_item(child_invoice, 1, 500.00, 'USD', 'RECURRING', 'sport-monthly', 'sport-monthly-evergreen', '2013-09-30', '2013-10-31')
-      check_account_balance(@child_account, 500.00, 0)
+      check_child_invoice_item(child_invoice, 1, -498.93, 'USD', 'CBA_ADJ', nil, nil, '2013-09-30', '2013-09-30')
+      check_child_invoice_item(child_invoice, 2, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_account_balance(@child_account, 1.07, 0)
 
       # '2013-10-01' : Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
       wait_for_expected_clause(4, @parent_account, @options, &@proc_account_invoices_nb)
-      parent_invoice = get_and_check_parent_invoice(@parent_account, 4, 500.00, 'USD', '2013-09-30')
-      check_parent_invoice_item(parent_invoice, 1, 500.00, 'USD', @child_account.account_id)
+      parent_invoice = get_and_check_parent_invoice(@parent_account, 4, 1.07, 'USD', '2013-09-30')
+      check_parent_invoice_item(parent_invoice, 1, 1.07, 'USD', @child_account.account_id)
       check_account_balance(@parent_account, 0, 0)
       check_account_balance(@child_account, 0, 0)
-=end
     end
+
+
 
 
     private
