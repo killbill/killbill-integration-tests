@@ -38,6 +38,14 @@ module KillBillIntegrationTests
     end
 
 
+    def create_account_credit(account_id, amount, currency, description, user, options)
+      credit_item                 = KillBillClient::Model::Credit.new()
+      credit_item.account_id      = account_id
+      credit_item.credit_amount   = amount
+      credit_item.currency        = currency
+      credit_item.description     = description
+      credit_item.create(user, nil, nil, options)
+    end
 
 
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})

@@ -257,7 +257,7 @@ module KillBillIntegrationTests
 
     #
     # Create  a BP + AO
-    # Initially BP and AO are not aligned (different invoices) but after a few period they beocme aligned
+    # Initially BP and AO are not aligned (different invoices) but after a few period they become aligned
     #
     # We verify that non aligned subscriptions also appears on different parent invoices
     # We verify that aligned subscriptions  appear on the same parent invoice
@@ -429,8 +429,19 @@ module KillBillIntegrationTests
       check_account_balance(@child_account, 0, 0)
     end
 
+    def test_child_credit_transfer
 
+      @child_account = create_child_account(@parent_account)
+      create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
 
+      check_account_balance(@child_account, -12.0, 12.0)
+      check_account_balance(@parent_account, 0.0, 0.0)
+
+      @child_account.transfer_child_credit(@user, nil, nil, @options)
+
+      check_account_balance(@parent_account, -12.0, 12.0)
+      check_account_balance(@child_account, 0.0, 0.0)
+    end
 
     private
 
