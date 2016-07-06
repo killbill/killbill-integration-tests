@@ -10,7 +10,6 @@ module KillBillIntegrationTests
       setup_base
 
       @parent_account = create_account(@user, @options)
-      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @parent_account = get_account(@parent_account.account_id, false, false, @options)
     end
 
@@ -22,6 +21,8 @@ module KillBillIntegrationTests
     # Basic simple recurring subscription use case
     #
     def test_basic_regular_child_subscription
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       @child_account = create_child_account(@parent_account)
 
@@ -77,6 +78,8 @@ module KillBillIntegrationTests
     #
     def test_cancel_EOT_before_summary_closes
 
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
       @child_account = create_child_account(@parent_account)
 
       bp = create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -120,6 +123,8 @@ module KillBillIntegrationTests
     #
     def test_cancel_EOT_after_summary_closes
 
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
       @child_account = create_child_account(@parent_account)
 
       bp = create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -162,6 +167,8 @@ module KillBillIntegrationTests
     # Cancellation IMMEDIATE PRIOR parent SUMMARY closes
     #
     def test_cancel_IMM_prior_summary_closes
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       @child_account = create_child_account(@parent_account)
 
@@ -209,6 +216,8 @@ module KillBillIntegrationTests
     # Cancellation IMMEDIATE AFTER parent SUMMARY closes
     #
     def test_cancel_IMM_after_summary_closes
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       @child_account = create_child_account(@parent_account)
 
@@ -263,6 +272,8 @@ module KillBillIntegrationTests
     # We verify that aligned subscriptions  appear on the same parent invoice
     #
     def test_non_aligned_and_aligned_subscriptions
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       @child_account = create_child_account(@parent_account)
 
@@ -343,6 +354,8 @@ module KillBillIntegrationTests
 
     def test_upgrade_plan_immediate
 
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
       @child_account = create_child_account(@parent_account)
 
       bp = create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -386,6 +399,8 @@ module KillBillIntegrationTests
 
 
     def test_downgrade_plan_immediate
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
       @child_account = create_child_account(@parent_account)
 
@@ -431,6 +446,8 @@ module KillBillIntegrationTests
 
     def test_child_credit_transfer
 
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
       @child_account = create_child_account(@parent_account)
       create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
 
@@ -442,6 +459,99 @@ module KillBillIntegrationTests
       check_account_balance(@parent_account, -12.0, 12.0)
       check_account_balance(@child_account, 0.0, 0.0)
     end
+
+    def test_invoice_item_adj_before_parent_commit
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
+      @child_account = create_child_account(@parent_account)
+
+      create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @child_account, @options, &@proc_account_invoices_nb)
+
+      # '2013-08-02' :Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(1, @parent_account, @options, &@proc_account_invoices_nb)
+
+      # Get out of trial
+      kb_clock_add_days(29, nil, @options)
+      wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
+
+      child_invoice = get_and_check_child_invoice(@child_account, 2, 500.00, 'USD', '2013-08-31')
+
+      adjust_invoice_item(@child_account.account_id, child_invoice.invoice_id, child_invoice.items[0].invoice_item_id, 100.0, 'USD', 'Free adjustment: good customer', @user, @options)
+
+      get_and_check_child_invoice(@child_account, 2, 400.00, 'USD', '2013-08-31')
+
+      # '2013-09-01' : Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
+
+      get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
+    end
+
+    def test_invoice_item_adj_after_parent_commit
+
+      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
+
+      @child_account = create_child_account(@parent_account)
+
+      create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @child_account, @options, &@proc_account_invoices_nb)
+
+      # '2013-08-02' :Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(1, @parent_account, @options, &@proc_account_invoices_nb)
+
+      # Get out of trial
+      kb_clock_add_days(29, nil, @options)
+      wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
+
+      # '2013-09-01' : Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
+
+      child_invoice = get_and_check_child_invoice(@child_account, 2, 500.00, 'USD', '2013-08-31')
+      get_and_check_parent_invoice(@parent_account, 2, 500.00, 'USD', '2013-08-31')
+
+      adjust_invoice_item(@child_account.account_id, child_invoice.invoice_id, child_invoice.items[0].invoice_item_id, 100.0, 'USD', 'Free adjustment: good customer', @user, @options)
+
+      get_and_check_child_invoice(@child_account, 2, 400.00, 'USD', '2013-08-31')
+      # Item is ignored by the parent (invoice was already paid, so credit is available on the child and not visible on parent)
+      get_and_check_parent_invoice(@parent_account, 2, 500.00, 'USD', '2013-08-31')
+    end
+
+    def test_invoice_item_adj_no_parent_payment
+
+      @child_account = create_child_account(@parent_account)
+
+      create_entitlement_base(@child_account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      wait_for_expected_clause(1, @child_account, @options, &@proc_account_invoices_nb)
+
+      # '2013-08-02' :Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(1, @parent_account, @options, &@proc_account_invoices_nb)
+
+      # Get out of trial
+      kb_clock_add_days(29, nil, @options)
+      wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
+
+      # '2013-09-01' : Verify we see the parent invoice
+      kb_clock_add_days(1, nil, @options)
+      wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
+
+      child_invoice = get_and_check_child_invoice(@child_account, 2, 500.00, 'USD', '2013-08-31')
+      get_and_check_parent_invoice(@parent_account, 2, 500.00, 'USD', '2013-08-31')
+      check_account_balance(@parent_account, 500.00, nil)
+
+      adjust_invoice_item(@child_account.account_id, child_invoice.invoice_id, child_invoice.items[0].invoice_item_id, 100.0, 'USD', 'Free adjustment: good customer', @user, @options)
+
+      get_and_check_child_invoice(@child_account, 2, 400.00, 'USD', '2013-08-31')
+      # TODO Adj does not seem to be applied to parent
+      #get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
+    end
+
+
 
     private
 

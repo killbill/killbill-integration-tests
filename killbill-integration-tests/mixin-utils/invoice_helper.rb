@@ -47,6 +47,17 @@ module KillBillIntegrationTests
       credit_item.create(user, nil, nil, options)
     end
 
+    def adjust_invoice_item(account_id, invoice_id, invoice_item_id, amount, currency, description, user, options)
+      invoice_item                 = KillBillClient::Model::InvoiceItem.new()
+      invoice_item.account_id      = account_id
+      invoice_item.invoice_id      = invoice_id
+      invoice_item.invoice_item_id = invoice_item_id
+      invoice_item.amount          = amount
+      invoice_item.currency        = currency
+      invoice_item.description     = description
+      invoice_item.update(user, nil, nil, options)
+    end
+
 
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})
       KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options);
