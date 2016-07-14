@@ -167,12 +167,18 @@ module KillBillIntegrationTests
       # Move to first overdue stage
       add_days_and_check_overdue_stage(account, 30, 'OD1', options)
 
+
+
       2.upto(3) do |i|
-        add_days_and_check_overdue_stage(account, 10, 'OD' + i.to_s, options)
+        kb_clock_add_days(5, nil, options)
+        wait_for_killbill(options)
+        add_days_and_check_overdue_stage(account, 5, 'OD' + i.to_s, options)
       end
 
       # Move to last overdue stage
-      add_days_and_check_overdue_stage(account, 10, expected_last_stage, options)
+      kb_clock_add_days(5, nil, options)
+      wait_for_killbill(options)
+      add_days_and_check_overdue_stage(account, 5, expected_last_stage, options)
 
       bp
     end
