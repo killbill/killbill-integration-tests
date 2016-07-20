@@ -45,7 +45,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 500.0, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -62,7 +63,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 3, 500.0, 'USD', '2013-09-30')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
-      check_account_balance(@child_account, 500, 0)
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -95,7 +96,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 500.0, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Cancel BP
       bp.cancel(@user, nil, nil, nil, "END_OF_TERM", "END_OF_TERM", nil, @options)
@@ -140,7 +142,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 500.0, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -185,7 +188,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 500.0, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Cancel BP
       bp.cancel(@user, nil, nil, nil, "IMMEDIATE", "IMMEDIATE", nil, @options)
@@ -234,7 +238,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 500.0, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -293,7 +298,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 2, 3.35, 'USD', "2013-08-05")
       check_child_invoice_item(child_invoice, 1, 3.35, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-05', '2013-08-31')
-      check_account_balance(@child_account, 3.35, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -309,7 +315,7 @@ module KillBillIntegrationTests
       child_invoice = get_and_check_child_invoice(@child_account, 3, 500.13, 'USD', '2013-08-31')
       check_child_invoice_item(child_invoice, 1, 0.13, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-31', '2013-09-01')
       check_child_invoice_item(child_invoice, 2, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
-      check_account_balance(@child_account, 500.13, 0)
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice (and interestingly enough we also have a new invoice for the child for the OilSlick PHASE event)
       kb_clock_add_days(1, nil, @options)
@@ -317,13 +323,12 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @parent_account, @options, &@proc_account_invoices_nb)
       parent_invoice = get_and_check_parent_invoice(@parent_account, 3, 500.13, 'USD', '2013-08-31', false)
       check_parent_invoice_item(parent_invoice, 1, 500.13, 'USD', @child_account.account_id)
-      # TODO account balance shows up as 7.44 (DRAFT invoice issue ?)
-      # check_account_balance(@parent_account, 0, 0)
+      check_account_balance(@parent_account, 0, 0)
 
       wait_for_expected_clause(4, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 4, 7.44, 'USD', '2013-09-01')
       check_child_invoice_item(child_invoice, 1, 7.44, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-01', '2013-09-30')
-      check_account_balance(@child_account, 7.44, 0)
+      check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice for theOilSlick PHASE event)
       kb_clock_add_days(1, nil, @options)
@@ -340,7 +345,7 @@ module KillBillIntegrationTests
       child_invoice = get_and_check_child_invoice(@child_account, 5, 507.95, 'USD', '2013-09-30')
       check_child_invoice_item(child_invoice, 1, 7.95, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-30', '2013-10-31')
       check_child_invoice_item(child_invoice, 2, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
-      check_account_balance(@child_account, 507.95, 0)
+      check_account_balance(@child_account, 0, 0)
 
       kb_clock_add_days(1, nil, @options)
       wait_for_expected_clause(5, @parent_account, @options, &@proc_account_invoices_nb)
@@ -386,7 +391,8 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 4, 1000.00, 'USD', '2013-09-30')
       check_child_invoice_item(child_invoice, 1, 1000.00, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-09-30', '2013-10-31')
-      check_account_balance(@child_account, 1000.00, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # '2013-10-01' : Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -433,7 +439,8 @@ module KillBillIntegrationTests
       child_invoice = get_and_check_child_invoice(@child_account, 4, 500.00, 'USD', '2013-09-30')
       check_child_invoice_item(child_invoice, 1, -498.93, 'USD', 'CBA_ADJ', nil, nil, '2013-09-30', '2013-09-30')
       check_child_invoice_item(child_invoice, 2, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
-      check_account_balance(@child_account, 1.07, 0)
+      # Since invoice parent is in DRAFT we see a balance of 0 until this has been committed so child balance is also 0
+      check_account_balance(@child_account, 0, 0)
 
       # '2013-10-01' : Verify we see the parent invoice
       kb_clock_add_days(1, nil, @options)
@@ -547,8 +554,7 @@ module KillBillIntegrationTests
       adjust_invoice_item(@child_account.account_id, child_invoice.invoice_id, child_invoice.items[0].invoice_item_id, 100.0, 'USD', 'Free adjustment: good customer', @user, @options)
 
       get_and_check_child_invoice(@child_account, 2, 400.00, 'USD', '2013-08-31')
-      # TODO Adj does not seem to be applied to parent
-      #get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
+      get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
     end
 
 
