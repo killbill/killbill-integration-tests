@@ -32,7 +32,7 @@ module KillBillIntegrationTests
     end
 
     def get_tenant_catalog(options)
-      KillBillClient::Model::Catalog.get_tenant_catalog(options)
+      KillBillClient::Model::Catalog.get_tenant_catalog('json', options)
     end
 
     def upload_catalog(name, check_if_exists, user, options)
@@ -47,6 +47,21 @@ module KillBillIntegrationTests
         catalog_file_xml = get_resource_as_string(name)
         KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
       end
+    end
+
+
+    def add_catalog_simple_plan(plan_id, product_name, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
+
+      simple_plan = KillBillClient::Model::SimplePlanAttributes.new
+      simple_plan.plan_id = plan_id
+      simple_plan.product_name = product_name
+      simple_plan.currency = currency
+      simple_plan.amount = amount
+      simple_plan.billing_period = billing_period
+      simple_plan.trial_length = trial_length
+      simple_plan.trial_time_unit = trial_time_unit
+
+      KillBillClient::Model::Catalog.add_tenant_catalog_simple_plan(simple_plan, user, 'Test', 'Upload simple plan', options)
     end
 
     def upload_plugin_config(plugin_name, plugin_config_name, user, options)

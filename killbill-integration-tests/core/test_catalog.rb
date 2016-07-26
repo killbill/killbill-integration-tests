@@ -222,6 +222,24 @@ module KillBillIntegrationTests
     #  # TODO This hasn't been implemented yet in Kill Bill
     #end
 
+    def test_create_simple_plan
+      add_catalog_simple_plan("basic-annual", "Basic", 'USD', 10000.00, "ANNUAL", 0, "UNLIMITED", @user, @options)
+
+      catalog = get_tenant_catalog(@options)
+      assert_equal(1, catalog.price_lists.size)
+
+      assert_equal(2, catalog.price_lists[0]['plans'].size)
+      assert_equal("basic-monthly", catalog.price_lists[0]['plans'][0])
+      assert_equal("basic-annual", catalog.price_lists[0]['plans'][1])
+
+      assert_equal(1, catalog.products.size)
+      assert_equal(2, catalog.products[0].plans.size)
+
+      assert_equal("basic-annual", catalog.products[0].plans[1].name)
+      assert_equal(1, catalog.products[0].plans[1].phases.size)
+    end
+
+
     private
 
     # This will:
