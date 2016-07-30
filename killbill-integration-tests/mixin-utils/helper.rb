@@ -31,8 +31,8 @@ module KillBillIntegrationTests
       resource_content
     end
 
-    def get_tenant_catalog(options)
-      KillBillClient::Model::Catalog.get_tenant_catalog('json', options)
+    def get_tenant_catalog(requested_date, options)
+      KillBillClient::Model::Catalog.get_tenant_catalog('json', requested_date, options)
     end
 
     def upload_catalog(name, check_if_exists, user, options)
