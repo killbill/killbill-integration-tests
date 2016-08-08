@@ -90,7 +90,7 @@ module KillBillIntegrationTests
       secret_key = 'test-api-secret' + tenant.external_key
       tenant.api_secret = secret_key
 
-      tenant = tenant.create(user, nil, nil, options)
+      tenant = tenant.create(true, user, nil, nil, options)
       assert_not_nil(tenant)
       assert_not_nil(tenant.tenant_id)
       # Set the secret key again before returning as this is not returned by the server
@@ -114,7 +114,7 @@ module KillBillIntegrationTests
       tenant.api_key = api_key
       tenant.api_secret = api_secret
 
-      tenant = tenant.create(user, nil, nil, options)
+      tenant = tenant.create(true, user, nil, nil, options)
       assert_not_nil(tenant)
       assert_not_nil(tenant.tenant_id)
       # Set the secret key again before returning as this is not returned by the server
