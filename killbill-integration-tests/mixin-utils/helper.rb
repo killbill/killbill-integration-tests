@@ -50,11 +50,12 @@ module KillBillIntegrationTests
     end
 
 
-    def add_catalog_simple_plan(plan_id, product_name, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
+    def add_catalog_simple_plan(plan_id, product_name, product_category, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
 
       simple_plan = KillBillClient::Model::SimplePlanAttributes.new
       simple_plan.plan_id = plan_id
       simple_plan.product_name = product_name
+      simple_plan.product_category = product_category
       simple_plan.currency = currency
       simple_plan.amount = amount
       simple_plan.billing_period = billing_period

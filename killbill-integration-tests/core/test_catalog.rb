@@ -16,6 +16,7 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+
     # Increase the price in a subsequent catalog
     def test_price_increase
       create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
@@ -223,7 +224,7 @@ module KillBillIntegrationTests
     #end
 
     def test_create_simple_plan
-      add_catalog_simple_plan("basic-annual", "Basic", 'USD', 10000.00, "ANNUAL", 0, "UNLIMITED", @user, @options)
+      add_catalog_simple_plan("basic-annual", "Basic", "BASE", 'USD', 10000.00, "ANNUAL", 0, "UNLIMITED", @user, @options)
 
       catalogs = get_tenant_catalog('2013-02-09', @options)
       assert_equal(1, catalogs.size)
