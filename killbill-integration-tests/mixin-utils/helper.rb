@@ -84,6 +84,10 @@ module KillBillIntegrationTests
       KillBillClient::Model::Overdue.upload_tenant_overdue_config(overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
     end
 
+    def get_tenant_overdue(options)
+      KillBillClient::Model::Overdue.get_tenant_overdue_config('json', options)
+    end
+
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
       tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
