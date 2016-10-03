@@ -9,6 +9,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
 
       @account = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)

@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
 
       @account          = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
@@ -16,7 +17,7 @@ module KillBillIntegrationTests
 
     def teardown
       teardown_base
-      end
+    end
 
     #
     # In the first scenario, we first cancel a subscription (before EOT), which results in a pro-ration credit.
@@ -203,7 +204,7 @@ module KillBillIntegrationTests
         adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
         refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
         raise MiniTest::Assertion, "Unexpected success on refund"
-      rescue KillBillClient::API::BadRequest => e
+      rescue KillBillClient::API::BadRequest
       end
 
       # However if we do a 333.33 refund with a 166.67 adjustment that should pass
