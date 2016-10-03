@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
       # Create account
       @account = create_account(@user, @options)
     end

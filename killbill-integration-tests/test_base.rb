@@ -15,6 +15,7 @@ module KillBillIntegrationTests
 
     DEFAULT_KB_ADDRESS='127.0.0.1'
     DEFAULT_KB_PORT='8080'
+    DEFAULT_CATALOG='SpyCarAdvanced.xml'
 
     DEFAULT_KB_INIT_DATE = "2013-08-01"
     DEFAULT_KB_INIT_CLOCK = "#{DEFAULT_KB_INIT_DATE}T06:00:00.000Z"
@@ -67,6 +68,10 @@ module KillBillIntegrationTests
       logger = Logger.new(STDOUT)
       logger.level = Logger::INFO
       KillBillClient.logger = logger
+    end
+
+    def load_default_catalog
+      upload_catalog(DEFAULT_CATALOG, true, @user, @options)
     end
 
     def teardown_base

@@ -62,10 +62,6 @@ module KillBillIntegrationTests
       KillBillClient::Model::Subscription.find_by_id(id, options)
     end
 
-    def get_subscription(id, options)
-      KillBillClient::Model::Subscription.find_by_id(id, options)
-    end
-
     def get_bundle(bundle_id, options)
       KillBillClient::Model::Bundle.find_by_id(bundle_id, options)
     end

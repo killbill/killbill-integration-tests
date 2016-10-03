@@ -22,7 +22,7 @@ module KillBillIntegrationTests
 
     def get_resource_as_string(resource_name)
       resource_path_name = File.expand_path("../../resources/#{resource_name}", __FILE__)
-      if !File.exists?(resource_path_name) || !File.file?(resource_path_name)
+      if !File.exist?(resource_path_name) || !File.file?(resource_path_name)
         raise ArgumentError.new("Cannot find resource #{resource_name}")
       end
 
@@ -110,7 +110,7 @@ module KillBillIntegrationTests
         tenant = KillBillClient::Model::Tenant.find_by_api_key(api_key, options)
         tenant.api_secret = api_secret
         return
-      rescue KillBillClient::API::Unauthorized => e
+      rescue KillBillClient::API::Unauthorized
       end
 
 
@@ -204,7 +204,7 @@ module KillBillIntegrationTests
             wait_for_killbill(options)
           end
         end
-      rescue Timeout::Error => e
+      rescue Timeout::Error
         obj_name = args.class.name.split('::').pop.downcase
         obj_id = args.send "#{obj_name}_id".to_sym
         puts "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}"

@@ -9,15 +9,14 @@ module KillBillIntegrationTests
     def setup
       setup_base
 
-      catalog_file_xml = get_resource_as_string("usage/cloud.xml")
-      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, 'New Catalog Version', 'Upload catalog for tenant', @options)
+      upload_catalog("usage/Cloud.xml", false, @user, @options)
 
       @account = create_account(@user, @options)
     end
 
     def teardown
       teardown_base
-      end
+    end
 
     NB_USAGE_TYPES = 3
     MAX_SERVERS_PER_TYPE = 10
