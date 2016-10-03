@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
 
       @account = create_account(@user, @options)
     end
@@ -314,7 +315,7 @@ module KillBillIntegrationTests
       got_exception = false
       begin
         record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
-      rescue KillBillClient::API::BadRequest => e
+      rescue KillBillClient::API::BadRequest
         got_exception = true
       end
       assert(got_exception, "Failed to get exception")
