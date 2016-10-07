@@ -219,9 +219,6 @@ module KillBillIntegrationTests
       check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
     end
 
-    #def test_change_alignment_change_of_pricelist
-    #  # TODO This hasn't been implemented yet in Kill Bill
-    #end
 
     def test_create_simple_plan
       add_catalog_simple_plan("basic-annual", "Basic", "BASE", 'USD', 10000.00, "ANNUAL", 0, "UNLIMITED", @user, @options)
@@ -232,14 +229,14 @@ module KillBillIntegrationTests
 
       assert_equal(1, catalog.price_lists.size)
       assert_equal(2, catalog.price_lists[0]['plans'].size)
-      assert_equal("basic-monthly", catalog.price_lists[0]['plans'][0])
-      assert_equal("basic-annual", catalog.price_lists[0]['plans'][1])
+      assert_equal("basic-annual", catalog.price_lists[0]['plans'][0])
+      assert_equal("basic-monthly", catalog.price_lists[0]['plans'][1])
 
       assert_equal(1, catalog.products.size)
       assert_equal(2, catalog.products[0].plans.size)
 
-      assert_equal("basic-annual", catalog.products[0].plans[1].name)
-      assert_equal(1, catalog.products[0].plans[1].phases.size)
+      assert_equal("basic-annual", catalog.products[0].plans[0].name)
+      assert_equal(1, catalog.products[0].plans[0].phases.size)
     end
 
 
