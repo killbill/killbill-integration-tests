@@ -131,6 +131,7 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
+      sort_items_by_descending_price!(fourth_invoice.items)
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 8.11, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-evergreen', '2013-09-16', '2013-09-30')
 
 
