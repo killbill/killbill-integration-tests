@@ -4,10 +4,10 @@ Running the KillBill Integration tests with Docker
 Setup
 -----
 
-The docker installation requires docker, docker-compose and ruby
+The docker installation requires `docker`, `docker-compose` and `ruby`
 installing on the test machine.
 
-For example on Ubuntu 16.04 run:
+For example on Ubuntu 16.04 run
 
 ```
 $ sudo apt install ruby-bundler ruby-dev make gcc docker-compose language-pack-en
@@ -19,7 +19,7 @@ $ exec newgrp docker
 Install the integration tests
 -----------------------------
 
-Clone the integration test repository and install the required gems
+On your test machine, download the integration test repository from Github and install the required gems
 
 ```
 $ git clone https://github.com/killbill/killbill-integration-tests.git
@@ -30,13 +30,13 @@ $ bundle install
 Install and run the KillBill containers
 ---------------------------------------
 
-Use docker-compose to start the containers using the docker-compose.yml manifest.
+Use docker-compose to start the containers using the `docker-compose.yml` manifest
 
 ```
 $ docker-compose -f docker/docker-compose.yml up -d
 ```
 
-This downloads and starts the docker containers in the background. Once the containers have started run
+The docker images will download and the containers will start in the background. Once the containers have started, view the logs
 
 ```
 $ docker-compose -f docker/docker-compose.yml logs
@@ -47,7 +47,7 @@ and wait for the containers to complete their startup process.
 Running the tests
 -----------------
 
-Either stop the log listing with Ctrl+C, or open another terminal window onto your installation.
+Either stop the log listing with Ctrl+C, or open another terminal window onto your test machine.
 
 You can now check the list of tests
 ```
@@ -69,9 +69,9 @@ rake test:seed:kaui                      # Run tests for seed:kaui
 
 The docker containers will run the regression test suite, which are the
 core tests and the multi-nodes test. These tests are the ones included
-in the `test:all` suite.
+in the `test:all` task.
 
-To run all the regresstion tests:
+To run all the regression tests
 
 ```
 $ rake test:all
@@ -85,7 +85,7 @@ the system, which means that each run leaves entries in the database that
 can confuse subsequent runs. So it is important to reset the containers
 fully between each test run. 
 
-First stop the containers:
+First stop the containers
 
 ```
 $ docker-compose -f docker/docker-compose.yml stop
@@ -95,7 +95,7 @@ Stopping docker_killbill2_1 ... done
 Stopping docker_db_1 ... done
 ```
 
-and then recreate them:
+and recreate them
 
 ```
 $ docker-compose -f docker/docker-compose.yml up -d --force-recreate
@@ -105,7 +105,7 @@ Recreating docker_killbill_1
 Recreating docker_kaui_1
 ```
 
-Check the logs again:
+Check the logs again
 
 ```
 $ docker-compose -f docker/docker-compose.yml logs
