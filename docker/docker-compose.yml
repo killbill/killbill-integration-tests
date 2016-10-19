@@ -1,0 +1,42 @@
+killbill:
+  image: killbill/killbill:0.16.9
+  restart: always
+  ports:
+    - "8080:8080"
+  links:
+    - db
+  environment:
+    - KILLBILL_CONFIG_DAO_URL=jdbc:mysql://db:3306/killbill
+    - KILLBILL_CONFIG_DAO_USER=root
+    - KILLBILL_CONFIG_DAO_PASSWORD=killbill
+killbill2:
+  image: killbill/killbill:0.16.9
+  restart: always
+  ports:
+    - "8081:8080"
+  links:
+    - db
+  environment:
+    - KILLBILL_CONFIG_DAO_URL=jdbc:mysql://db:3306/killbill
+    - KILLBILL_CONFIG_DAO_USER=root
+    - KILLBILL_CONFIG_DAO_PASSWORD=killbill
+kaui:
+  image: killbill/kaui:0.7.0
+  restart: always
+  ports:
+    - "9090:8080"
+  links:
+    - db
+    - killbill
+  environment:
+    - KAUI_CONFIG_DAO_URL=jdbc:mysql://db:3306/kaui
+    - KAUI_CONFIG_DAO_USER=root
+    - KAUI_CONFIG_DAO_PASSWORD=killbill
+    - KAUI_URL=http://killbill:8080
+db:
+  image: killbill/mariadb:0.16
+  restart: always
+  expose:
+    - "3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=killbill

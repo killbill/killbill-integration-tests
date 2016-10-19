@@ -10,7 +10,7 @@ Scope
 
 The tests are written to be run against a running instance of Kill Bill with its default catalog (SpyCarBasic.xml). The tests depend on the gem killbill\_client. We are running the tests using ruby 1.9.x or 2.x.
 
-To run the tests against the KillBill Docker Image, see [the separate guide](README_DOCKER.md).
+To run the tests against the KillBill Docker Image, see [the separate guide](docker/README.md).
 
 Setup
 -----
