@@ -77,6 +77,18 @@ To run all the regression tests
 $ rake test:all
 ```
 
+To run the core regression tests only
+
+```
+$ rake test:core
+```
+
+As well as the test tasks you can run the tests individually, eg.
+
+```
+$ rake test:all TEST=killbill-integration-tests/core/test_overdue.rb
+```
+
 Resetting the test containers
 -----------------------------
 
