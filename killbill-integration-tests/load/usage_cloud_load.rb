@@ -8,7 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
-      catalog_file_xml = get_resource_as_string("usage/cloud.xml")
+      catalog_file_xml = get_resource_as_string("usage/Cloud.xml")
       KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, 'New Catalog Version', 'Upload catalog for tenant', @options)
     end
 
