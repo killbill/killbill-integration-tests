@@ -31,8 +31,8 @@ module KillBillIntegrationTests
       resource_content
     end
 
-    def get_tenant_catalog(options)
-      KillBillClient::Model::Catalog.get_tenant_catalog(options)
+    def get_tenant_catalog(requested_date, options)
+      KillBillClient::Model::Catalog.get_tenant_catalog('json', requested_date, options)
     end
 
     def upload_catalog(name, check_if_exists, user, options)
@@ -47,6 +47,22 @@ module KillBillIntegrationTests
         catalog_file_xml = get_resource_as_string(name)
         KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
       end
+    end
+
+
+    def add_catalog_simple_plan(plan_id, product_name, product_category, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
+
+      simple_plan = KillBillClient::Model::SimplePlanAttributes.new
+      simple_plan.plan_id = plan_id
+      simple_plan.product_name = product_name
+      simple_plan.product_category = product_category
+      simple_plan.currency = currency
+      simple_plan.amount = amount
+      simple_plan.billing_period = billing_period
+      simple_plan.trial_length = trial_length
+      simple_plan.trial_time_unit = trial_time_unit
+
+      KillBillClient::Model::Catalog.add_tenant_catalog_simple_plan(simple_plan, user, 'Test', 'Upload simple plan', options)
     end
 
     def upload_plugin_config(plugin_name, plugin_config_name, user, options)
@@ -65,7 +81,11 @@ module KillBillIntegrationTests
 
     def upload_overdue(name, user, options)
       overdue_file_xml = get_resource_as_string(name)
-      KillBillClient::Model::Overdue.upload_tenant_overdue_config(overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
+      KillBillClient::Model::Overdue.upload_tenant_overdue_config('xml', overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
+    end
+
+    def get_tenant_overdue(options)
+      KillBillClient::Model::Overdue.get_tenant_overdue_config('json', options)
     end
 
     def setup_create_tenant(user, options)
@@ -75,7 +95,7 @@ module KillBillIntegrationTests
       secret_key = 'test-api-secret' + tenant.external_key
       tenant.api_secret = secret_key
 
-      tenant = tenant.create(user, nil, nil, options)
+      tenant = tenant.create(true, user, nil, nil, options)
       assert_not_nil(tenant)
       assert_not_nil(tenant.tenant_id)
       # Set the secret key again before returning as this is not returned by the server
@@ -99,7 +119,7 @@ module KillBillIntegrationTests
       tenant.api_key = api_key
       tenant.api_secret = api_secret
 
-      tenant = tenant.create(user, nil, nil, options)
+      tenant = tenant.create(true, user, nil, nil, options)
       assert_not_nil(tenant)
       assert_not_nil(tenant.tenant_id)
       # Set the secret key again before returning as this is not returned by the server

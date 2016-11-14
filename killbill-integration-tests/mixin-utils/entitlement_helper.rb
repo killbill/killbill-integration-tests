@@ -67,7 +67,7 @@ module KillBillIntegrationTests
     end
 
     def get_active_bundle_by_key(external_key, options)
-      KillBillClient::Model::Bundle.find_by_external_key(external_key, options)
+      KillBillClient::Model::Bundle.find_by_external_key(external_key, false, options)
     end
 
 

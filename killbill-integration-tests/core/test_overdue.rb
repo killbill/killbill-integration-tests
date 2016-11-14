@@ -36,7 +36,7 @@ module KillBillIntegrationTests
                                       :is_blocked_billing     => false,
                                       :is_blocked_entitlement => false,
                                       :service_name           => 'entitlement-service',
-                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                      :service_state_name     => 'ENT_STARTED'},
                                      {:type                   => 'START_BILLING',
                                       :date                   => '2013-08-01',
                                       :is_blocked_billing     => false,
@@ -86,7 +86,7 @@ module KillBillIntegrationTests
                                       :is_blocked_billing     => false,
                                       :is_blocked_entitlement => false,
                                       :service_name           => 'entitlement-service',
-                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                      :service_state_name     => 'ENT_STARTED'},
                                      {:type                   => 'START_BILLING',
                                       :date                   => '2013-10-31',
                                       :is_blocked_billing     => false,
@@ -168,16 +168,21 @@ module KillBillIntegrationTests
       # Move to first overdue stage
       add_days_and_check_overdue_stage(account, 30, 'OD1', options)
 
+
+
       2.upto(3) do |i|
-        add_days_and_check_overdue_stage(account, 10, 'OD' + i.to_s, options)
+        kb_clock_add_days(5, nil, options)
+        wait_for_killbill(options)
+        add_days_and_check_overdue_stage(account, 5, 'OD' + i.to_s, options)
       end
 
       # Move to last overdue stage
-      add_days_and_check_overdue_stage(account, 10, expected_last_stage, options)
+      kb_clock_add_days(5, nil, options)
+      wait_for_killbill(options)
+      add_days_and_check_overdue_stage(account, 5, expected_last_stage, options)
 
       bp
     end
-
     def check_entitlement_with_events(bp, start_date, events, options)
       subscriptions = get_subscriptions(bp.bundle_id, options)
       assert_equal(1, subscriptions.size)
