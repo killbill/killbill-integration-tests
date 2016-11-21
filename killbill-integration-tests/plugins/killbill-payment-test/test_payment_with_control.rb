@@ -47,7 +47,6 @@ module KillBillIntegrationTests
       check_transaction(auth1, payment_key, auth1_key, authorize, auth1_amount, payment_currency, success)
     end
 
-    # The plugin will throw a RuntimeException. Current behavior is to throw 500, so test verifies that, but should we really throw 500? Probably not...
     def test_authorize_plugin_exception
       payment_key = 'payment1-' + rand(1000000).to_s
       payment_currency = 'USD'
@@ -61,7 +60,7 @@ module KillBillIntegrationTests
       begin
         create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
         assert(false, "Called was supposed to fail")
-      rescue KillBillClient::API::InternalServerError => e
+      rescue KillBillClient::API::BadRequest => e
         got_exception= true
       end
       assert(got_exception, "Failed to get exception")
@@ -82,8 +81,8 @@ module KillBillIntegrationTests
       begin
       auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
       flunk("Call should have timedout")
-      rescue KillBillClient::API::InternalServerError => e
-        # 202 in case of timeout
+      rescue KillBillClient::API::GatewayTimeout => e
+        # 504 in case of timeout
       end
     end
 

@@ -11,7 +11,7 @@ module KillBillIntegrationTests
       setup_base(@user)
 
       overdue_file_xml = get_resource_as_string("Overdue.xml")
-      KillBillClient::Model::Overdue.upload_tenant_overdue_config(overdue_file_xml, @user, "overdue specific to this test", "upload overdue for tenant", @options)
+      KillBillClient::Model::Overdue.upload_tenant_overdue_config_xml(overdue_file_xml, @user, "overdue specific to this test", "upload overdue for tenant", @options)
 
       @account = create_account(@user, @options)
       add_payment_method(@account.account_id, 'killbill-payment-test', true, nil, @user, @options)
