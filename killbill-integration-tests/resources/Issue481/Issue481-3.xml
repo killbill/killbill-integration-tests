@@ -39,12 +39,20 @@
                 <phaseType>TRIAL</phaseType>
                 <policy>IMMEDIATE</policy>
             </changePolicyCase>
+            <changePolicyCase>
+                <policy>IMMEDIATE</policy>
+            </changePolicyCase>
         </changePolicy>
         <changeAlignment>
             <changeAlignmentCase>
                 <alignment>START_OF_SUBSCRIPTION</alignment>
             </changeAlignmentCase>
         </changeAlignment>
+        <cancelPolicy>
+            <cancelPolicyCase>
+                <policy>IMMEDIATE</policy>
+            </cancelPolicyCase>
+        </cancelPolicy>
         <createAlignment>
             <createAlignmentCase>
                 <alignment>START_OF_BUNDLE</alignment>
@@ -57,7 +65,7 @@
 
             <effectiveDateForExistingSubscriptions>2016-03-14T00:00:00+00:00</effectiveDateForExistingSubscriptions>
 
-          <product>Something</product>
+            <product>Something</product>
             <finalPhase type="EVERGREEN">
                 <duration>
                     <unit>UNLIMITED</unit>

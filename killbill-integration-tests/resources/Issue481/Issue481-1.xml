@@ -39,12 +39,22 @@
                 <phaseType>TRIAL</phaseType>
                 <policy>IMMEDIATE</policy>
             </changePolicyCase>
+            <changePolicy>
+                <changePolicyCase>
+                    <policy>IMMEDIATE</policy>
+                </changePolicyCase>
+            </changePolicy>
         </changePolicy>
         <changeAlignment>
             <changeAlignmentCase>
                 <alignment>START_OF_SUBSCRIPTION</alignment>
             </changeAlignmentCase>
         </changeAlignment>
+        <cancelPolicy>
+            <cancelPolicyCase>
+                <policy>IMMEDIATE</policy>
+            </cancelPolicyCase>
+        </cancelPolicy>
         <createAlignment>
             <createAlignmentCase>
                 <alignment>START_OF_BUNDLE</alignment>

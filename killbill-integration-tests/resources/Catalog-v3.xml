@@ -53,6 +53,9 @@
         <productCategory>BASE</productCategory>
         <policy>END_OF_TERM</policy>
       </cancelPolicyCase>
+        <cancelPolicyCase>
+            <policy>IMMEDIATE</policy>
+        </cancelPolicyCase>
     </cancelPolicy>
 
     <createAlignment>

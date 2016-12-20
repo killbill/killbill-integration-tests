@@ -18,108 +18,111 @@
 <catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="CatalogSchema.xsd ">
 
-  <effectiveDate>2012-01-01T00:00:00+00:00</effectiveDate>
-  <catalogName>Movies</catalogName>
+    <effectiveDate>2012-01-01T00:00:00+00:00</effectiveDate>
+    <catalogName>Movies</catalogName>
 
-  <recurringBillingMode>IN_ADVANCE</recurringBillingMode>
+    <recurringBillingMode>IN_ADVANCE</recurringBillingMode>
 
-  <currencies>
-    <currency>USD</currency>
-  </currencies>
+    <currencies>
+        <currency>USD</currency>
+    </currencies>
 
-  <products>
-    <product name="Basic">
-      <category>BASE</category>
-    </product>
-  </products>
+    <products>
+        <product name="Basic">
+            <category>BASE</category>
+        </product>
+    </products>
 
-  <rules>
+    <rules>
 
-    <changePolicy>
-      <changePolicyCase>
-        <policy>END_OF_TERM</policy>
-      </changePolicyCase>
-    </changePolicy>
+        <changePolicy>
+            <changePolicyCase>
+                <policy>END_OF_TERM</policy>
+            </changePolicyCase>
+        </changePolicy>
 
-    <changeAlignment>
-      <changeAlignmentCase>
-        <alignment>START_OF_BUNDLE</alignment>
-      </changeAlignmentCase>
-    </changeAlignment>
+        <changeAlignment>
+            <changeAlignmentCase>
+                <alignment>START_OF_BUNDLE</alignment>
+            </changeAlignmentCase>
+        </changeAlignment>
 
-    <cancelPolicy>
-      <cancelPolicyCase>
-        <productCategory>BASE</productCategory>
-        <policy>END_OF_TERM</policy>
-      </cancelPolicyCase>
-    </cancelPolicy>
+        <cancelPolicy>
+            <cancelPolicyCase>
+                <productCategory>BASE</productCategory>
+                <policy>END_OF_TERM</policy>
+            </cancelPolicyCase>
+            <cancelPolicyCase>
+                <policy>IMMEDIATE</policy>
+            </cancelPolicyCase>
+        </cancelPolicy>
 
-    <createAlignment>
-      <createAlignmentCase>
-        <alignment>START_OF_BUNDLE</alignment>
-      </createAlignmentCase>
-    </createAlignment>
+        <createAlignment>
+            <createAlignmentCase>
+                <alignment>START_OF_BUNDLE</alignment>
+            </createAlignmentCase>
+        </createAlignment>
 
-    <billingAlignment>
-      <billingAlignmentCase>
-        <billingPeriod>ANNUAL</billingPeriod>
-        <alignment>SUBSCRIPTION</alignment>
-      </billingAlignmentCase>
-      <billingAlignmentCase>
-        <alignment>ACCOUNT</alignment>
-      </billingAlignmentCase>
-    </billingAlignment>
+        <billingAlignment>
+            <billingAlignmentCase>
+                <billingPeriod>ANNUAL</billingPeriod>
+                <alignment>SUBSCRIPTION</alignment>
+            </billingAlignmentCase>
+            <billingAlignmentCase>
+                <alignment>ACCOUNT</alignment>
+            </billingAlignmentCase>
+        </billingAlignment>
 
 
-    <priceList>
-      <priceListCase>
-        <toPriceList>DEFAULT</toPriceList>
-      </priceListCase>
-    </priceList>
-  </rules>
+        <priceList>
+            <priceListCase>
+                <toPriceList>DEFAULT</toPriceList>
+            </priceListCase>
+        </priceList>
+    </rules>
 
-  <plans>
-    <plan name="basic-monthly">
-      <product>Basic</product>
-      <finalPhase type="EVERGREEN">
-        <duration>
-          <unit>UNLIMITED</unit>
-        </duration>
-        <recurring>
-          <billingPeriod>MONTHLY</billingPeriod>
-          <recurringPrice>
-            <price>
-              <currency>USD</currency>
-              <value>1000.00</value>
-            </price>
-          </recurringPrice>
-        </recurring>
-      </finalPhase>
-    </plan>
-    <plan name="basic-annual">
-      <product>Basic</product>
-      <finalPhase type="EVERGREEN">
-        <duration>
-          <unit>UNLIMITED</unit>
-        </duration>
-        <recurring>
-          <billingPeriod>ANNUAL</billingPeriod>
-          <recurringPrice>
-            <price>
-              <currency>USD</currency>
-              <value>10000.00</value>
-            </price>
-          </recurringPrice>
-        </recurring>
-      </finalPhase>
-    </plan>
-  </plans>
-  <priceLists>
-    <defaultPriceList name="DEFAULT">
-      <plans>
-        <plan>basic-monthly</plan>
-        <plan>basic-annual</plan>
-      </plans>
-    </defaultPriceList>
-  </priceLists>
+    <plans>
+        <plan name="basic-monthly">
+            <product>Basic</product>
+            <finalPhase type="EVERGREEN">
+                <duration>
+                    <unit>UNLIMITED</unit>
+                </duration>
+                <recurring>
+                    <billingPeriod>MONTHLY</billingPeriod>
+                    <recurringPrice>
+                        <price>
+                            <currency>USD</currency>
+                            <value>1000.00</value>
+                        </price>
+                    </recurringPrice>
+                </recurring>
+            </finalPhase>
+        </plan>
+        <plan name="basic-annual">
+            <product>Basic</product>
+            <finalPhase type="EVERGREEN">
+                <duration>
+                    <unit>UNLIMITED</unit>
+                </duration>
+                <recurring>
+                    <billingPeriod>ANNUAL</billingPeriod>
+                    <recurringPrice>
+                        <price>
+                            <currency>USD</currency>
+                            <value>10000.00</value>
+                        </price>
+                    </recurringPrice>
+                </recurring>
+            </finalPhase>
+        </plan>
+    </plans>
+    <priceLists>
+        <defaultPriceList name="DEFAULT">
+            <plans>
+                <plan>basic-monthly</plan>
+                <plan>basic-annual</plan>
+            </plans>
+        </defaultPriceList>
+    </priceLists>
 </catalog>
