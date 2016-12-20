@@ -31,8 +31,7 @@ module KillBillIntegrationTests
       # Step 1. Create a subscription associated with the account `@account` 
       #
       bp = create_entitlement_base(@account.account_id, 'Server', 'MONTHLY', 'DEFAULT', @user, @options)
-      # No invoice generated for $0 items, we still want to add a little lag
-      sleep 1
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
 
 
@@ -67,7 +66,7 @@ module KillBillIntegrationTests
       # Step 3. Move the clock to the beginning of the next month '2013-09-01' to trigger the first invoice with usage items
       #
       kb_clock_add_days(31, nil, @options)
-      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
       # Verify we see an invoice with:
@@ -75,8 +74,8 @@ module KillBillIntegrationTests
       #
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
-      assert_equal(1, all_invoices.size)
-      last_invoice = all_invoices[0]
+      assert_equal(2, all_invoices.size)
+      last_invoice = all_invoices[1]
       check_invoice_no_balance(last_invoice, expected_dollar_amount_total, 'USD', '2013-09-01')
       check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
       check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
