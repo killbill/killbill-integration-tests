@@ -172,6 +172,26 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
+      assert_equal(4, bp.events.size)
+      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
+      assert_equal("sports-monthly", bp.events[0].plan)
+      assert_equal("sports-monthly-trial", bp.events[0].phase)
+      assert_equal("2013-08-01", bp.events[0].effective_dt)
+
+      assert_equal("START_BILLING", bp.events[1].event_type)
+      assert_equal("sports-monthly", bp.events[1].plan)
+      assert_equal("sports-monthly-trial", bp.events[1].phase)
+      assert_equal("2013-08-01", bp.events[1].effective_dt)
+
+      assert_equal("STOP_ENTITLEMENT", bp.events[2].event_type)
+      assert_equal("sports-monthly", bp.events[2].plan)
+      assert_equal("sports-monthly-trial", bp.events[2].phase)
+      assert_equal("2013-08-06", bp.events[2].effective_dt)
+
+      assert_equal("STOP_BILLING", bp.events[3].event_type)
+      assert_equal("sports-monthly", bp.events[3].plan)
+      assert_equal("sports-monthly-trial", bp.events[3].phase)
+      assert_equal("2013-08-06", bp.events[3].effective_dt)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
@@ -184,6 +204,23 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
+
+      assert_equal(3, bp.events.size)
+      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
+      assert_equal("sports-monthly", bp.events[0].plan)
+      assert_equal("sports-monthly-trial", bp.events[0].phase)
+      assert_equal("2013-08-01", bp.events[0].effective_dt)
+
+      assert_equal("START_BILLING", bp.events[1].event_type)
+      assert_equal("sports-monthly", bp.events[1].plan)
+      assert_equal("sports-monthly-trial", bp.events[1].phase)
+      assert_equal("2013-08-01", bp.events[1].effective_dt)
+
+      assert_equal("PHASE", bp.events[2].event_type)
+      assert_equal("sports-monthly", bp.events[2].plan)
+      assert_equal("sports-monthly-evergreen", bp.events[2].phase)
+      assert_equal("2013-08-31", bp.events[2].effective_dt)
+
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
