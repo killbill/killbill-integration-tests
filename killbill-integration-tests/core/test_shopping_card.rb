@@ -4,6 +4,8 @@ $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
 require 'test_base'
 
+require 'bigdecimal'
+
 module KillBillIntegrationTests
 
   class TestShoppingCardTest < Base
@@ -23,7 +25,6 @@ module KillBillIntegrationTests
 
     def test_multiple_bundles_with_default
 
-
       bundle1 = []
       bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
@@ -35,7 +36,7 @@ module KillBillIntegrationTests
       bundle3 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'super-monthly', nil, nil)
       bundle3 << to_ao_subscription_input(@account.account_id, nil, 'gas-monthly', nil, nil)
 
-      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2, bundle3), @user, nil, nil, nil, nil, @options)
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2, bundle3), @user, nil, nil, nil, nil, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bundles = @account.bundles(@options)
@@ -59,6 +60,143 @@ module KillBillIntegrationTests
       check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
     end
 
+
+    def test_multiple_bundles_with_future_dates
+
+      bundle1 = []
+      bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+
+      entitlement_date = '2013-08-15'
+      billing_date = entitlement_date
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, entitlement_date, billing_date, nil, @options)
+
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      check_bundle(bundle1, bundles[0])
+
+      kb_clock_add_days(14, nil, @options) # "2013-08-15"
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 3.87, 'USD', '2013-08-15')
+
+      check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-15', '2013-09-14')
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-15', nil)
+    end
+
+
+    def test_multiple_bundles_with_billing_date_in_past
+
+      bundle1 = []
+      bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+
+      entitlement_date = nil
+      billing_date = '2013-07-15'
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, entitlement_date, billing_date, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      check_bundle(bundle1, bundles[0])
+
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 3.87, 'USD', '2013-08-01')
+
+      check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-07-15', '2013-08-14')
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-07-15', nil)
+    end
+
+    def test_multiple_bundles_with_large_amount_of_bundles
+
+      all_bundles = []
+
+      nb_bundles = 20
+
+      (1..nb_bundles).each do
+        new_bundle = []
+        new_bundle << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+        new_bundle << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+        all_bundles << new_bundle
+      end
+
+
+      # Set call completion timeout to 10 sec
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(*all_bundles), @user, nil, nil, nil, nil, 10, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      bundles = @account.bundles(@options)
+      assert_equal(nb_bundles, bundles.size)
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+
+      all_bundles.each_with_index do |b, i|
+        check_bundle(b, bundles[i])
+      end
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+
+      # Need to use BigDecimal otherwise floating multiplication does not match result
+      expected_invoice_mount = (BigDecimal.new("3.87") * BigDecimal(nb_bundles.to_s)).to_f
+
+      check_invoice_no_balance(first_invoice, expected_invoice_mount, 'USD', DEFAULT_KB_INIT_DATE)
+    end
+
+
+=begin
+
+    # Not supported: SubscriptionJson Base Entitlement needs to be provided
+    def test_lonely_ao
+
+      # Create first BP prior we do the bulk call
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      bundle1 = []
+      bundle1 << to_ao_subscription_input(@account.account_id, bp.bundle_id, 'oilslick-monthly', nil, nil)
+
+      bundle2 = []
+      bundle2 << to_base_subscription_input(@account.account_id, "#{bp.external_key}-foo", 'standard-monthly', nil, nil)
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2), @user, nil, nil, nil, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Add in the expected list
+      bundle1 << to_base_subscription_input(@account.account_id, "#{bp.external_key}", 'sports-monthly', nil, nil)
+
+      bundles = @account.bundles(@options)
+      assert_equal(2, bundles.size)
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+
+      check_bundle(bundle1, bundles[0])
+      check_bundle(bundle2, bundles[1])
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(2, all_invoices.size)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 3.87, 'USD', DEFAULT_KB_INIT_DATE)
+
+      check_invoice_item(find_invoice_item(second_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
+      check_invoice_item(find_invoice_item(second_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+
+    end
+=end
 
     private
 
@@ -101,15 +239,15 @@ module KillBillIntegrationTests
     end
 
     def find_invoice_item(items, plan_name)
-      res = items.select { |e| e.plan_name == plan_name}
+      res = items.select { |e| e.plan_name == plan_name }
       assert_equal(1, res.size)
       res[0]
     end
 
     def check_bundle(exp, actual)
       assert_equal(exp.size, actual.subscriptions.size)
-      actual.subscriptions.sort! {|s1, s2| s1.plan_name <=> s2.plan_name }
-      exp.sort! {|s1, s2| s1.plan_name <=> s2.plan_name }
+      actual.subscriptions.sort! { |s1, s2| s1.plan_name <=> s2.plan_name }
+      exp.sort! { |s1, s2| s1.plan_name <=> s2.plan_name }
 
       actual.subscriptions.each_with_index do |s, i|
         assert_equal(exp[i].account_id, s.account_id)
