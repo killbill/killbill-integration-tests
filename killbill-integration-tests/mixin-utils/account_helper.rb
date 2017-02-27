@@ -15,6 +15,7 @@ module KillBillIntegrationTests
       account.first_name_length = data[:first_name_length]
       account.external_key = data[:external_key].nil? ? (Time.now.to_i.to_s + "-" + rand(1000000).to_s) : data[:external_key]
       account.email = data[:email].nil? ? 'kill@bill.com' : data[:email]
+      account.bill_cycle_day_local = data[:bill_cycle_day_local]
       account.currency = data[:currency].nil? ? 'USD' : data[:currency]
       account.parent_account_id = data[:parent_account_id] if data[:parent_account_id]
       account.is_payment_delegated_to_parent = data[:is_payment_delegated_to_parent] if !data[:is_payment_delegated_to_parent].nil?
