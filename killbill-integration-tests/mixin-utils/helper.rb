@@ -154,7 +154,7 @@ module KillBillIntegrationTests
       params[:timeZone]      = time_zone unless time_zone.nil?
 
       # The default 5s is not always enough
-      params[:timeoutSec]    ||= 10
+      params[:timeoutSec]    = options[:timeout_sec] || 10
 
       res = KillBillClient::API.post "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                      {},
@@ -223,7 +223,7 @@ module KillBillIntegrationTests
       params[:timeZone]   = time_zone unless time_zone.nil?
 
       # The default 5s is not always enough
-      params[:timeoutSec] ||= 10
+      params[:timeoutSec] = options[:timeout_sec] || 10
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                     {},

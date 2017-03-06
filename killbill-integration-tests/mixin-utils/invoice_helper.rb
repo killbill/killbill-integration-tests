@@ -44,7 +44,7 @@ module KillBillIntegrationTests
       credit_item.credit_amount   = amount
       credit_item.currency        = currency
       credit_item.description     = description
-      credit_item.create(user, nil, nil, options)
+      credit_item.create(true, user, nil, nil, options)
     end
 
     def adjust_invoice_item(account_id, invoice_id, invoice_item_id, amount, currency, description, user, options)
