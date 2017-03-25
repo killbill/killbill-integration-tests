@@ -156,10 +156,6 @@ module KillBillIntegrationTests
       check_invoice_no_balance(first_invoice, expected_invoice_mount, 'USD', DEFAULT_KB_INIT_DATE)
     end
 
-
-=begin
-
-    # Not supported: SubscriptionJson Base Entitlement needs to be provided
     def test_lonely_ao
 
       # Create first BP prior we do the bulk call
@@ -168,35 +164,28 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bundle1 = []
-      bundle1 << to_ao_subscription_input(@account.account_id, bp.bundle_id, 'oilslick-monthly', nil, nil)
+      bundle1 << to_base_subscription_input(@account.account_id, bp.external_key, nil, nil, nil)
+      bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
 
-      bundle2 = []
-      bundle2 << to_base_subscription_input(@account.account_id, "#{bp.external_key}-foo", 'standard-monthly', nil, nil)
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2), @user, nil, nil, nil, nil, @options)
-      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
-
-      # Add in the expected list
-      bundle1 << to_base_subscription_input(@account.account_id, "#{bp.external_key}", 'sports-monthly', nil, nil)
+      bundle1[0] = bp
 
       bundles = @account.bundles(@options)
-      assert_equal(2, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      assert_equal(1, bundles.size)
 
       check_bundle(bundle1, bundles[0])
-      check_bundle(bundle2, bundles[1])
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
+
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 3.87, 'USD', DEFAULT_KB_INIT_DATE)
-
-      check_invoice_item(find_invoice_item(second_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
-      check_invoice_item(find_invoice_item(second_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(find_invoice_item(second_invoice.items, 'oilslick-monthly'), second_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
 
     end
-=end
 
     private
 
