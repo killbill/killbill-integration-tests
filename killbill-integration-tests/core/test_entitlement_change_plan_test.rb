@@ -23,6 +23,8 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
+      kb_clock_add_days(1, nil, @options)
+
       # Change plan
       requested_date = nil
       billing_policy = nil
@@ -40,7 +42,7 @@ module KillBillIntegrationTests
       assert_equal(events[0].event_type, "START_ENTITLEMENT")
       assert_equal(events[1].effective_date, DEFAULT_KB_INIT_DATE)
       assert_equal(events[1].event_type, "START_BILLING")
-      assert_equal(events[2].effective_date, DEFAULT_KB_INIT_DATE)
+      assert_equal(events[2].effective_date, "2013-08-02")
       assert_equal(events[2].event_type, "CHANGE")
       assert_equal(events[3].effective_date, "2013-08-31")
       assert_equal(events[3].event_type, "PHASE")
