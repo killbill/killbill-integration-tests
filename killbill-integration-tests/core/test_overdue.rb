@@ -183,6 +183,7 @@ module KillBillIntegrationTests
 
       bp
     end
+
     def check_entitlement_with_events(bp, start_date, events, options)
       subscriptions = get_subscriptions(bp.bundle_id, options)
       assert_equal(1, subscriptions.size)
