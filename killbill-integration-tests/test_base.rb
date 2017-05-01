@@ -75,6 +75,9 @@ module KillBillIntegrationTests
     end
 
     def teardown_base
+      # Reset clock to now to avoid lengthy catch-ups later on
+      kb_clock_set(nil, nil, @options)
+
       # TODO cleanup of data with control parameter
     end
 

@@ -16,7 +16,9 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-    # Cancellation with with explicit no arguments
+
+
+       # Cancellation with with explicit no arguments
     def test_bp_cancel_default_no_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -30,8 +32,40 @@ module KillBillIntegrationTests
 
       canceled_bp = get_subscription(bp.subscription_id, @options)
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
-    end
 
+      bp_subscriptions = get_subscriptions(bp.bundle_id, @options)
+      bp = bp_subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+
+      events = [{:type                    => 'START_ENTITLEMENT',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :billing_period         => 'MONTHLY',
+                 :product                => 'Sports',
+                 :plan                   => 'sports-monthly',
+                 :phase                  => 'sports-monthly-trial',
+                 :price_list             => 'DEFAULT',
+                 :service_name           => 'entitlement-service',
+                 :service_state_name     => 'ENT_STARTED'},
+                {:type                   => 'START_BILLING',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :billing_period         => 'MONTHLY',
+                 :product                => 'Sports',
+                 :plan                   => 'sports-monthly',
+                 :phase                  => 'sports-monthly-trial',
+                 :price_list             => 'DEFAULT',
+                 :service_name           => 'billing-service',
+                 :service_state_name     => 'START_BILLING'},
+                {:type                   => 'STOP_ENTITLEMENT',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :service_name           => 'entitlement-service',
+                 :service_state_name     => 'ENT_CANCELLED'},
+                {:type                   => 'STOP_BILLING',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :service_name           => 'billing-service',
+                 :service_state_name     => 'STOP_BILLING'}]
+
+      check_events(events, bp.events)
+
+    end
 
     # Cancellation with with explicit no arguments
     def test_bp_cancel_default_with_ctd
@@ -50,8 +84,49 @@ module KillBillIntegrationTests
 
       canceled_bp = get_subscription(bp.subscription_id, @options)
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-01", DEFAULT_KB_INIT_DATE, "2013-09-30")
-    end
 
+      bp_subscriptions = get_subscriptions(bp.bundle_id, @options)
+      bp = bp_subscriptions.find { |s| s.subscription_id == bp.subscription_id }
+
+      events = [{:type                    => 'START_ENTITLEMENT',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :billing_period         => 'MONTHLY',
+                 :product                => 'Sports',
+                 :plan                   => 'sports-monthly',
+                 :phase                  => 'sports-monthly-trial',
+                 :price_list             => 'DEFAULT',
+                 :service_name           => 'entitlement-service',
+                 :service_state_name     => 'ENT_STARTED'},
+                {:type                   => 'START_BILLING',
+                 :date                   => DEFAULT_KB_INIT_DATE,
+                 :billing_period         => 'MONTHLY',
+                 :product                => 'Sports',
+                 :plan                   => 'sports-monthly',
+                 :phase                  => 'sports-monthly-trial',
+                 :price_list             => 'DEFAULT',
+                 :service_name           => 'billing-service',
+                 :service_state_name     => 'START_BILLING'},
+                {:type                   => 'PHASE',
+                 :date                   => '2013-08-31',
+                 :billing_period         => 'MONTHLY',
+                 :product                => 'Sports',
+                 :plan                   => 'sports-monthly',
+                 :phase                  => 'sports-monthly-evergreen',
+                 :price_list             => 'DEFAULT',
+                 :service_name           => 'entitlement+billing-service',
+                 :service_state_name     => 'PHASE'},
+                {:type                   => 'STOP_ENTITLEMENT',
+                 :date                   => '2013-09-01',
+                 :service_name           => 'entitlement-service',
+                 :service_state_name     => 'ENT_CANCELLED'},
+                {:type                   => 'STOP_BILLING',
+                 :date                   => '2013-09-30',
+                 :service_name           => 'billing-service',
+                 :service_state_name     => 'STOP_BILLING'}]
+
+      check_events(events, bp.events)
+
+    end
 
 
     # Cancellation with with explicit entitlement imm policy

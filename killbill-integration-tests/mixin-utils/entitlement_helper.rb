@@ -22,7 +22,7 @@ module KillBillIntegrationTests
       bundle.resume(requested_date, user, nil, nil, options)
     end
 
-    def set_blocking_state(bundle_id, state_name, service, block_change, block_entitlement, block_billing, requested_date, user, options)
+    def set_bundle_blocking_state(bundle_id, state_name, service, block_change, block_entitlement, block_billing, requested_date, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.bundle_id = bundle_id
       bundle.set_blocking_state(state_name, service, block_change, block_entitlement, block_billing, requested_date, user, nil, nil, options)
