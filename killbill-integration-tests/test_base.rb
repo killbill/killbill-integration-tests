@@ -49,6 +49,8 @@ module KillBillIntegrationTests
           @options[:api_secret] = tenant_info[:api_secret]
           create_tenant_if_does_not_exist(tenant_info[:external_key], tenant_info[:api_key], tenant_info[:api_secret], @user, @options)
         end
+
+        @account = nil
       end
 
       kb_clock_set(init_clock, nil, @options)
@@ -75,6 +77,10 @@ module KillBillIntegrationTests
     end
 
     def teardown_base
+
+      close_account(@account.account_id, @user, @options) unless @account.nil?
+
+
       # Reset clock to now to avoid lengthy catch-ups later on
       kb_clock_set(nil, nil, @options)
 

@@ -9,6 +9,13 @@ module KillBillIntegrationTests
       create_account_with_data(user, {}, options)
     end
 
+    def close_account(account_id, user, options)
+      account = KillBillClient::Model::Account.new
+      account.account_id = account_id
+      account.close(true, true,  false, user, nil, 'Closing account', options)
+    end
+
+
     def create_account_with_data(user, data, options)
       account = KillBillClient::Model::Account.new
       account.name = data[:name].nil? ? 'KillBillClient' : data[:name]
