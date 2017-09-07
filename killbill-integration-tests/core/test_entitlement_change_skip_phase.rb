@@ -101,8 +101,12 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
+      second_invoice.items.sort! { |a, b| a.item_type <=> b.item_type }
       check_invoice_no_balance(second_invoice, 0, 'USD', '2016-08-02')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', nil)
+      # We get weird $0 RECURRING items coming from change https://github.com/killbill/killbill/commit/03f276b230a6f1aab62447b2ea99b34813899678
+      # because code now does not insert $0 RECURRING items in the tree and therefore there is no repair against $0 RECURRING items
+      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-01', '2016-08-02')
 
 
       # 2016-08-03
@@ -113,6 +117,16 @@ module KillBillIntegrationTests
       billing_policy = "IMMEDIATE"
       bp = bp.change_plan({:productName => 'Free', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
       check_entitlement(bp, 'Free', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(3, all_invoices.size)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 0, 'USD', '2016-08-03')
+       # Weird $0 RECURRING items
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-03', '2016-09-01')
+
 
       # 2016-08-04
       kb_clock_add_days(1, nil, @options)
@@ -122,17 +136,21 @@ module KillBillIntegrationTests
       billing_policy = "IMMEDIATE"
       bp = bp.change_plan_with_target_phase({:productName => 'Gold', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, :EVERGREEN, false, @options)
       check_entitlement(bp, 'Gold', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
-      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
-      third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 27.10, 'USD', '2016-08-04')
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 27.10, 'USD', 'RECURRING', 'gold-monthly', 'gold-monthly-evergreen', '2016-08-04', '2016-09-01')
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 27.10, 'USD', '2016-08-04')
+      fourth_invoice.items.sort! { |a, b| a.amount <=> b.amount }
+      # Weird $0 RECURRING items
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-03', '2016-08-04')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 27.10, 'USD', 'RECURRING', 'gold-monthly', 'gold-monthly-evergreen', '2016-08-04', '2016-09-01')
 
     end
+
 
     #
     # We only want to see 1 TRIAL the first time when moving to a paying Plan
@@ -171,8 +189,11 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 0, 'USD', '2016-08-02')
+      second_invoice.items.sort! { |a, b| a.item_type <=> b.item_type }
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', nil)
-
+      # We get weird $0 RECURRING items coming from change https://github.com/killbill/killbill/commit/03f276b230a6f1aab62447b2ea99b34813899678
+      # because code now does not insert $0 RECURRING items in the tree and therefore there is no repair against $0 RECURRING items
+      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-01', '2016-08-02')
 
       # 2016-08-03
       kb_clock_add_days(1, nil, @options)
@@ -183,6 +204,16 @@ module KillBillIntegrationTests
       bp = bp.change_plan({:productName => 'Free', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
       check_entitlement(bp, 'Free', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
 
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(3, all_invoices.size)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 0, 'USD', '2016-08-03')
+      # Weird $0 RECURRING items
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-03', '2016-09-01')
+
       # 2016-08-08
       kb_clock_add_days(5, nil, @options)
 
@@ -191,15 +222,18 @@ module KillBillIntegrationTests
       billing_policy = "IMMEDIATE"
       bp = bp.change_plan_with_target_phase({:productName => 'Gold', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, :EVERGREEN, false, @options)
       check_entitlement(bp, 'Gold', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
-      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
-      third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 23.23, 'USD', '2016-08-08')
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 23.23, 'USD', 'RECURRING', 'gold-monthly', 'gold-monthly-evergreen', '2016-08-08', '2016-09-01')
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 23.23, 'USD', '2016-08-08')
+      fourth_invoice.items.sort! { |a, b| a.amount <=> b.amount }
+      # Weird $0 RECURRING items
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-03', '2016-08-08')
+      check_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 23.23, 'USD', 'RECURRING', 'gold-monthly', 'gold-monthly-evergreen', '2016-08-08', '2016-09-01')
 
     end
 
