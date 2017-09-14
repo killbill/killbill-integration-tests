@@ -20,16 +20,7 @@ module KillBillClient
 
           input[:accountId] = @account_id
           input[:productCategory] = @product_category
-
-          #
-          # We reuse the catalog override structure to pass the target phaseType associated with the change.
-          # Array priceOverrides should have one entry and ONLY the phase_type should be set.
-          #
-          input[:priceOverrides] = []
-          override_target_phase = KillBillClient::Model::PhasePriceOverrideAttributes.new
-          override_target_phase.phase_type = target_phase_type
-          input[:priceOverrides] << override_target_phase
-
+          input[:phaseType] = target_phase_type
 
           return self.class.put "#{KILLBILL_API_ENTITLEMENT_PREFIX}/#{@subscription_id}",
                                 input.to_json,
