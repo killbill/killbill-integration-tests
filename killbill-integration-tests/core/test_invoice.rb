@@ -87,7 +87,7 @@ module KillBillIntegrationTests
       check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
 
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
@@ -180,7 +180,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01
@@ -232,7 +232,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01

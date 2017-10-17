@@ -111,7 +111,7 @@ module KillBillIntegrationTests
       begin
         bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
         assert.fail "Unexpected success BCD operation for a effective date in the past"
-      rescue KillBillClient::API::BadRequest => expected
+      rescue KillBillClient::API::BadRequest
       end
 
       # Re-issue the call with force_past_effective_date = true
@@ -174,5 +174,5 @@ module KillBillIntegrationTests
 
 
 
-    end
+  end
 end

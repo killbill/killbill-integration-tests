@@ -16,7 +16,7 @@ module KillBillIntegrationTests
 
     def teardown
       teardown_base
-      end
+    end
 
     def test_external_payment_with_exact_amount
       create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)

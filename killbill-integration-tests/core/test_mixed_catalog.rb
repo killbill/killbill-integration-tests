@@ -17,7 +17,7 @@ module KillBillIntegrationTests
     end
 
     def test_with_in_advance_plan
-      bp = create_entitlement(@account.account_id, nil, 'basic-monthly-in-advance', @user, @options)
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly-in-advance', @user, @options)
       assert_equal('basic-monthly-in-advance', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
@@ -30,7 +30,7 @@ module KillBillIntegrationTests
     end
 
     def test_with_in_arrear_plan
-      bp = create_entitlement(@account.account_id, nil, 'basic-monthly-in-arrear', @user, @options)
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly-in-arrear', @user, @options)
       assert_equal('basic-monthly-in-arrear', bp.plan_name)
 
       kb_clock_add_months(1, nil, @options)
@@ -46,7 +46,7 @@ module KillBillIntegrationTests
 
 
     def test_mixed_mode
-      bp = create_entitlement(@account.account_id, nil, 'basic-monthly-in-advance', @user, @options)
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly-in-advance', @user, @options)
       assert_equal('basic-monthly-in-advance', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 

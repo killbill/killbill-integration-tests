@@ -29,6 +29,21 @@ module KillBillIntegrationTests
     end
 
 
+
+    def create_entitlement_from_plan(account_id, external_key, plan_name, user, options)
+
+      result = KillBillClient::Model::Subscription.new
+      result.account_id = account_id
+      result.external_key = external_key
+      result.plan_name = plan_name
+      result = result.create(user, nil, nil, nil, nil, options)
+      assert_not_nil(result.subscription_id)
+
+      result
+    end
+
+
+
     def create_entitlement_base_with_overrides(account_id, product_name, billing_period, price_list, overrides, user, options)
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, overrides, nil, user, options)
     end
@@ -76,6 +91,7 @@ module KillBillIntegrationTests
     end
 
     private
+
 
     def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, phase_type, overrides, requested_date, user, options)
 
