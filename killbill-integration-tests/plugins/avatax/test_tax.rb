@@ -1,15 +1,34 @@
 $LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
-require 'test_base'
+require 'plugin_base'
+require 'avatax/client'
 
 module KillBillIntegrationTests
 
-  class TestTax < Base
+  class TestTax < KillBillIntegrationTests::PluginBase
+
+    PLUGIN_KEY = "avatax"
+    # Default to latest
+    PLUGIN_VERSION = nil
+
+
+    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'avatax-plugin'},
+                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.java'},
+                    {:key => 'pluginType', :value => 'java'},
+    ]
+
+    PLUGIN_CONFIGURATION = 'org.killbill.billing.plugin.avatax.url=https://development.avalara.net' + "\n" +
+                           'org.killbill.billing.plugin.avatax.accountNumber=2000248957' + "\n" +
+                           'org.killbill.billing.plugin.avatax.licenseKey=C25F08E129987FE3' + "\n" +
+                           'org.killbill.billing.plugin.avatax.companyCode=DEFAULT' + "\n" +
+                           'org.killbill.billing.plugin.avatax.commitDocuments=false'
 
     def setup
+
       @user = 'AvaTax test plugin'
       # Don't put a date too far back in the past - AvaTax won't tax it otherwise
-      setup_base(@user, DEFAULT_MULTI_TENANT_INFO, '2014-08-01')
+      setup_plugin_base('2014-08-01', PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS, PLUGIN_CONFIGURATION)
 
       # Create account
       @account = create_account(@user, @options)
