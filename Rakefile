@@ -62,6 +62,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('multi-nodes') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/multi-nodes/test_*.rb"]

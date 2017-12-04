@@ -41,7 +41,7 @@ module KillBillIntegrationTests
     end
 
     def teardown
-      teardown_base
+      teardown_plugin_base(PLUGIN_KEY)
     end
 
     def test_adjust_tax_after_repair
