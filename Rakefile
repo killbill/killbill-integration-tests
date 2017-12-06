@@ -84,7 +84,10 @@ namespace :test do
   Rake::TestTask.new('all') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_*.rb",
-                            "#{BASE_DIR}/plugins/multi-nodes/test_*.rb"]
+                            "#{BASE_DIR}/multi-nodes/test_*.rb",
+                            "#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb",
+                            "#{BASE_DIR}/plugins/avatax/test_*.rb",
+                            "#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
     t.verbose    = true
   end
 
