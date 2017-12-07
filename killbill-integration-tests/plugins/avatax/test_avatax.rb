@@ -5,7 +5,7 @@ require 'plugin_base'
 
 module KillBillIntegrationTests
 
-  class TestTax < KillBillIntegrationTests::PluginBase
+  class TestAvaTax < KillBillIntegrationTests::PluginBase
 
     PLUGIN_KEY = "avatax"
     PLUGIN_NAME = "killbill-avatax"

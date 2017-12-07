@@ -87,7 +87,7 @@ module KillBillIntegrationTests
       plugins_info.select! do |plugin|
         found = true
         found &= plugin.plugin_key.include?(plugin_key) unless plugin.plugin_key.nil?
-        found &= plugin.plugin_name.include?(plugin_key) if plugin.plugin_key.nil?
+        found |= plugin.plugin_name.include?(plugin_key)
         found &= (plugin_version.nil? || plugin_version.empty? || plugin.version == plugin_version)
 
         if found

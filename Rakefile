@@ -44,12 +44,6 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('plugins:killbill-invoice-test') do |t|
-    t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-invoice-test/test_*.rb"]
-    t.verbose    = true
-  end
-
   Rake::TestTask.new('plugins:killbill-payment-test') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
@@ -65,6 +59,12 @@ namespace :test do
   Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/*/test_*.rb"]
     t.verbose    = true
   end
 
@@ -84,10 +84,7 @@ namespace :test do
   Rake::TestTask.new('all') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_*.rb",
-                            "#{BASE_DIR}/multi-nodes/test_*.rb",
-                            "#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb",
-                            "#{BASE_DIR}/plugins/avatax/test_*.rb",
-                            "#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
+                            "#{BASE_DIR}/plugins/*/test_*.rb"]
     t.verbose    = true
   end
 
