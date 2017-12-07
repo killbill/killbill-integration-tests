@@ -85,7 +85,7 @@ module KillBillIntegrationTests
 
       plugins_info = nodes_info.first.plugins_info || []
       plugins_info.select! do |plugin|
-        found = true
+        found = !plugin.plugin_key.nil?
         found &= plugin.plugin_key.include?(plugin_key) unless plugin.plugin_key.nil?
         found |= plugin.plugin_name.include?(plugin_key)
         found &= (plugin_version.nil? || plugin_version.empty? || plugin.version == plugin_version)
@@ -98,6 +98,7 @@ module KillBillIntegrationTests
 
         found
       end
+
       # if there are multiple versions find the running one or the latest
       unless plugins_info.nil?
         plugins_info.select! { |plugin| plugin.state == 'RUNNING' } if has_running_plugin

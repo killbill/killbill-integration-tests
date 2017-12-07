@@ -24,6 +24,8 @@ module KillBillIntegrationTests
     ]
 
     SMTP_PORT = 2525
+    # Be advised to adjust as necessary so that killbill emails can be received into the test email server
+    # for local killbill this could be 127.0.0.1, for docker it must be the machine ip address where the test is running
     SMTP_HOST = '127.0.0.1'
     SMTP_FROM = 'xxx@yyy.com'
 
@@ -86,7 +88,7 @@ module KillBillIntegrationTests
         KillBillClient::Model::Tenant.upload_tenant_user_key_value(entry[:key], resource, @user, nil, nil, @options)
       end
 
-      @smtp_server = SMTPServer.new(SMTP_PORT, SMTP_HOST) { |expected, actual| assert_equal(expected, actual)}
+      @smtp_server = SMTPServer.new(SMTP_PORT, '0.0.0.0') { |expected, actual| assert_equal(expected, actual)}
       @smtp_server.start
 
       # Create account
