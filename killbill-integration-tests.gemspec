@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake', '>= 10.0.0'
   s.add_development_dependency 'thread', '>= 0.1.4'
-  s.add_development_dependency 'mini-smtp-server', '~> 0.0.2'
+  s.add_development_dependency 'midi-smtp-server', '~> 2.1.1'
   s.add_development_dependency 'toxiproxy', '~> 0.1.2'
   s.add_development_dependency 'faker', '~> 1.5'
   s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'

@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     ]
 
     def setup
-
+      @user = 'PaymentWithControl'
       setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
 
       @account = create_account(@user, @options)
