@@ -1,48 +1,78 @@
 $LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
-require 'test_base'
-require 'mini-smtp-server'
+require 'plugin_base'
+require "midi-smtp-server"
+#require "mail"
 
 module KillBillIntegrationTests
 
   #
   # Will require Kill Bill to be started with org.killbill.invoice.dryRunNotificationSchedule=7d
   #
-  class TestEmailNotification < Base
+  class TestEmailNotification < KillBillIntegrationTests::PluginBase
+
+    PLUGIN_KEY = "email-notifications"
+    PLUGIN_NAME = "killbill-email-notifications"
+    # Default to latest
+    PLUGIN_VERSION = nil
 
 
-    class SMTPServer < MiniSmtpServer
+    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'killbill-email-notifications-plugin'},
+                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.java'},
+                    {:key => 'pluginType', :value => 'java'},
+    ]
 
-      def initialize(port, ip, &handler)
-        super(port, ip, 4, $stderr, false, true)
+    SMTP_PORT = 2525
+    # Be advised to adjust as necessary so that killbill emails can be received into the test email server
+    # for local killbill this could be 127.0.0.1, for docker it must be the machine ip address where the test is running
+    SMTP_HOST = '127.0.0.1'
+    SMTP_FROM = 'xxx@yyy.com'
+
+    PLUGIN_CONFIGURATION = 'org.killbill.billing.plugin.email-notifications.defaultEvents=INVOICE_NOTIFICATION,INVOICE_CREATION,INVOICE_PAYMENT_SUCCESS,INVOICE_PAYMENT_FAILED,SUBSCRIPTION_CANCEL' + "\n" +
+        "org.killbill.billing.plugin.email-notifications.smtp.host=#{SMTP_HOST}\n" +
+        "org.killbill.billing.plugin.email-notifications.smtp.port=#{SMTP_PORT}\n" +
+        'org.killbill.billing.plugin.email-notifications.smtp.useAuthentication=false' + "\n" +
+        'org.killbill.billing.plugin.email-notifications.smtp.userName=uuuuuu' + "\n" +
+        'org.killbill.billing.plugin.email-notifications.smtp.password=zzzzzz' + "\n" +
+        'org.killbill.billing.plugin.email-notifications.smtp.useSSL=false' + "\n" +
+        "org.killbill.billing.plugin.email-notifications.smtp.defaultSender=#{SMTP_FROM}"
+
+
+    class SMTPServer < MidiSmtpServer::Smtpd
+
+      def initialize(port, host, &handler)
         @handler = handler
+        super(port, host)
       end
 
+      def start
+        super
+      end
 
       def shutdown_and_wait_for_completion
+        # gracefully connections down
         shutdown
-        while(connections > 0)
-          sleep 0.01
-        end
+        # check once if some connection(s) need(s) more time
+        sleep 2 unless connections == 0
+        # stop all threads and connections
         stop
-        join
       end
 
-      def new_message_event(message_hash)
-        puts "# New email received:"
-        puts "-- From: #{message_hash[:from]}"
-        puts "-- To:   #{message_hash[:to]}"
-        puts "--"
-        puts "-- " + message_hash[:data].gsub(/\r\n/, "\r\n-- ")
-        puts
-        #@handler.call(message_hash)
+      def on_message_data_event(ctx)
+        @handler.call(ctx[:envelope][:from], "<#{SMTP_FROM}>")
+        @handler.call(ctx[:envelope][:to][0], '<mathewgallager@kb.com>')
+
+        # Just decode message ones to make sure, that this message ist readable
+        # @mail = Mail.read_from_string(ctx[:message][:data])
       end
 
     end
 
     def setup
       @user = "EmailNotification"
-      setup_base(@user)
+      setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
+      set_configuration(PLUGIN_NAME, PLUGIN_CONFIGURATION)
 
       resources = [{:key => 'killbill-email-notifications:UPCOMING_INVOICE_en_US', :value => 'UpcomingInvoice.mustache' },
                    {:key => 'killbill-email-notifications:SUCCESSFUL_PAYMENT_en_US', :value => 'SuccessfulPayment.mustache' },
@@ -58,13 +88,10 @@ module KillBillIntegrationTests
         KillBillClient::Model::Tenant.upload_tenant_user_key_value(entry[:key], resource, @user, nil, nil, @options)
       end
 
-      @smtp_server = SMTPServer.new(2525, "127.0.0.1")
-      #@smtp_server.start
+      @smtp_server = SMTPServer.new(SMTP_PORT, '0.0.0.0') { |expected, actual| assert_equal(expected, actual)}
+      @smtp_server.start
 
       # Create account
-      default_time_zone = nil
-
-
       data = {}
       data[:name] = 'Mathew Gallager'
       data[:external_key] = Time.now.to_i.to_s + "-" + rand(1000000).to_s
@@ -86,15 +113,12 @@ module KillBillIntegrationTests
 
     end
 
-
     def teardown
-      teardown_base
-      #@smtp_server.shutdown_and_wait_for_completion
+      teardown_plugin_base(PLUGIN_KEY)
+      @smtp_server.shutdown_and_wait_for_completion unless @smtp_server.nil?
     end
 
     def test_basic
-
-
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
