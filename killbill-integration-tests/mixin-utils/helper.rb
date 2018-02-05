@@ -65,6 +65,11 @@ module KillBillIntegrationTests
       KillBillClient::Model::Catalog.add_tenant_catalog_simple_plan(simple_plan, user, 'Test', 'Upload simple plan', options)
     end
 
+    def upload_tenant_user_key_value(key, value, user, options)
+      KillBillClient::Model::Tenant.upload_tenant_user_key_value(key,value, user, 'New Config', 'Upload config for tenant', options)
+      sleep(TIMEOUT_SEC)
+    end
+
     def upload_plugin_config(plugin_name, plugin_config_name, user, options)
       plugin_config = get_resource_as_string(plugin_config_name)
       KillBillClient::Model::Tenant.upload_tenant_plugin_config(plugin_name, plugin_config, user, 'New Plugin Config', 'Upload plugin config for tenant', options)
@@ -193,7 +198,7 @@ module KillBillIntegrationTests
     end
 
     #
-    # Pass a block the will be evaluated until either we match expected value ort we timeout
+    # Pass a block the will be evaluated until either we match expected value or we timeout
     #
     def wait_for_expected_clause(expected, args, options)
       begin

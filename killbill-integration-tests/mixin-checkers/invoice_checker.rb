@@ -14,6 +14,13 @@ module KillBillIntegrationTests
       assert_equal(invoice_date, i.invoice_date, msg)
     end
 
+    def check_invoice_item_w_quantity(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date, rate, quantity)
+      msg = "invoice_item #{ii.invoice_item_id}"
+      check_usage_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date)
+      assert_equal(rate, ii.rate, msg)
+      assert_equal(quantity, ii.quantity, msg)
+    end
+
     def check_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, start_date, end_date)
       msg = "invoice_item #{ii.invoice_item_id}"
       assert_equal(amount, ii.amount, msg)
@@ -24,6 +31,21 @@ module KillBillIntegrationTests
       assert_equal(phase_name, ii.phase_name, msg)
       assert_equal(start_date, ii.start_date, msg)
       assert_equal(end_date, ii.end_date, msg)
+    end
+
+    def check_invoice_item_detail(ii, usage_input, amount)
+      msg = "invoice_item #{ii.invoice_item_id}"
+      assert_not_nil(ii.item_details, msg)
+      item_details = JSON.parse(ii.item_details, :symbolize_names => true )
+      detail_amount = 0
+      item_details.each_with_index do |item_detail, index|
+        assert_equal(usage_input[index][:unit_type], item_detail[:tierUnit], msg)
+        assert_equal(usage_input[index][:unit_qty], item_detail[:quantity], msg)
+        assert_equal(usage_input[index][:unit_price], item_detail[:tierPrice], msg)
+        detail_amount += item_detail[:amount]
+      end
+      assert_equal(amount, detail_amount, msg)
+      assert_equal(usage_input.size, item_details.size)
     end
 
     def check_usage_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date)

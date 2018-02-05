@@ -23,6 +23,10 @@ module KillBillIntegrationTests
     DEFAULT_MULTI_TENANT_INFO = {:use_multi_tenant => true,
                                  :create_multi_tenant => true}
 
+    DETAIL_MODE = :DETAIL # :detail or :aggregate
+    AGGREGATE_MODE = :AGGREGATE # :detail or :aggregate
+    USAGE_DETAIL_MODE_KEY = 'org.killbill.invoice.item.result.behavior.mode'.freeze
+
     def setup_base(user=self.method_name, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
 
       # make sure this fits into 50 characters
@@ -85,6 +89,24 @@ module KillBillIntegrationTests
       kb_clock_set(nil, nil, @options)
 
       # TODO cleanup of data with control parameter
+    end
+
+    def detail_mode
+      usage_detail_mode(DETAIL_MODE)
+    end
+
+    def aggregate_mode
+      usage_detail_mode(AGGREGATE_MODE)
+    end
+
+    def usage_detail_mode(usage_detail_mode_value)
+      mode = {}
+      mode[USAGE_DETAIL_MODE_KEY] = usage_detail_mode_value
+      upload_tenant_user_key_value('PER_TENANT_CONFIG', mode.to_json)
+    end
+
+    def upload_tenant_user_key_value(key, value)
+      super(key, value, @user, @options)
     end
 
   end

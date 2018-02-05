@@ -11,6 +11,7 @@ module KillBillIntegrationTests
       load_default_catalog
 
       @account = create_account(@user, @options)
+      aggregate_mode
     end
 
     def teardown
@@ -70,7 +71,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 1039.50, 'USD', '2013-08-31')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
       #
       # Move to next invoice => Date = '2013-09-30' => Should see usage for '2013-08-31' that was previously recorded
       #
@@ -84,7 +86,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(third_invoice, 1019.75, 'USD', '2013-09-30')
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-09-30', '2013-10-31')
       check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
-
+      check_invoice_item_detail(third_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 5, :unit_price => 3.95 }], 19.75)
       #
       # Move to next invoice => Date = '2013-10-31' => Should see no usage
       #
@@ -146,6 +149,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 539.50, 'USD', '2013-09-01')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
     end
 
     #
@@ -180,9 +185,9 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 539.50, 'USD', '2013-08-31')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
       # Add more usage for previous period and also new period
-
       usage_input = [{:unit_type => 'gallons',
                       :usage_records => [{:record_date => '2013-08-13', :amount => 20},
                                          {:record_date => '2013-09-2', :amount => 5}]
@@ -200,7 +205,10 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
       check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 79.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
       check_usage_invoice_item(third_invoice.items[2], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
-
+      check_invoice_item_detail(third_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 20, :unit_price => 3.95 }], 79.0)
+      check_invoice_item_detail(third_invoice.items[2],
+                                [{:unit_type => 'gallons', :unit_qty => 5, :unit_price => 3.95 }], 19.75)
       #
       # Add more usage for the last 2 periods and also new period
       #
@@ -222,7 +230,10 @@ module KillBillIntegrationTests
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-10-31', '2013-11-30')
       check_usage_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
       check_usage_invoice_item(fourth_invoice.items[2], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-30', '2013-10-31')
-
+      check_invoice_item_detail(fourth_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 5, :unit_price => 3.95 }], 19.75)
+      check_invoice_item_detail(fourth_invoice.items[2],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
       #
       # Add more usage for the last period and the period from '2013-08-1' -> '2013-08-31'. That one should NOT be invoiced because org.killbill.invoice.readMaxRawUsagePreviousPeriod is set to 2 by default
       #
@@ -243,7 +254,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(fifth_invoice, 539.50, 'USD', '2013-11-30')
       check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-11-30', '2013-12-31')
       check_usage_invoice_item(fifth_invoice.items[1], fifth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-31', '2013-11-30')
-
+      check_invoice_item_detail(fifth_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
 
     end
 
@@ -406,7 +418,8 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
-
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
 
       # 2008-9-04
       kb_clock_add_days(3, nil, @options)
@@ -440,7 +453,10 @@ module KillBillIntegrationTests
       third_invoice = all_invoices[2]
       check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items), third_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
       check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items), third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-17', '2013-10-01')
-
+      check_invoice_item_detail(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items),
+                                [{:unit_type => 'gallons', :unit_qty => 20, :unit_price => 3.95 }], 79.00)
+      check_invoice_item_detail(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items),
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
 
       # 2008-10-02
       kb_clock_add_days(1, nil, @options)
@@ -477,7 +493,12 @@ module KillBillIntegrationTests
       check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
       check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
       check_usage_invoice_item(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-04', '2013-11-01')
-
+      check_invoice_item_detail(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items),
+                                [{:unit_type => 'gallons', :unit_qty => 20, :unit_price => 3.95 }], 79.00)
+      check_invoice_item_detail(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items),
+                                [{:unit_type => 'gallons', :unit_qty => 20, :unit_price => 3.95 }], 79.00)
+      check_invoice_item_detail(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items),
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
     end
 
 
@@ -510,7 +531,8 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
-
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
 
       # 2013-09-02 Next invoice
       kb_clock_add_days(31, nil, @options)
@@ -535,6 +557,8 @@ module KillBillIntegrationTests
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
       check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
+      check_invoice_item_detail(third_invoice.items[0],
+                                [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
 
     end
 

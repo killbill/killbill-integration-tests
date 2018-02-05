@@ -10,7 +10,6 @@ module KillBillIntegrationTests
 
       @user = 'TestCapacity'
 
-      # Don't put a date too far back in the past - AvaTax won't tax it otherwise
       setup_base(@user, DEFAULT_MULTI_TENANT_INFO, '2015-01-01')
 
       upload_catalog("usage/Capacity.xml", false, @user, @options)
@@ -29,6 +28,7 @@ module KillBillIntegrationTests
 
 
     def test_basic
+      aggregate_mode
 
       bp = create_entitlement('basic-monthly')
 
@@ -51,11 +51,14 @@ module KillBillIntegrationTests
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
+
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
 
       check_invoice_no_balance(first_invoice, 1.00, 'USD', '2015-02-01')
       check_usage_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 1.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-01-01', '2015-02-01')
+      check_invoice_item_detail(first_invoice.items[0],
+                                [{:unit_type => 'members', :unit_qty => 10, :unit_price => 1.0 }], 1.0)
 
       usage_input = [{:unit_type => 'members',
                       :usage_records => [{:record_date => '2015-02-01', :amount => 6},
@@ -81,7 +84,8 @@ module KillBillIntegrationTests
 
       check_invoice_no_balance(second_invoice, 5.00, 'USD', '2015-03-01')
       check_usage_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 5.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-02-01', '2015-03-01')
-
+      check_invoice_item_detail(second_invoice.items[0],
+                                [{:unit_type => 'members', :unit_qty => 50, :unit_price => 5.0 }], 5.0)
 
       usage_input = [{:unit_type => 'members',
                       :usage_records => [{:record_date => '2015-03-01', :amount => 6},
@@ -107,9 +111,12 @@ module KillBillIntegrationTests
 
       check_invoice_no_balance(third_invoice, 10.00, 'USD', '2015-04-01')
       check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 10.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-03-01', '2015-04-01')
+      check_invoice_item_detail(third_invoice.items[0],
+                                [{:unit_type => 'members', :unit_qty => 51, :unit_price => 10.0 }], 10.0)
     end
 
     def test_multiple_units
+      aggregate_mode
 
       bp = create_entitlement('basic-monthly')
 
@@ -139,6 +146,9 @@ module KillBillIntegrationTests
 
       check_invoice_no_balance(first_invoice, 1.00, 'USD', '2015-02-01')
       check_usage_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 1.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-01-01', '2015-02-01')
+      check_invoice_item_detail(first_invoice.items[0],
+                                [{:unit_type => 'bandwith-meg-sec', :unit_qty => 100, :unit_price => 1.0 },
+                                 {:unit_type => 'members', :unit_qty => 10, :unit_price => 1.0 }], 1.0)
 
       # Unit members is still part of tier 1 but bandwith-meg-sec is not
       usage_input = [{:unit_type => 'members',
@@ -168,6 +178,9 @@ module KillBillIntegrationTests
 
       check_invoice_no_balance(second_invoice, 5.00, 'USD', '2015-03-01')
       check_usage_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 5.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-02-01', '2015-03-01')
+      check_invoice_item_detail(second_invoice.items[0],
+                                [{:unit_type => 'bandwith-meg-sec', :unit_qty => 101, :unit_price => 5.0 },
+                                 {:unit_type => 'members', :unit_qty => 10, :unit_price => 5.0 }], 5.0)
 
     end
 
@@ -189,7 +202,5 @@ module KillBillIntegrationTests
       assert_equal(1, filtered.size)
       return filtered[0]
     end
-
-
   end
 end

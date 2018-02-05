@@ -12,6 +12,7 @@ module KillBillIntegrationTests
       upload_catalog("usage/ConsumableTopTierPolicy.xml", false, @user, @options)
 
       @account = create_account(@user, @options)
+      aggregate_mode
     end
 
     def teardown
@@ -45,6 +46,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 200.0, 'USD', '2013-09-01')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0.0, 'USD', 'RECURRING', 'something-monthly', 'something-monthly-evergreen', '2013-09-01', '2013-10-01')
       check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 200.0, 'USD', 'USAGE', 'something-monthly', 'something-monthly-evergreen', 'xyz-usage', '2013-08-01', '2013-09-01')
+      check_invoice_item_detail(second_invoice.items[1],
+                                [{:unit_type => 'XYZ', :unit_qty => 2, :unit_price => 100.00 }], 200.00)
 
 
       # All units will be prices at the price of the second tier (because we reached the limit of the first tier but did not reach the limit of second tier)
@@ -66,7 +69,8 @@ module KillBillIntegrationTests
       check_invoice_no_balance(third_invoice, 1100.0, 'USD', '2013-10-01')
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 0.0, 'USD', 'RECURRING', 'something-monthly', 'something-monthly-evergreen', '2013-10-01', '2013-11-01')
       check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 1100.0, 'USD', 'USAGE', 'something-monthly', 'something-monthly-evergreen', 'xyz-usage', '2013-09-01', '2013-10-01')
-
+      check_invoice_item_detail(third_invoice.items[1],
+                                [{:unit_type => 'XYZ', :unit_qty => 110, :unit_price => 10.00 }], 1100.00)
 
     end
 

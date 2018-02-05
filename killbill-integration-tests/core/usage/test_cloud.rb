@@ -12,6 +12,7 @@ module KillBillIntegrationTests
       upload_catalog("usage/Cloud.xml", false, @user, @options)
 
       @account = create_account(@user, @options)
+      aggregate_mode
     end
 
     def teardown
@@ -80,11 +81,23 @@ module KillBillIntegrationTests
       check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
       check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
       check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-1', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01')
-
+      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-3', last_invoice.items),
+                                [{:unit_type => 'server-hourly-type-3', :unit_qty => find_quantity(usage_input,'server-hourly-type-3' ), :unit_price => 3.0 }], expected_dollar_amount_per_unit[2])
+      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-2', last_invoice.items),
+                                [{:unit_type => 'server-hourly-type-2', :unit_qty => find_quantity(usage_input,'server-hourly-type-2' ), :unit_price => 2.0 }], expected_dollar_amount_per_unit[1])
+      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-1', last_invoice.items),
+                                [{:unit_type => 'server-hourly-type-1', :unit_qty => find_quantity(usage_input,'server-hourly-type-1' ), :unit_price => 1.0 }], expected_dollar_amount_per_unit[0])
     end
 
 
     private
+
+    def find_quantity(usage_input, usage_name)
+      quantity = 0
+      usage = usage_input.select { |input| input[:unit_type] == usage_name }.first
+      usage[:usage_records].each { |record| quantity += record[:amount] }
+      quantity
+    end
 
     def find_usage_ii(usage_name, items)
       filtered = items.select do |ii|
