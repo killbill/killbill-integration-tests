@@ -559,10 +559,59 @@ module KillBillIntegrationTests
       check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
       check_invoice_item_detail(third_invoice.items[0],
                                 [{:unit_type => 'gallons', :unit_qty => 10, :unit_price => 3.95 }], 39.50)
-
     end
 
-      private
+    #
+    # Test with a few different records for the same period, detail mode
+    #
+    def test_with_multiple_records_detail_mode
+      detail_mode
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Create Add-on
+      ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'Gas', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
+      check_entitlement(ao_entitlement, 'Gas', 'ADD_ON', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+
+      usage_input = [{:unit_type => 'gallons',
+                      :usage_records => [{:record_date => '2013-08-11', :amount => 3},
+                                         {:record_date => '2013-08-12', :amount => 3},
+                                         {:record_date => '2013-08-13', :amount => 5},
+                                         {:record_date => '2013-08-14', :amount => 2},
+                                         {:record_date => '2013-08-15', :amount => 2},
+                                         {:record_date => '2013-08-17', :amount => 6}]
+                     }]
+
+      record_usage(ao_entitlement.subscription_id, usage_input, @user, @options)
+
+      # Check recorded usage
+      recorded_usage = get_usage_for_subscription(ao_entitlement.subscription_id, '2013-08-1', '2013-08-31', @options)
+      assert_equal(recorded_usage.subscription_id, ao_entitlement.subscription_id)
+      assert_equal(recorded_usage.start_date, '2013-08-01')
+      assert_equal(recorded_usage.end_date, '2013-08-31')
+      assert_equal(recorded_usage.rolled_up_units.size, 1)
+      assert_equal(recorded_usage.rolled_up_units[0].amount, 21)
+      assert_equal(recorded_usage.rolled_up_units[0].unit_type, 'gallons')
+
+
+      #
+      # Move to next invoice => Date = '2013-09-01' (we moved 1 day after BCD on purpose)
+      #
+      kb_clock_add_days(31, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(2, all_invoices.size)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 582.95, 'USD', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
+      check_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 82.95, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 21)
+    end
+
+    private
 
     def find_usage_ii(subscription_id, items)
       filtered = items.select do |ii|

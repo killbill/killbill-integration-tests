@@ -181,7 +181,75 @@ module KillBillIntegrationTests
       check_invoice_item_detail(second_invoice.items[0],
                                 [{:unit_type => 'bandwith-meg-sec', :unit_qty => 101, :unit_price => 5.0 },
                                  {:unit_type => 'members', :unit_qty => 10, :unit_price => 5.0 }], 5.0)
+    end
 
+    def test_multiple_units_detail_mode
+      detail_mode
+
+      bp = create_entitlement('basic-monthly')
+
+      # Both unit are part of tier 1
+      usage_input = [{:unit_type => 'members',
+                      :usage_records => [{:record_date => '2015-01-01', :amount => 6},
+                                         {:record_date => '2015-01-07', :amount => 3},
+                                         {:record_date => '2015-01-15', :amount => 10},
+                                         {:record_date => '2015-01-23', :amount => 8}]
+                     },
+                     {:unit_type => 'bandwith-meg-sec',
+                      :usage_records => [{:record_date => '2015-01-02', :amount => 100},
+                                         {:record_date => '2015-01-07', :amount => 3},
+                                         {:record_date => '2015-01-15', :amount => 10},
+                                         {:record_date => '2015-01-25', :amount => 50}]
+                     }]
+
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(1, all_invoices.size)
+      first_invoice = all_invoices[0]
+
+      check_invoice_no_balance(first_invoice, 1.00, 'USD', '2015-02-01')
+      assert_equal(2, first_invoice.items.size)
+      check_invoice_item_w_quantity(first_invoice.items[0], first_invoice.invoice_id, 0.5, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen',
+                                    'basic-monthly-usage1', '2015-01-01', '2015-02-01', 1, 100)
+      check_invoice_item_w_quantity(first_invoice.items[1], first_invoice.invoice_id, 0.5, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen',
+                                    'basic-monthly-usage1', '2015-01-01', '2015-02-01', 1, 10)
+
+      # Unit members is still part of tier 1 but bandwith-meg-sec is not
+      usage_input = [{:unit_type => 'members',
+                      :usage_records => [{:record_date => '2015-02-01', :amount => 6},
+                                         {:record_date => '2015-02-12', :amount => 10},
+                                         {:record_date => '2015-02-15', :amount => 10},
+                                         {:record_date => '2015-02-17', :amount => 9},
+                                         {:record_date => '2015-02-22', :amount => 0},
+                                         {:record_date => '2015-02-27', :amount => 8}]
+                     },
+                     {:unit_type => 'bandwith-meg-sec',
+                      :usage_records => [{:record_date => '2015-02-02', :amount => 101},
+                                         {:record_date => '2015-02-07', :amount => 3},
+                                         {:record_date => '2015-02-15', :amount => 10},
+                                         {:record_date => '2015-02-25', :amount => 50}]
+                     }]
+
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(2, all_invoices.size)
+      second_invoice = all_invoices[1]
+      assert_equal(2, second_invoice.items.size)
+      check_invoice_no_balance(second_invoice, 5.00, 'USD', '2015-03-01')
+      check_invoice_item_w_quantity(second_invoice.items[0], second_invoice.invoice_id, 2.5, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen',
+                                    'basic-monthly-usage1', '2015-02-01', '2015-03-01', 5.0, 101)
+      check_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 2.5, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen',
+                                    'basic-monthly-usage1', '2015-02-01', '2015-03-01', 5.0, 10)
     end
 
 
