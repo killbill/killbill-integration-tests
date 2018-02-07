@@ -26,11 +26,6 @@ module KillBillIntegrationTests
       assert_equal(end_date, ii.end_date, msg)
     end
 
-    def check_usage_depending_of_mode(ii, usage_input, amount)
-
-    end
-
-
     def check_usage_invoice_item_w_quantity(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date, rate, quantity)
       msg = "invoice_item #{ii.invoice_item_id}"
       check_usage_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date)
