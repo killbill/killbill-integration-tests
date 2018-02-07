@@ -12,7 +12,6 @@ module KillBillIntegrationTests
       upload_catalog("usage/Cloud.xml", false, @user, @options)
 
       @account = create_account(@user, @options)
-      aggregate_mode
     end
 
     def teardown
@@ -78,15 +77,23 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       last_invoice = all_invoices[1]
       check_invoice_no_balance(last_invoice, expected_dollar_amount_total, 'USD', '2013-09-01')
-      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
-      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
-      check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-1', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01')
-      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-3', last_invoice.items),
-                                [{:unit_type => 'server-hourly-type-3', :unit_qty => find_quantity(usage_input,'server-hourly-type-3' ), :unit_price => 3.0 }], expected_dollar_amount_per_unit[2])
-      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-2', last_invoice.items),
-                                [{:unit_type => 'server-hourly-type-2', :unit_qty => find_quantity(usage_input,'server-hourly-type-2' ), :unit_price => 2.0 }], expected_dollar_amount_per_unit[1])
-      check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-1', last_invoice.items),
-                                [{:unit_type => 'server-hourly-type-1', :unit_qty => find_quantity(usage_input,'server-hourly-type-1' ), :unit_price => 1.0 }], expected_dollar_amount_per_unit[0])
+
+      if aggregate_mode?
+        check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01')
+        check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01')
+        check_usage_invoice_item(find_usage_ii('server-monthly-usage-type-1', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01')
+
+        check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-3', last_invoice.items),
+                                  [{:tier => 1, :unit_type => 'server-hourly-type-3',:existing_usage => 0, :unit_qty => find_quantity(usage_input,'server-hourly-type-3' ), :tier_price => 3.0 }], expected_dollar_amount_per_unit[2])
+        check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-2', last_invoice.items),
+                                  [{:tier => 1, :unit_type => 'server-hourly-type-2',:existing_usage => 0, :unit_qty => find_quantity(usage_input,'server-hourly-type-2' ), :tier_price => 2.0 }], expected_dollar_amount_per_unit[1])
+        check_invoice_item_detail(find_usage_ii('server-monthly-usage-type-1', last_invoice.items),
+                                  [{:tier => 1, :unit_type => 'server-hourly-type-1',:existing_usage => 0, :unit_qty => find_quantity(usage_input,'server-hourly-type-1' ), :tier_price => 1.0 }], expected_dollar_amount_per_unit[0])
+      else
+        check_usage_invoice_item_w_quantity(find_usage_ii('server-monthly-usage-type-3', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[2], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-3', '2013-08-01', '2013-09-01', 3.0, find_quantity(usage_input,'server-hourly-type-3' ))
+        check_usage_invoice_item_w_quantity(find_usage_ii('server-monthly-usage-type-2', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[1], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-2', '2013-08-01', '2013-09-01', 2.0, find_quantity(usage_input,'server-hourly-type-2' ))
+        check_usage_invoice_item_w_quantity(find_usage_ii('server-monthly-usage-type-1', last_invoice.items), last_invoice.invoice_id, expected_dollar_amount_per_unit[0], 'USD', 'USAGE', 'server-monthly', 'server-monthly-evergreen', 'server-monthly-usage-type-1', '2013-08-01', '2013-09-01', 1.0, find_quantity(usage_input,'server-hourly-type-1' ))
+      end
     end
 
 

@@ -20,6 +20,11 @@ module KillBillIntegrationTests
 
     TIMEOUT_SEC = 5
 
+    DETAIL_MODE = :DETAIL
+    AGGREGATE_MODE = :AGGREGATE
+    USAGE_DETAIL_MODE_KEY = 'org.killbill.invoice.item.result.behavior.mode'.freeze
+    PER_TENANT_CONFIG = 'PER_TENANT_CONFIG'
+
     def get_resource_as_string(resource_name)
       resource_path_name = File.expand_path("../../resources/#{resource_name}", __FILE__)
       if !File.exist?(resource_path_name) || !File.file?(resource_path_name)
@@ -67,7 +72,10 @@ module KillBillIntegrationTests
 
     def upload_tenant_user_key_value(key, value, user, options)
       KillBillClient::Model::Tenant.upload_tenant_user_key_value(key,value, user, 'New Config', 'Upload config for tenant', options)
-      sleep(TIMEOUT_SEC)
+    end
+
+    def get_tenant_user_key_value(key, options)
+      KillBillClient::Model::Tenant.get_tenant_user_key_value(key, options)
     end
 
     def upload_plugin_config(plugin_name, plugin_config_name, user, options)
