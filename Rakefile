@@ -18,11 +18,9 @@ namespace :test do
     t.verbose    = true
   end
 
-
   Rake::TestTask.new('core:usage') do |t|
     t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/core/usage/test_default_catalog_consumable_in_arrear.rb",
-                            "#{BASE_DIR}/core/usage/test_cloud.rb"]
+    t.test_files = FileList["#{BASE_DIR}/core/usage/test_*.rb"]
     t.verbose    = true
   end
 

@@ -87,6 +87,39 @@ module KillBillIntegrationTests
       # TODO cleanup of data with control parameter
     end
 
+    def detail_mode
+      usage_detail_mode(DETAIL_MODE)
+    end
+
+    def aggregate_mode
+      usage_detail_mode(AGGREGATE_MODE)
+    end
+
+    def detail_mode?
+      !aggregate_mode?
+    end
+
+    def aggregate_mode?
+      result = get_tenant_user_key_value(PER_TENANT_CONFIG, @options)
+      return true if result.values.empty?
+
+      configurations = result.values.reject do |value|
+        conf = JSON.parse(value)
+        conf[USAGE_DETAIL_MODE_KEY].nil?
+      end
+      configurations.nil? || configurations[0][USAGE_DETAIL_MODE_KEY] == AGGREGATE_MODE
+    end
+
+    def usage_detail_mode(usage_detail_mode_value)
+      mode = {}
+      mode[USAGE_DETAIL_MODE_KEY] = usage_detail_mode_value
+      upload_tenant_user_key_value(PER_TENANT_CONFIG, mode.to_json)
+    end
+
+    def upload_tenant_user_key_value(key, value)
+      super(key, value, @user, @options)
+    end
+
   end
 end
 
