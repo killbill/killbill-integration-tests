@@ -31,6 +31,8 @@ jobs:
     docker:
       - image: killbill/kbbuild:0.2.0
       - image: killbill/killbill:0.18.16
+        environment:
+        - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
       - image: killbill/mariadb:0.18
         environment:
         - MYSQL_ROOT_PASSWORD=root
@@ -93,6 +95,8 @@ jobs:
     docker:
       - image: killbill/kbbuild:0.2.0
       - image: killbill/killbill:0.18.16
+        environment:
+        - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
       - image: killbill/postgresql:0.18
         environment:
         - MYSQL_ROOT_PASSWORD=root
@@ -103,17 +107,7 @@ jobs:
       - run:
           name: Setup DDL
           command: |
-            set +e
-            count=0
-            until mysqladmin ping -h 127.0.0.1 -u root --password=root --silent; do
-              if [[ "$count" == "25" ]]; then
-                exit 1
-              fi
-              (( count++ ))
-              printf '.'
-              sleep 5
-            done
-            set -e
+            curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U killbill -p 5432
       - run:
           name: Setup Kill Bill
           command: |
