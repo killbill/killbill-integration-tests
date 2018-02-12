@@ -33,6 +33,9 @@ jobs:
       - image: killbill/killbill:0.18.16
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
+        - KILLBILL_CONFIG_DAO_URL=jdbc:mysql://127.0.0.1:3306/killbill
+        - KILLBILL_CONFIG_DAO_USER=root
+        - KILLBILL_CONFIG_DAO_PASSWORD=root
       - image: killbill/mariadb:0.18
         environment:
         - MYSQL_ROOT_PASSWORD=root
@@ -111,6 +114,17 @@ jobs:
       - run:
           name: Setup DDL
           command: |
+            set +e
+            count=0
+            until psql -h 127.0.0.1 -U postgres -p 5432 -l; do
+              if [[ "$count" == "25" ]]; then
+                exit 1
+              fi
+              (( count++ ))
+              printf '.'
+              sleep 5
+            done
+            set -e
             curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql > /var/tmp/avatax.ddl
             psql -h 127.0.0.1 -U postgres -p 5432 killbill < /var/tmp/avatax.ddl
       - run:
