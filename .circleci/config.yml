@@ -52,6 +52,7 @@ jobs:
               sleep 5
             done
             set -e
+            curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | mysql -uroot -proot -h 127.0.0.1 -D killbill
       - run:
           name: Setup Kill Bill
           command: |
@@ -92,7 +93,7 @@ jobs:
     docker:
       - image: killbill/kbbuild:0.2.0
       - image: killbill/killbill:0.18.16
-      - image: killbill/postrgesql:0.18
+      - image: killbill/postgresql:0.18
         environment:
         - MYSQL_ROOT_PASSWORD=root
     steps:
