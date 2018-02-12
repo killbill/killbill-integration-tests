@@ -118,7 +118,7 @@ jobs:
           command: |
             set +e
             count=0
-            until $(psql -h 127.0.0.1 -U postgres -p 543d2 -l > /dev/null); do
+            until $(psql -h 127.0.0.1 -U postgres -p 5432 -l > /dev/null); do
               if [[ "$count" == "25" ]]; then
                 exit 1
               fi
