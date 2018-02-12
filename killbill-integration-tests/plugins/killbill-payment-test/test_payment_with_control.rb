@@ -66,23 +66,25 @@ module KillBillIntegrationTests
       assert(got_exception, "Failed to get exception")
     end
 
-   # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
-    def test_authorize_plugin_timedout
-      payment_key = 'payment2-' + rand(1000000).to_s
-      payment_currency = 'USD'
+    unless ENV['CIRCLECI']
+      # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
+      def test_authorize_plugin_timedout
+        payment_key = 'payment2-' + rand(1000000).to_s
+        payment_currency = 'USD'
 
-      add_property('TEST_MODE', 'CONTROL')
-      add_property('SLEEP_TIME_SEC', '6.0')
+        add_property('TEST_MODE', 'CONTROL')
+        add_property('SLEEP_TIME_SEC', '6.0')
 
-      auth1_key = payment_key + '-auth'
-      auth1_amount = '123.5'
-      got_exception = false
+        auth1_key = payment_key + '-auth'
+        auth1_amount = '123.5'
+        got_exception = false
 
-      begin
-      auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-      flunk("Call should have timedout")
-      rescue KillBillClient::API::GatewayTimeout => e
-        # 504 in case of timeout
+        begin
+        auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
+        flunk("Call should have timedout")
+        rescue KillBillClient::API::GatewayTimeout => e
+          # 504 in case of timeout
+        end
       end
     end
 
