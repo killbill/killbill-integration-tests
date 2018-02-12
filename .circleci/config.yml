@@ -125,7 +125,8 @@ jobs:
               sleep 5
             done
             set -e
-            curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql > /var/tmp/avatax.ddl
+            curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl-postgresql.sql > /var/tmp/avatax.ddl
+            curl -s https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql >> /var/tmp/avatax.ddl
             psql -h 127.0.0.1 -U postgres -p 5432 killbill < /var/tmp/avatax.ddl
       - run:
           name: Setup Kill Bill
