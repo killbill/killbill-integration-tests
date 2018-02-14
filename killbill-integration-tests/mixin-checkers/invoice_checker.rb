@@ -35,18 +35,34 @@ module KillBillIntegrationTests
       assert_equal(quantity, ii.quantity, msg)
     end
 
-    def check_invoice_item_detail(ii, usage_input, amount)
+    
+    def check_invoice_capacity_item_detail(ii, usage_input, amount)
       msg = "invoice_item #{ii.invoice_item_id}"
       assert_not_nil(ii.item_details, msg)
-      item_details = JSON.parse(ii.item_details, :symbolize_names => true)
-      detail_amount = 0
+      details = JSON.parse(ii.item_details, :symbolize_names => true)
+      detail_amount = details[:amount]
+      item_details = details[:tierDetails]
       item_details.each_with_index do |item_detail, index|
         assert_equal(usage_input[index][:tier], item_detail[:tier], msg)
         assert_equal(usage_input[index][:unit_type], item_detail[:tierUnit], msg)
         assert_equal(usage_input[index][:unit_qty], item_detail[:quantity], msg)
         assert_equal(usage_input[index][:tier_price], item_detail[:tierPrice], msg)
-        assert_equal(usage_input[index][:existing_usage], item_detail[:existingUsageAmount], msg)
-        detail_amount += item_detail[:amount]
+      end
+      assert_equal(amount, detail_amount, msg)
+      assert_equal(usage_input.size, item_details.size)
+    end
+
+    def check_invoice_consumable_item_detail(ii, usage_input, amount)
+      msg = "invoice_item #{ii.invoice_item_id}"
+      assert_not_nil(ii.item_details, msg)
+      details = JSON.parse(ii.item_details, :symbolize_names => true)
+      detail_amount = details[:amount]
+      item_details = details[:tierDetails]
+      item_details.each_with_index do |item_detail, index|
+        assert_equal(usage_input[index][:tier], item_detail[:tier], msg)
+        assert_equal(usage_input[index][:unit_type], item_detail[:tierUnit], msg)
+        assert_equal(usage_input[index][:unit_qty], item_detail[:quantity], msg)
+        assert_equal(usage_input[index][:tier_price], item_detail[:tierPrice], msg)
       end
       assert_equal(amount, detail_amount, msg)
       assert_equal(usage_input.size, item_details.size)
