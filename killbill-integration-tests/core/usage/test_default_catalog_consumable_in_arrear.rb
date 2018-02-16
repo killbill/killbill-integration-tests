@@ -70,16 +70,17 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 1039.50, 'USD', '2013-08-31')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-08-31', '2013-09-30')
 
+
       if aggregate_mode?
         check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-        check_invoice_item_detail(second_invoice.items[1],
-                                  [
+        check_invoice_consumable_item_detail(second_invoice.items[1],
+                                             [
                                     {
                                       :tier => 1,
                                       :unit_type => 'gallons',
-                                      :existing_usage => 0,
                                       :unit_qty => 10,
-                                      :tier_price => 3.95
+                                      :amount => 39.50,
+                                      :tier_price => 3.95,
                                     }
                                   ], 39.50)
       else
@@ -100,8 +101,8 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2013-09-30', '2013-10-31')
       if aggregate_mode?
         check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
-        check_invoice_item_detail(third_invoice.items[1],
-                                [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 5, :tier_price => 3.95 }], 19.75)
+        check_invoice_consumable_item_detail(third_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 5, :tier_price => 3.95 }], 19.75)
       else
         check_usage_invoice_item_w_quantity(third_invoice.items[1], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30', 3.95, 5)
       end
@@ -168,8 +169,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-        check_invoice_item_detail(second_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(second_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 10)
       end
@@ -209,8 +210,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-        check_invoice_item_detail(second_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(second_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 10)
        end
@@ -234,10 +235,10 @@ module KillBillIntegrationTests
       if aggregate_mode?
         check_usage_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 79.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
         check_usage_invoice_item(third_invoice.items[2], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
-        check_invoice_item_detail(third_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons', :existing_usage => 39.50, :unit_qty => 20, :tier_price => 3.95 }], 79.0)
-        check_invoice_item_detail(third_invoice.items[2],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 5, :tier_price => 3.95 }], 19.75)
+        check_invoice_consumable_item_detail(third_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons',  :unit_qty => 20, :tier_price => 3.95 }], 79.0)
+        check_invoice_consumable_item_detail(third_invoice.items[2],
+                                             [{:tier => 1, :unit_type => 'gallons',:unit_qty => 5, :tier_price => 3.95 }], 19.75)
       else
         check_usage_invoice_item_w_quantity(third_invoice.items[1], third_invoice.invoice_id, 79.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 20)
         check_usage_invoice_item_w_quantity(third_invoice.items[2], third_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30', 3.95, 5)
@@ -265,10 +266,10 @@ module KillBillIntegrationTests
       if aggregate_mode?
         check_usage_invoice_item(fourth_invoice.items[1], fourth_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30')
         check_usage_invoice_item(fourth_invoice.items[2], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-30', '2013-10-31')
-        check_invoice_item_detail(fourth_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 19.75, :unit_qty => 5, :tier_price => 3.95 }], 19.75)
-        check_invoice_item_detail(fourth_invoice.items[2],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(fourth_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 5, :tier_price => 3.95 }], 19.75)
+        check_invoice_consumable_item_detail(fourth_invoice.items[2],
+                                             [{:tier => 1, :unit_type => 'gallons',:unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(fourth_invoice.items[1], fourth_invoice.invoice_id, 19.75, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-31', '2013-09-30', 3.95, 5)
         check_usage_invoice_item_w_quantity(fourth_invoice.items[2], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-30', '2013-10-31', 3.95, 10)
@@ -295,12 +296,13 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(fifth_invoice.items[1], fifth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-31', '2013-11-30')
-        check_invoice_item_detail(fifth_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(fifth_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(fifth_invoice.items[1], fifth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-31', '2013-11-30', 3.95, 10)
       end
     end
+
 
 
     #
@@ -362,8 +364,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-        check_invoice_item_detail(third_invoice.items[0],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(third_invoice.items[0],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(third_invoice.items[0], third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 10)
       end
@@ -438,8 +440,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31')
-        check_invoice_item_detail(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(get_specific_invoice_item(third_invoice.items, 'USAGE', 39.5), third_invoice.invoice_id, 39.5, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 10)
       end
@@ -476,8 +478,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
-        check_invoice_item_detail(second_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(second_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01', 3.95, 10)
       end
@@ -516,10 +518,10 @@ module KillBillIntegrationTests
       if aggregate_mode?
         check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items), third_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
         check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items), third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-17', '2013-10-01')
-        check_invoice_item_detail(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 20, :tier_price => 3.95 }], 79.00)
-        check_invoice_item_detail(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 20, :tier_price => 3.95 }], 79.00)
+        check_invoice_consumable_item_detail(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(find_usage_ii(ao_entitlement1.subscription_id, third_invoice.items), third_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01', 3.95, 20)
         check_usage_invoice_item_w_quantity(find_usage_ii(ao_entitlement2.subscription_id, third_invoice.items), third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-17', '2013-10-01', 3.95, 10)
@@ -562,12 +564,12 @@ module KillBillIntegrationTests
         check_usage_invoice_item(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
         check_usage_invoice_item(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01')
         check_usage_invoice_item(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-04', '2013-11-01')
-        check_invoice_item_detail(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 20, :tier_price => 3.95 }], 79.00)
-        check_invoice_item_detail(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 20, :tier_price => 3.95 }], 79.00)
-        check_invoice_item_detail(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items),
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 20, :tier_price => 3.95 }], 79.00)
+        check_invoice_consumable_item_detail(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 20, :tier_price => 3.95 }], 79.00)
+        check_invoice_consumable_item_detail(find_usage_ii(ao_entitlement3.subscription_id, fourth_invoice.items),
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(find_usage_ii(ao_entitlement1.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01', 3.95, 20)
         check_usage_invoice_item_w_quantity(find_usage_ii(ao_entitlement2.subscription_id, fourth_invoice.items), fourth_invoice.invoice_id, 79.00, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01', 3.95, 20)
@@ -607,8 +609,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01')
-        check_invoice_item_detail(second_invoice.items[1],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(second_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01', 3.95, 10)
       end
@@ -638,8 +640,8 @@ module KillBillIntegrationTests
 
       if aggregate_mode?
         check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
-        check_invoice_item_detail(third_invoice.items[0],
-                                  [{:tier => 1, :unit_type => 'gallons',:existing_usage => 0, :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(third_invoice.items[0],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01', 3.95, 10)
       end
