@@ -22,7 +22,7 @@ module KillBillIntegrationTests
     end
 
 
-    def test_with_bcd_change_in_the_past
+    def test_with_bcd_change_in_the_future
 
       # Create initial subscription MONTHLY from 2013-08-01 -> 2013-09-01, ...
       bp = create_entitlement_base(@account.account_id, 'Basic', 'MONTHLY', 'DEFAULT', @user, @options)
