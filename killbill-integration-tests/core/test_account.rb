@@ -132,5 +132,32 @@ module KillBillIntegrationTests
 
     end
 
+    def test_account_missing_calls
+
+      account = create_account(@user, @options)
+
+      assert_respond_to(account, :blocking_states)
+      assert_respond_to(account, :block_account)
+      assert_respond_to(account, :cba_rebalancing)
+      assert_respond_to(account, :email_notifications)
+      assert_respond_to(account, :invoice_payments)
+
+      blocking_states = account.blocking_states('ACCOUNT','', 'NONE', @options).response.kind_of? Net::HTTPSuccess
+      requested_date = "2018-03-08"
+      block_account = account.block_account('test', 'test', false, false, false, requested_date, @user, nil, nil, @options)
+      cba_rebalancing = account.cba_rebalancing(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess
+      email_notifications = account.email_notifications(@options).response.kind_of? Net::HTTPSuccess
+      invoice_payments = account.invoice_payments('NONE', false, false, @options).response.kind_of? Net::HTTPSuccess
+
+      assert(blocking_states)
+      assert(block_account)
+      assert(cba_rebalancing)
+      assert(email_notifications)
+      assert(invoice_payments)
+
+
+
+    end
+
   end
 end
