@@ -154,5 +154,19 @@ module KillBillIntegrationTests
       assert_equal(-50.0, invoice.refund_adj)
     end
 
+    def test_chargeback_reversals
+
+      create_charge(@account.account_id, '50.0', 'USD', 'My charge', @user, @options)
+
+      pay_all_unpaid_invoices(@account.account_id, true, '50.0', @user, @options)
+
+      account = get_account(@account.account_id, true, true, @options)
+      payment_id = account.payments(@options).first.payment_id
+
+      invoice_payment = KillBillClient::Model::InvoicePayment.new
+      puts invoice_payment.chargeback_reversal(payment_id, '50.0', nil, @user, nil, nil, @options)
+
+    end
+
   end
 end
