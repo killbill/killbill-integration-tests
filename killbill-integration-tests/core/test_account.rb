@@ -160,15 +160,15 @@ module KillBillIntegrationTests
 
       # Verify if the returned list has now one element
       blocking_states = account.blocking_states('ACCOUNT', nil, 'NONE', @options)
-      assert_equal(false, blocking_states.empty?)
+      assert_equal(1, blocking_states.size)
 
       # Verify blocking state fields
       blocking_states = blocking_states.first
       assert_equal('STATE1', blocking_states.state_name)
       assert_equal('ServiceStateService', blocking_states.service)
-      assert_equal(false, blocking_states.block_change)
-      assert_equal(false, blocking_states.block_entitlement)
-      assert_equal(false, blocking_states.block_billing)
+      assert_false(blocking_states.block_change)
+      assert_false(blocking_states.block_entitlement)
+      assert_false(blocking_states.block_billing)
 
     end
 
