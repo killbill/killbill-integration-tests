@@ -557,28 +557,6 @@ module KillBillIntegrationTests
       get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
     end
 
-    def test_retrieve_credit
-
-      add_payment_method(@parent_account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
-
-      @child_account = create_child_account(@parent_account)
-
-      # Create new credit
-      credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
-
-      # Verify if the returned list has now one element
-      get_credit = credit.retrieve_credit(credit.credit_id ,@options)
-      assert_equal(1, get_credit.size)
-
-      # Verify credit fields
-      assert_equal(@child_account.account_id, get_credit.account_id)
-      assert_equal(12.0, get_credit.credit_amount)
-      assert_equal('USD', get_credit.currency)
-      assert_equal('Child credit', get_credit.description)
-
-    end
-
-
     private
 
 
