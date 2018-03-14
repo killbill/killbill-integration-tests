@@ -8,7 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
-
+      load_default_catalog
       @parent_account = create_account(@user, @options)
       @parent_account = get_account(@parent_account.account_id, false, false, @options)
     end

@@ -312,7 +312,7 @@ module KillBillIntegrationTests
       assert_equal(my_first_charge.first.invoice_item_id, ca_state_taxes.first.linked_invoice_item_id)
 
       # Pay the invoice
-      pay_all_unpaid_invoices(@account.account_id, true, invoice.balance, @user, @options)
+      pay_all_unpaid_invoices(@account.account_id, false, invoice.balance, @user, @options)
       @account = get_account(@account.account_id, true, true, @options)
       assert_equal(0, @account.account_balance)
       assert_equal(0, @account.account_cba)
