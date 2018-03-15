@@ -557,8 +557,6 @@ module KillBillIntegrationTests
       get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
     end
 
-
-
     private
 
 
