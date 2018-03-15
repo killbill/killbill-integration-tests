@@ -184,6 +184,7 @@ module KillBillIntegrationTests
       account_transactions = account.payments(@options).first.transactions
       assert_equal(1, account_transactions.size)
       assert_equal('PURCHASE', account_transactions[0].transaction_type)
+      assert_equal(0, get_account(@account.account_id, true, true, @options).account_balance)
 
       # Trigger chargerback
       chargeback = KillBillClient::Model::InvoicePayment.create_chargeback(payment_id, '50.0', 'USD', nil, @user, nil, nil, @options)
@@ -192,6 +193,8 @@ module KillBillIntegrationTests
       account_transactions = account.payments(@options).first.transactions
       assert_equal(2, account_transactions.size)
       assert_equal('CHARGEBACK', account_transactions[1].transaction_type)
+      assert_equal(50, get_account(@account.account_id, true, true, @options).account_balance)
+      assert_equal('SUCCESS', account_transactions[1].status)
 
       # Trigger chargerback reversal
       transaction_external_key = chargeback.transactions[1].transaction_external_key
@@ -201,6 +204,8 @@ module KillBillIntegrationTests
       account_transactions = account.payments(@options).first.transactions
       assert_equal(3, account_transactions.size)
       assert_equal('CHARGEBACK', account_transactions[2].transaction_type)
+      assert_equal(0, get_account(@account.account_id, true, true, @options).account_balance)
+      assert_equal('PAYMENT_FAILURE', account_transactions[2].status)
 
     end
 
