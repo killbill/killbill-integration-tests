@@ -256,5 +256,41 @@ module KillBillIntegrationTests
 
     end
 
+    def test_invoice_email_notifications
+
+      # Create a charge
+      charge = create_charge(@account.account_id, '50.0', 'USD', 'My charge', @user, @options)
+
+      # Get invoice
+      invoice = get_invoice_by_id(charge.invoice_id, @options)
+
+      # Verify if response is success
+      assert(invoice.trigger_email_notifications(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+
+    end
+
+    def test_create_a_migration_invoice
+
+      test_account = create_account(@user, @options)
+
+      # Create invoices
+      invoice = create_charge(test_account.account_id, '50.0', 'USD', 'First Invoice', @user, @options)
+
+      # Create a list of invoices
+      invoices = [invoice]
+
+      # Verify if account hasn't have migration invoices
+      migration_invoices = @account.migration_invoices(true, @options)
+      assert_equal(0, migration_invoices.size)
+
+      # Verify if response is success
+      assert(KillBillClient::Model::Invoice.create_migration_invoice(@account.account_id, invoices, '2018-03-15', @user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+
+      # Verify if account has have migration invoices
+      migration_invoices = @account.migration_invoices(true, @options)
+      assert_equal(1, migration_invoices.size)
+
+    end
+
   end
 end
