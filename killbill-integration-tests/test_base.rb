@@ -24,7 +24,6 @@ module KillBillIntegrationTests
                                  :create_multi_tenant => true}
 
     def setup_base(user=self.method_name, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
-
       # make sure this fits into 50 characters
       @user = user.slice(0..45)
 
@@ -77,9 +76,7 @@ module KillBillIntegrationTests
     end
 
     def teardown_base
-
       close_account(@account.account_id, @user, @options) unless @account.nil?
-
 
       # Reset clock to now to avoid lengthy catch-ups later on
       kb_clock_set(nil, nil, @options)
@@ -119,8 +116,6 @@ module KillBillIntegrationTests
     def upload_tenant_user_key_value(key, value)
       super(key, value, @user, @options)
     end
-
   end
 end
-
 

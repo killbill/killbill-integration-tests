@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     include RefundHelper
     include UsageHelper
 
-    TIMEOUT_SEC = 5
+    TIMEOUT_SEC = 20
 
     DETAIL_MODE = :DETAIL
     AGGREGATE_MODE = :AGGREGATE
@@ -41,7 +41,6 @@ module KillBillIntegrationTests
     end
 
     def upload_catalog(name, check_if_exists, user, options)
-
       proceed_with_upload = !check_if_exists
       if check_if_exists
         res = KillBillClient::Model::Tenant.get_tenant_user_key_value('CATALOG', options)
@@ -54,9 +53,7 @@ module KillBillIntegrationTests
       end
     end
 
-
     def add_catalog_simple_plan(plan_id, product_name, product_category, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
-
       simple_plan = KillBillClient::Model::SimplePlanAttributes.new
       simple_plan.plan_id = plan_id
       simple_plan.product_name = product_name
@@ -91,7 +88,6 @@ module KillBillIntegrationTests
       KillBillClient::Model::Tenant.get_tenant_plugin_config(plugin_name, options)
     end
 
-
     def upload_overdue(name, user, options)
       overdue_file_xml = get_resource_as_string(name)
       KillBillClient::Model::Overdue.upload_tenant_overdue_config('xml', overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
@@ -117,8 +113,6 @@ module KillBillIntegrationTests
     end
 
     def create_tenant_if_does_not_exist(external_key, api_key, api_secret, user, options)
-
-
       begin
         tenant = KillBillClient::Model::Tenant.find_by_api_key(api_key, options)
         tenant.api_secret = api_secret
@@ -138,7 +132,6 @@ module KillBillIntegrationTests
       # Set the secret key again before returning as this is not returned by the server
       tenant.api_secret = api_secret
       tenant
-
     end
 
     def add_payment_method(account_id, plugin_name, is_default, plugin_info, user, options)
@@ -149,7 +142,6 @@ module KillBillIntegrationTests
 
       pm.create(is_default, user, nil, nil, options)
     end
-
 
     def kb_clock_get(time_zone, options)
       params = {}
@@ -166,14 +158,16 @@ module KillBillIntegrationTests
       params[:requestedDate] = requested_date unless requested_date.nil?
       params[:timeZone]      = time_zone unless time_zone.nil?
 
-      # The default 5s is not always enough
-      params[:timeoutSec]    = options[:timeout_sec] || 10
+      # The default is not always enough
+      params[:timeoutSec]    = options[:timeout_sec] || TIMEOUT_SEC
 
       res = KillBillClient::API.post "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                      {},
                                      params,
                                      {
                                      }.merge(options)
+      wait_for_killbill(options)
+
       JSON.parse res.body
     end
 
@@ -194,15 +188,15 @@ module KillBillIntegrationTests
     end
 
     def wait_for_killbill(options, params = {})
-      # The default 5s is not always enough
-      params[:timeoutSec] ||= 10
+      # The default is not always enough
+      params[:timeoutSec] ||= TIMEOUT_SEC
 
       res = KillBillClient::API.get "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/queues",
                                     params,
                                     {
                                     }.merge(options)
-
-      assert(res.code.to_i == 200, 'wait_for_killbill: timed out')
+    ensure
+      assert(!res.nil? && res.code.to_i == 200, 'wait_for_killbill: timed out (events still need to be processed)')
     end
 
     #
@@ -212,18 +206,19 @@ module KillBillIntegrationTests
       begin
         Timeout::timeout(TIMEOUT_SEC) do
           while true do
-            nb_invoices = yield(args)
-            return if nb_invoices == expected
+            actual = yield(args)
+            return if actual == expected
             wait_for_killbill(options)
           end
         end
       rescue Timeout::Error
         obj_name = args.class.name.split('::').pop.downcase
         obj_id = args.send "#{obj_name}_id".to_sym
-        puts "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}"
+
+        actual = yield(args)
+        assert_equal(expected, actual, "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}")
       end
     end
-
 
     private
 
@@ -235,14 +230,15 @@ module KillBillIntegrationTests
       params[:years]      = years unless years.nil?
       params[:timeZone]   = time_zone unless time_zone.nil?
 
-      # The default 5s is not always enough
-      params[:timeoutSec] = options[:timeout_sec] || 10
+      # The default is not always enough
+      params[:timeoutSec] = options[:timeout_sec] || TIMEOUT_SEC
 
       res = KillBillClient::API.put "#{KillBillClient::Model::Resource::KILLBILL_API_PREFIX}/test/clock",
                                     {},
                                     params,
                                     {
                                     }.merge(options)
+      wait_for_killbill(options)
 
       JSON.parse res.body
     end

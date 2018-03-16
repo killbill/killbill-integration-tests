@@ -24,6 +24,8 @@ module KillBillIntegrationTests
     end
 
     def teardown
+      close_account(@account2.account_id, @user, @options2)
+
       teardown_base
     end
 
@@ -168,8 +170,6 @@ module KillBillIntegrationTests
       # Move to first overdue stage
       add_days_and_check_overdue_stage(account, 30, 'OD1', options)
 
-
-
       2.upto(3) do |i|
         kb_clock_add_days(5, nil, options)
         wait_for_killbill(options)
@@ -199,8 +199,9 @@ module KillBillIntegrationTests
     end
 
     def check_overdue_stage(account, stage, options=@options)
-      overdue_result = account.overdue(options)
-      assert_equal(stage, overdue_result.name, "Failed to retrieve overdue status associated with account #{account.account_id}")
+      wait_for_expected_clause(stage, account, options) do |an_account|
+        an_account.overdue(options).name
+      end
     end
   end
 end
