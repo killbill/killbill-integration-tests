@@ -156,7 +156,7 @@ module KillBillIntegrationTests
 
     end
 
-    def test_payment_refund
+    def test_payment_refund_by_external_key
 
       account = create_account(@user, @options)
       account = get_account(account.account_id, true, true, @options)
