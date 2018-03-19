@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
 require 'test_base'
+require 'date'
 
 module KillBillIntegrationTests
 
@@ -239,6 +240,16 @@ module KillBillIntegrationTests
       assert_equal(1, catalog.products[0].plans[0].phases.size)
     end
 
+    def test_get_list_of_catalog_versions
+      upload_catalog('Catalog-v2.xml', false, @user, @options)
+      upload_catalog('Catalog-v3.xml', false, @user, @options)
+
+      versions = KillBillClient::Model::Catalog.get_tenant_catalog_versions(@options)
+      assert_equal 3, versions.size
+      assert_equal Date.parse('2013-02-08T00:00:00+00:00'), Date.parse(versions[0])
+      assert_equal Date.parse('2013-09-01T00:00:00+00:00'), Date.parse(versions[1])
+      assert_equal Date.parse('2013-10-01T00:00:00+00:00'), Date.parse(versions[2])
+    end
 
     private
 
