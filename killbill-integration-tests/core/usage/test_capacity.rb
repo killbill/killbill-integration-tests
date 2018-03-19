@@ -24,7 +24,6 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-
     def test_basic
       aggregate_mode
 

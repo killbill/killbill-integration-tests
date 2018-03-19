@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     include RefundHelper
     include UsageHelper
 
-    TIMEOUT_SEC = 60
+    TIMEOUT_SEC = 120
 
     DETAIL_MODE = :DETAIL
     AGGREGATE_MODE = :AGGREGATE
@@ -165,6 +165,7 @@ module KillBillIntegrationTests
                                      {},
                                      params,
                                      {
+                                       :read_timeout => (params[:timeoutSec] + 1) * 1000
                                      }.merge(options)
       wait_for_killbill(options)
 

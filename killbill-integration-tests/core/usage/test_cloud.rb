@@ -28,7 +28,7 @@ module KillBillIntegrationTests
 
 
       #
-      # Step 1. Create a subscription associated with the account `@account` 
+      # Step 1. Create a subscription associated with the account `@account`
       #
       bp = create_entitlement_base(@account.account_id, 'Server', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
