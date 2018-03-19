@@ -121,7 +121,6 @@ module KillBillIntegrationTests
 
       # Create a charge to account
       create_charge(account.account_id, '50.0', 'USD', 'My charge', @user, @options)
-
       # Create a payment
       pay_all_unpaid_invoices(account.account_id, true, '50.0', @user, @options)
       account = get_account(account.account_id, true, true, @options)
@@ -134,18 +133,20 @@ module KillBillIntegrationTests
       assert_equal(0, get_account(account.account_id, true, true, @options).account_balance)
 
       # Trigger chargerback
-      KillBillClient::Model::Payment.chargerback_by_external_key(payment.payment_external_key,'50.0', 'USD', nil, @user, nil, nil, @options)
+      transaction                          = KillBillClient::Model::Transaction.new
+      transaction.payment_external_key     = 'test_key'
+      transaction.amount                   = '50.0'
+      transaction.chargeback(payment.payment_id, @user, nil, nil, @options, nil)
 
       # Verify if a new transaction is created and if their type is CHARGEBACK
       account_transactions = account.payments(@options).first.transactions
       assert_equal(2, account_transactions.size)
       assert_equal('CHARGEBACK', account_transactions[1].transaction_type)
-      assert_equal(50, get_account(account.account_id, true, true, @options).account_balance)
       assert_equal('SUCCESS', account_transactions[1].status)
 
       # Trigger chargerback reversal
       transaction_external_key = account_transactions[1].transaction_external_key
-      KillBillClient::Model::Payment.chargerback_reversals_by_payment_id(account_transactions[1].payment_id, transaction_external_key, nil, @user, nil, nil, @options)
+      transaction.chargerback_reversals_by_payment_id(account_transactions[1].payment_id, transaction_external_key, nil, @user, nil, nil, @options)
 
       # Verify if a new transaction is created and if their type is CHARGEBACK
       account_transactions = account.payments(@options).first.transactions
@@ -181,7 +182,7 @@ module KillBillIntegrationTests
 
 
       # Refund 50 payment
-      KillBillClient::Model::Payment.refund_by_external_key(payment.payment_external_key, '50.0' ,@user, nil, nil, @options)
+      account_transactions[0].refund_by_external_key(payment.payment_external_key, '50.0' ,@user, nil, nil, @options, nil)
 
       payment = KillBillClient::Model::Payment.find_by_id(payment.payment_id, false, false, @options)
 
