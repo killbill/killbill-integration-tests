@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     include RefundHelper
     include UsageHelper
 
-    TIMEOUT_SEC = 30
+    TIMEOUT_SEC = 60
 
     DETAIL_MODE = :DETAIL
     AGGREGATE_MODE = :AGGREGATE
