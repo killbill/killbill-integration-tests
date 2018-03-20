@@ -187,7 +187,7 @@ module KillBillIntegrationTests
 
       # Refund 50 payment
       transaction                          = KillBillClient::Model::Transaction.new
-      transaction.payment_external_key             = payment.payment_external_key
+      transaction.payment_external_key     = payment.payment_external_key
       transaction.amount                   = '50.0'
       transaction.refund_by_external_key(@user, nil, nil, @options, nil)
 
