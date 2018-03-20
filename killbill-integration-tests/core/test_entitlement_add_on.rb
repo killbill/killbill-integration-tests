@@ -1341,8 +1341,7 @@ module KillBillIntegrationTests
 
       # Verify if the returned list has now one element
       assert_equal(1, blocking_states.size)
-
-
+      
       result = KillBillClient::Model::Subscription.new
       result.block_subscription(subscription[0].subscription_id, 'STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options)
 
