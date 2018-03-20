@@ -125,18 +125,20 @@ module KillBillIntegrationTests
       pay_all_unpaid_invoices(account.account_id, true, '50.0', @user, @options)
       account = get_account(account.account_id, true, true, @options)
       payment = account.payments(@options).first
-
       # Verify if a new transaction is created and if their type is PURCHASE
       account_transactions = account.payments(@options).first.transactions
       assert_equal(1, account_transactions.size)
       assert_equal('PURCHASE', account_transactions[0].transaction_type)
       assert_equal(0, get_account(account.account_id, true, true, @options).account_balance)
 
-      # Trigger chargerback
+      # Trigger chargeback
       transaction                          = KillBillClient::Model::Transaction.new
+      transaction.payment_id               = payment.payment_id
       transaction.payment_external_key     = 'test_key'
       transaction.amount                   = '50.0'
-      transaction.chargeback(payment.payment_id, @user, nil, nil, @options, nil)
+      transaction.currency                 = 'USD'
+      transaction.effective_date           = nil
+      transaction.chargeback_by_external_key(@user, nil, nil, @options, nil)
 
       # Verify if a new transaction is created and if their type is CHARGEBACK
       account_transactions = account.payments(@options).first.transactions
@@ -144,9 +146,11 @@ module KillBillIntegrationTests
       assert_equal('CHARGEBACK', account_transactions[1].transaction_type)
       assert_equal('SUCCESS', account_transactions[1].status)
 
-      # Trigger chargerback reversal
-      transaction_external_key = account_transactions[1].transaction_external_key
-      transaction.chargerback_reversals_by_payment_id(account_transactions[1].payment_id, transaction_external_key, nil, @user, nil, nil, @options)
+      # Trigger chargeback reversal
+      transaction                          = KillBillClient::Model::Transaction.new
+      transaction.transaction_external_key = account_transactions[1].transaction_external_key
+      transaction.payment_id               = account_transactions[1].payment_id
+      transaction.chargeback_reversals(@user, nil, nil, @options)
 
       # Verify if a new transaction is created and if their type is CHARGEBACK
       account_transactions = account.payments(@options).first.transactions
@@ -182,7 +186,10 @@ module KillBillIntegrationTests
 
 
       # Refund 50 payment
-      account_transactions[0].refund_by_external_key(payment.payment_external_key, '50.0' ,@user, nil, nil, @options, nil)
+      transaction                          = KillBillClient::Model::Transaction.new
+      transaction.payment_external_key             = payment.payment_external_key
+      transaction.amount                   = '50.0'
+      transaction.refund_by_external_key(@user, nil, nil, @options, nil)
 
       payment = KillBillClient::Model::Payment.find_by_id(payment.payment_id, false, false, @options)
 
