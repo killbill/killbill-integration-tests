@@ -1327,7 +1327,7 @@ module KillBillIntegrationTests
 
     end
 
-    def test_block_subscription
+    def test_block_a_subscription
 
       account = create_account(@user, @options)
 
