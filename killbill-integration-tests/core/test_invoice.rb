@@ -256,19 +256,6 @@ module KillBillIntegrationTests
 
     end
 
-    def test_invoice_email_notifications
-
-      # Create a charge
-      charge = create_charge(@account.account_id, '50.0', 'USD', 'My charge', @user, @options)
-
-      # Get invoice
-      invoice = get_invoice_by_id(charge.invoice_id, @options)
-
-      # Verify if response is success
-      assert(invoice.trigger_email_notifications(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
-
-    end
-
     def test_create_a_migration_invoice
 
       test_account = create_account(@user, @options)
