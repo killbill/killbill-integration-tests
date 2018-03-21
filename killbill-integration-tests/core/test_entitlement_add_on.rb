@@ -1319,7 +1319,7 @@ module KillBillIntegrationTests
 
       # Create entitlement with addOn
       result = KillBillClient::Model::Subscription.new
-      result.create_entitlement_with_addOn(entitlements,nil, nil, nil, false, false, 3, @user, nil,nil, @options)
+      result.create_entitlement_with_add_on(entitlements, nil, nil, nil, false, 3, @user, nil, nil, @options)
 
       # Check if account have 2 bundles
       bundles = @account.bundles(@options)
@@ -1341,7 +1341,7 @@ module KillBillIntegrationTests
 
       # Verify if the returned list has now one element
       assert_equal(1, blocking_states.size)
-      
+
       result = KillBillClient::Model::Subscription.new
       result.subscription_id = subscription[0].subscription_id
       result.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options)
