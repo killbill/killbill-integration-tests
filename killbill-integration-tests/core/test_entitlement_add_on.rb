@@ -1304,6 +1304,53 @@ module KillBillIntegrationTests
       all_invoices = @account.invoices(true, @options)
       assert_equal(7, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
     end
+
+    def test_create_an_entitlement_with_addOn_products
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+
+      # Check if account have 1 bundle
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+
+      # Change bundle external key
+      bp.external_key = 'test_key'
+      entitlements = [bp]
+
+      # Create entitlement with addOn
+      result = KillBillClient::Model::Subscription.new
+      result.create_entitlement_with_addOn(entitlements,nil, nil, nil, false, false, 3, @user, nil,nil, @options)
+
+      # Check if account have 2 bundles
+      bundles = @account.bundles(@options)
+      assert_equal(2, bundles.size)
+
+    end
+
+    def test_block_a_subscription
+
+      account = create_account(@user, @options)
+
+      create_entitlement_base(account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+
+      bundles = account.bundles(@options)
+      subscription = bundles.first.subscriptions
+
+      # Get blocking states
+      blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)
+
+      # Verify if the returned list has now one element
+      assert_equal(1, blocking_states.size)
+      
+      result = KillBillClient::Model::Subscription.new
+      result.subscription_id = subscription[0].subscription_id
+      result.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options)
+
+      # Verify if the returned list has now two elements
+      blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)
+      assert_equal(2, blocking_states.size)
+
+    end
   end
 end
 
