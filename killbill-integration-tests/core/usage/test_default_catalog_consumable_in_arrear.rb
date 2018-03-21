@@ -214,7 +214,7 @@ module KillBillIntegrationTests
                                              [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
       else
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-01', '2013-08-31', 3.95, 10)
-       end
+      end
       # Add more usage for previous period and also new period
       usage_input = [{:unit_type => 'gallons',
                       :usage_records => [{:record_date => '2013-08-13', :amount => 20},
