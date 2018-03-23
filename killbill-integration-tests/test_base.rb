@@ -30,8 +30,10 @@ module KillBillIntegrationTests
       # Default running instance of Kill Bill server
       reset_killbill_client_url(killbill_address, killbill_port)
 
-      # If needed we can activate client logger
-      #setup_logger
+      if ENV['CIRCLECI']
+        setup_logger
+        KillBillClient.return_full_stacktraces = true
+      end
 
       # RBAC default options
       @options = {:username => ENV['USERNAME'] || 'admin', :password => ENV['PASSWORD'] || 'password'}
