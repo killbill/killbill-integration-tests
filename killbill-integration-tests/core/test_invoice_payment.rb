@@ -187,7 +187,7 @@ module KillBillIntegrationTests
       assert_equal(0, get_account(@account.account_id, true, true, @options).account_balance)
 
       # Trigger chargerback
-      chargeback = KillBillClient::Model::InvoicePayment.create_chargeback(payment_id, '50.0', 'USD', nil, @user, nil, nil, @options)
+      chargeback = KillBillClient::Model::InvoicePayment.chargeback(payment_id, '50.0', 'USD', nil, @user, nil, nil, @options)
 
       # Verify if a new transaction is created and if their type is CHARGEBACK
       account_transactions = account.payments(@options).first.transactions
