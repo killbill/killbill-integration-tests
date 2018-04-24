@@ -201,8 +201,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bundle1 = []
-      bundle1 << to_base_subscription_input(@account.account_id, bp.external_key, nil, nil, nil)
-      bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+      bundle1 << to_ao_subscription_input(@account.account_id, bp.bundle_id, 'oilslick-monthly', nil, nil)
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
@@ -211,8 +210,6 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
-
-      check_bundle(bundle1, bundles[0])
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
