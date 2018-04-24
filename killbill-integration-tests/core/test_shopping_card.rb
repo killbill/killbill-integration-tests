@@ -23,6 +23,161 @@ module KillBillIntegrationTests
       teardown_base
     end
 
+    def test_invalid_spec_missing_subscription
+      bundle = []
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson body should be specified", e)
+    end
+
+    def test_invalid_spec_missing_account
+      subscription = KillBillClient::Model::Subscription.new
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::NotFound => e
+      check_error_message("Object id=null type=ACCOUNT doesn't exist!", e)
+    end
+
+    def test_invalid_spec_productName_specified_with_planName
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.plan_name = 'standard-monthly'
+      subscription.product_name = 'Standard'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson productName should not be set when planName is specified", e)
+    end
+
+    def test_invalid_spec_productCategory_specified_with_planName
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.plan_name = 'standard-monthly'
+      subscription.product_category = 'BASE'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson productCategory should not be set when planName is specified", e)
+    end
+
+    def test_invalid_spec_billingPeriod_specified_with_planName
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.plan_name = 'standard-monthly'
+      subscription.billing_period = 'MONTHLY'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson billingPeriod should not be set when planName is specified", e)
+    end
+
+    def test_invalid_spec_priceList_specified_with_planName
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.plan_name = 'standard-monthly'
+      subscription.price_list = 'DEFAULT'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson priceList should not be set when planName is specified", e)
+    end
+
+    def test_invalid_spec_missing_productName
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson productName needs to be set when no planName is specified", e)
+    end
+
+    def test_invalid_spec_missing_productCategory
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.product_name = 'Standard'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson productCategory needs to be set when no planName is specified", e)
+    end
+
+    def test_invalid_spec_missing_billingPeriod
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.product_name = 'Standard'
+      subscription.product_category = 'BASE'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson billingPeriod needs to be set when no planName is specified", e)
+    end
+
+    def test_invalid_spec_missing_priceList
+      subscription = KillBillClient::Model::Subscription.new
+      subscription.account_id = @account.account_id
+      subscription.product_name = 'Standard'
+      subscription.product_category = 'BASE'
+      subscription.billing_period = 'MONTHLY'
+      bundle = [subscription]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson priceList needs to be set when no planName is specified", e)
+    end
+
+    def test_invalid_spec_accountIds_mismatch_in_same_bundle
+      subscription1 = KillBillClient::Model::Subscription.new
+      subscription1.account_id = @account.account_id
+      subscription1.plan_name = 'standard-monthly'
+
+      subscription2 = KillBillClient::Model::Subscription.new
+      subscription2.account_id = SecureRandom.uuid
+      subscription2.plan_name = 'oilslick-monthly'
+
+      bundle = [subscription1, subscription2]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson accountId should be the same for each element", e)
+    end
+
+    def test_invalid_spec_accountIds_mismatch_across_bundles
+      subscription1 = KillBillClient::Model::Subscription.new
+      subscription1.account_id = @account.account_id
+      subscription1.plan_name = 'standard-monthly'
+      bundle1 = [subscription1]
+
+      subscription2 = KillBillClient::Model::Subscription.new
+      subscription2.account_id = SecureRandom.uuid
+      subscription2.plan_name = 'standard-monthly'
+      bundle2 = [subscription2]
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2), @user, nil, nil, nil, nil, nil, @options)
+      assert(false, "Invalid specifier - shouldn't be able to create a subscription")
+    rescue KillBillClient::API::BadRequest => e
+      check_error_message("SubscriptionJson accountId should be the same for each element", e)
+    end
+
     def test_multiple_standalones
       bundle1 = []
       bundle1 << to_standalone_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'knife-monthly-notrial', nil, nil)
@@ -61,7 +216,6 @@ module KillBillIntegrationTests
     end
 
     def test_multiple_bundles_with_default
-
       bundle1 = []
       bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
@@ -84,7 +238,6 @@ module KillBillIntegrationTests
       check_bundle(bundle2, bundles[1])
       check_bundle(bundle3, bundles[2])
 
-
       all_invoices = @account.invoices(true, @options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
@@ -97,9 +250,7 @@ module KillBillIntegrationTests
       check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
     end
 
-
     def test_multiple_bundles_with_future_dates
-
       bundle1 = []
       bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
@@ -127,9 +278,7 @@ module KillBillIntegrationTests
       check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-15', nil)
     end
 
-
     def test_multiple_bundles_with_billing_date_in_past
-
       bundle1 = []
       bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
@@ -157,7 +306,6 @@ module KillBillIntegrationTests
     end
 
     def test_multiple_bundles_with_large_amount_of_bundles
-
       all_bundles = []
 
       nb_bundles = 20
@@ -194,7 +342,6 @@ module KillBillIntegrationTests
     end
 
     def test_lonely_ao
-
       # Create first BP prior we do the bulk call
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -223,40 +370,23 @@ module KillBillIntegrationTests
 
     private
 
-    def to_standalone_subscription_input(account_id, external_key, plan_name, phase_type, price_overrides)
-      subscription = KillBillClient::Model::Subscription.new
-      subscription.account_id = account_id
-      subscription.product_category = 'STANDALONE'
-      subscription.external_key = external_key
-      subscription.plan_name = plan_name
-      subscription.phase_type = phase_type
-      subscription.price_overrides = price_overrides
-      subscription.price_list = 'standalones'
-      subscription
-    end
-
-    def to_base_subscription_input(account_id, external_key, plan_name, phase_type, price_overrides)
-      subscription = KillBillClient::Model::Subscription.new
-      subscription.account_id = account_id
-      subscription.product_category = 'BASE'
-      subscription.external_key = external_key
-      subscription.plan_name = plan_name
-      subscription.phase_type = phase_type
-      subscription.price_overrides = price_overrides
-      subscription
-    end
-
-
     def to_ao_subscription_input(account_id, bundle_id, plan_name, phase_type, price_overrides)
+      subscription = to_subscription_input(account_id, nil, plan_name, phase_type, price_overrides)
+      subscription.bundle_id = bundle_id
+      subscription
+    end
+
+    def to_subscription_input(account_id, external_key, plan_name, phase_type, price_overrides)
       subscription = KillBillClient::Model::Subscription.new
       subscription.account_id = account_id
-      subscription.product_category = 'ADD_ON'
-      subscription.bundle_id = bundle_id
+      subscription.external_key = external_key
       subscription.plan_name = plan_name
       subscription.phase_type = phase_type
       subscription.price_overrides = price_overrides
       subscription
     end
+    alias_method :to_standalone_subscription_input, :to_subscription_input
+    alias_method :to_base_subscription_input, :to_subscription_input
 
     def to_input(*bundles)
       bundles.map do |b|
@@ -285,9 +415,14 @@ module KillBillIntegrationTests
 
       actual.subscriptions.each_with_index do |s, i|
         assert_equal(exp[i].account_id, s.account_id)
-        assert_equal(exp[i].product_category, s.product_category)
         assert_equal(exp[i].plan_name, s.plan_name)
       end
+    end
+
+    def check_error_message(expected, e)
+      assert_not_nil(e)
+      assert_not_nil(e.message)
+      assert_equal(expected, JSON.parse(e.message)['message'])
     end
   end
 end
