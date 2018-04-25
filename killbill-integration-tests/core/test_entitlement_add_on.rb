@@ -1306,7 +1306,6 @@ module KillBillIntegrationTests
     end
 
     def test_create_an_entitlement_with_addOn_products
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
       # Check if account have 1 bundle
@@ -1314,17 +1313,19 @@ module KillBillIntegrationTests
       assert_equal(1, bundles.size)
 
       # Change bundle external key
-      bp.external_key = 'test_key'
-      entitlements = [bp]
+      new_bp = KillBillClient::Model::Subscription.new
+      new_bp.account_id = bp.account_id
+      new_bp.external_key = 'test_key'
+      new_bp.plan_name = 'sports-monthly'
+      entitlements = [new_bp]
 
-      # Create entitlement with addOn
+      # Test create entitlement with addOn API
       result = KillBillClient::Model::Subscription.new
       result.create_entitlement_with_add_on(entitlements, nil, nil, nil, false, 3, @user, nil, nil, @options)
 
       # Check if account have 2 bundles
       bundles = @account.bundles(@options)
       assert_equal(2, bundles.size)
-
     end
 
     def test_block_a_subscription
