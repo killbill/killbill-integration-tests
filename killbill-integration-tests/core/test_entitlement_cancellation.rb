@@ -16,9 +16,7 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-
-
-       # Cancellation with with explicit no arguments
+    # Cancellation with with explicit no arguments
     def test_bp_cancel_default_no_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -128,7 +126,6 @@ module KillBillIntegrationTests
 
     end
 
-
     # Cancellation with with explicit entitlement imm policy
     def test_bp_cancel_entitlement_imm
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -148,7 +145,6 @@ module KillBillIntegrationTests
       canceled_bp = get_subscription(bp.subscription_id, @options)
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
     end
-
 
     # Cancellation with with explicit entitlement eot policy
     def test_bp_cancel_entitlement_eot
@@ -190,7 +186,6 @@ module KillBillIntegrationTests
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, requested_date, DEFAULT_KB_INIT_DATE,  "2013-09-30")
     end
 
-
     def test_bp_cancel_entitlement_with_requested_date_in_future_both
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -210,8 +205,7 @@ module KillBillIntegrationTests
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, requested_date, DEFAULT_KB_INIT_DATE, requested_date)
     end
 
-
-       # Cancellation with with explicit billing policy
+    # Cancellation with with explicit billing policy
     def test_bp_cancel_billing_imm
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -233,10 +227,7 @@ module KillBillIntegrationTests
       check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, requested_date, DEFAULT_KB_INIT_DATE, "2013-08-11")
     end
 
-
-
-
-       # Cancellation with with explicit billing policy with ctd
+    # Cancellation with with explicit billing policy with ctd
     def test_bp_cancel_billing_eot_with_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
