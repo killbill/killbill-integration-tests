@@ -17,7 +17,7 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_payment(payment_id, options)
-      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, options)
+      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, false, options)
     end
 
     def get_invoice_by_id(id, options)
