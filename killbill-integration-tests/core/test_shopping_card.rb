@@ -357,6 +357,7 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
+      assert_equal(2, bundles[0].subscriptions.size)
 
       all_invoices = @account.invoices(true, @options)
       assert_equal(2, all_invoices.size)
@@ -365,7 +366,75 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 3.87, 'USD', DEFAULT_KB_INIT_DATE)
       check_invoice_item(find_invoice_item(second_invoice.items, 'oilslick-monthly'), second_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
+    end
 
+    def test_lonely_ao_via_external_key
+      # Create first BP prior we do the bulk call
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      bundle1 = []
+      subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+      subscription.external_key = bp.external_key
+      bundle1 << subscription
+
+      KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+      assert_equal(2, bundles[0].subscriptions.size)
+    end
+
+    def test_lonely_ao_with_bp_blocked_entitlement
+      # Create first BP prior we do the bulk call
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Block entitlement the bundle
+      set_bundle_blocking_state(bp.bundle_id, 'STATE1', 'ServiceStateService', false, true, false, nil, @user, @options)
+
+      bundle1 = []
+      bundle1 << to_ao_subscription_input(@account.account_id, bp.bundle_id, 'oilslick-monthly', nil, nil)
+
+      begin
+        KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
+        assert(false, "Shouldn't be able to add add-on")
+      rescue KillBillClient::API::BadRequest => e
+        check_error_message("The action Entitlement is block on this Subscription with id=#{bp.subscription_id}", e)
+      end
+
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+      assert_equal(1, bundles[0].subscriptions.size)
+    end
+
+    def test_lonely_ao_via_external_key_with_bp_blocked_entitlement
+      # Create first BP prior we do the bulk call
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Block entitlement the bundle
+      set_bundle_blocking_state(bp.bundle_id, 'STATE1', 'ServiceStateService', false, true, false, nil, @user, @options)
+
+      bundle1 = []
+      subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+      subscription.external_key = bp.external_key
+      bundle1 << subscription
+
+      begin
+        KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
+        assert(false, "Shouldn't be able to add add-on")
+      rescue KillBillClient::API::BadRequest => e
+        check_error_message("The action Entitlement is block on this Subscription with id=#{bp.subscription_id}", e)
+      end
+
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+      assert_equal(1, bundles[0].subscriptions.size)
     end
 
     private
@@ -417,12 +486,6 @@ module KillBillIntegrationTests
         assert_equal(exp[i].account_id, s.account_id)
         assert_equal(exp[i].plan_name, s.plan_name)
       end
-    end
-
-    def check_error_message(expected, e)
-      assert_not_nil(e)
-      assert_not_nil(e.message)
-      assert_equal(expected, JSON.parse(e.message)['message'])
     end
   end
 end

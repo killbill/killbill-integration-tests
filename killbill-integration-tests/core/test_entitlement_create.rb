@@ -36,7 +36,6 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-01', '2013-09-01')
     end
 
-
     def test_create_ao_bundle_aligned_skip_trial
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
