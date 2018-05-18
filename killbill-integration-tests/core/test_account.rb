@@ -156,7 +156,8 @@ module KillBillIntegrationTests
       assert(blocking_states.empty?)
 
       # Verify if response is success
-      assert(account.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options).response .kind_of? Net::HTTPSuccess)
+      # assert(account.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options).response .kind_of? Net::HTTPSuccess)
+      account.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options)
 
       # Verify if the returned list has now one element
       blocking_states = account.blocking_states('ACCOUNT', nil, 'NONE', @options)
@@ -166,9 +167,9 @@ module KillBillIntegrationTests
       blocking_states = blocking_states.first
       assert_equal('STATE1', blocking_states.state_name)
       assert_equal('ServiceStateService', blocking_states.service)
-      assert_false(blocking_states.block_change)
-      assert_false(blocking_states.block_entitlement)
-      assert_false(blocking_states.block_billing)
+      assert_false(blocking_states.is_block_change)
+      assert_false(blocking_states.is_block_entitlement)
+      assert_false(blocking_states.is_block_billing)
 
     end
 
@@ -178,6 +179,36 @@ module KillBillIntegrationTests
 
       # Verify if response is success
       assert(account.cba_rebalancing(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+
+    end
+
+    def test_custom_fields
+
+      account = create_account(@user, @options)
+
+      custom_field = KillBillClient::Model::CustomFieldAttributes.new
+      custom_field.name = 'Test Custom Field'
+      custom_field.value = 'test_value'
+      account.add_custom_field(custom_field, @user, nil, nil, @options)
+
+      custom_field = account.custom_fields('NONE', @options)
+
+      assert_equal('Test Custom Field', custom_field[0].name)
+      assert_equal('test_value', custom_field[0].value)
+
+      custom_field[0].value = 'another_test_value'
+      account.modify_custom_field(custom_field, @user, nil, nil, @options)
+
+      custom_field = account.custom_fields('NONE', @options)
+
+      assert_equal('Test Custom Field', custom_field[0].name)
+      assert_equal('another_test_value', custom_field[0].value)
+
+      custom_field_id = custom_field[0].custom_field_id
+      account.remove_custom_field(custom_field_id, @user, nil, nil, @options)
+
+      custom_field = account.custom_fields('NONE', @options)
+      assert_empty(custom_field)
 
     end
 

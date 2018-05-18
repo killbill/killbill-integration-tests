@@ -164,13 +164,12 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bundle1 = []
-      bundle1 << to_base_subscription_input(@account.account_id, bp.external_key, nil, nil, nil)
-      bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
+      bundle1 << to_ao_subscription_input(@account.account_id, bp.bundle_id, 'oilslick-monthly', nil, nil)
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      bundle1[0] = bp
+      bundle1.unshift(bp)
 
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
@@ -215,8 +214,11 @@ module KillBillIntegrationTests
 
     def to_input(*bundles)
       bundles.map do |b|
+        # Product Category should not be set when Plan Name is specified
+        bundle = Marshal::load(Marshal.dump(b))
+        bundle.each { |s| s.product_category = nil unless s.plan_name.nil? }
         res = KillBillClient::Model::BulkSubscription.new
-        res.base_entitlement_and_add_ons = b
+        res.base_entitlement_and_add_ons = bundle
         res
       end
     end

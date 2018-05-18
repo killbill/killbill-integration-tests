@@ -1315,6 +1315,17 @@ module KillBillIntegrationTests
 
       # Change bundle external key
       bp.external_key = 'test_key'
+      # since this is a new bundle with add-on, bundle id must not be set
+      bp.bundle_id = nil
+      # Product Name should not be set when Plan Name is specified
+      bp.product_name = nil
+      # Product Category should not be set when Plan Name is specified
+      bp.product_category = nil
+      # Billing Period should not be set when Plan Name is specified"
+      bp.billing_period = nil
+      # Price List should not be set when Plan Name is specified
+      bp.price_list = nil
+
       entitlements = [bp]
 
       # Create entitlement with addOn
