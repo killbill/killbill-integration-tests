@@ -22,14 +22,16 @@ module KillBillClient
           input[:productCategory] = @product_category
           input[:phaseType] = target_phase_type
 
-          return self.class.put "#{KILLBILL_API_ENTITLEMENT_PREFIX}/#{@subscription_id}",
-                                input.to_json,
-                                params,
-                                {
-                                    :user => user,
-                                    :reason => reason,
-                                    :comment => comment,
-                                }.merge(options)
+          self.class.put "#{KILLBILL_API_ENTITLEMENT_PREFIX}/#{@subscription_id}",
+                         input.to_json,
+                         params,
+                         {
+                             :user => user,
+                             :reason => reason,
+                             :comment => comment
+                         }.merge(options)
+
+          KillBillClient::Model::Subscription.find_by_id(@subscription_id, options)
         end
 
     end

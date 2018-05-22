@@ -24,7 +24,7 @@ module KillBillIntegrationTests
       internal_test_invoice_template(true)
     end
 
-    def internal_test_invoice_template(manual_pay)
+    def internal_test_invoice_template(manual_pay, locale = nil)
       # Upload a new template and verify it does indeed contain the magic string we added
       invoice_template = get_resource_as_string("HtmlInvoiceTemplate")
       result = KillBillClient::Model::Invoice.upload_invoice_template(invoice_template, manual_pay, false, @user, "Per tenant invoice template", "boo", @options)
@@ -32,7 +32,7 @@ module KillBillIntegrationTests
 
       got_exception = false
       begin
-        KillBillClient::Model::Invoice.get_invoice_template(!manual_pay, @options)
+        KillBillClient::Model::Invoice.get_invoice_template(!manual_pay, locale, @options)
       rescue KillBillClient::API::NotFound => e
         got_exception = true
       end

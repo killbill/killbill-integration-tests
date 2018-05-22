@@ -1304,11 +1304,19 @@ module KillBillIntegrationTests
       assert_equal(1, bundles.size)
 
       # Change bundle external key
-      new_bp = KillBillClient::Model::Subscription.new
-      new_bp.account_id = bp.account_id
-      new_bp.external_key = 'test_key'
-      new_bp.plan_name = 'sports-monthly'
-      entitlements = [new_bp]
+      bp.external_key = 'test_key'
+      # since this is a new bundle with add-on, bundle id must not be set
+      bp.bundle_id = nil
+      # Product Name should not be set when Plan Name is specified
+      bp.product_name = nil
+      # Product Category should not be set when Plan Name is specified
+      bp.product_category = nil
+      # Billing Period should not be set when Plan Name is specified"
+      bp.billing_period = nil
+      # Price List should not be set when Plan Name is specified
+      bp.price_list = nil
+
+      entitlements = [bp]
 
       # Test create entitlement with addOn API
       result = KillBillClient::Model::Subscription.new

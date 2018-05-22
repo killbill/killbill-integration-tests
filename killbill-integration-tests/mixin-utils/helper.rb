@@ -43,7 +43,7 @@ module KillBillIntegrationTests
     end
 
     def get_tenant_catalog(requested_date, options)
-      KillBillClient::Model::Catalog.get_tenant_catalog('json', requested_date, options)
+      KillBillClient::Model::Catalog.get_tenant_catalog_json(requested_date, options)
     end
 
     def upload_catalog(name, check_if_exists, user, options)
@@ -96,11 +96,11 @@ module KillBillIntegrationTests
 
     def upload_overdue(name, user, options)
       overdue_file_xml = get_resource_as_string(name)
-      KillBillClient::Model::Overdue.upload_tenant_overdue_config('xml', overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
+      KillBillClient::Model::Overdue.upload_tenant_overdue_config_xml(overdue_file_xml, user, 'New Overdue Config Version', 'Upload overdue config for tenant', options)
     end
 
     def get_tenant_overdue(options)
-      KillBillClient::Model::Overdue.get_tenant_overdue_config('json', options)
+      KillBillClient::Model::Overdue.get_tenant_overdue_config_json(options)
     end
 
     def setup_create_tenant(user, options)
