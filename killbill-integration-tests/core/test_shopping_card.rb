@@ -459,11 +459,8 @@ module KillBillIntegrationTests
 
     def to_input(*bundles)
       bundles.map do |b|
-        # Product Category should not be set when Plan Name is specified
-        bundle = Marshal::load(Marshal.dump(b))
-        bundle.each { |s| s.product_category = nil unless s.plan_name.nil? }
         res = KillBillClient::Model::BulkSubscription.new
-        res.base_entitlement_and_add_ons = bundle
+        res.base_entitlement_and_add_ons = b
         res
       end
     end
