@@ -56,8 +56,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(31, 5, 'basic-monthly', '2013-11-01', '2013-12-01', 1000.0)
 
       # Verify we can change to the new plan
-      # TODO unsupported on 0.19
-      #change_base_entitlement(bp, 6, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14000, 13000)
+      change_base_entitlement(bp, 6, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14000, 13000)
     end
 
     # Remove a phase in a subsequent catalog
