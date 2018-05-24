@@ -487,7 +487,7 @@ module KillBillIntegrationTests
       # Change Plan for BP (future cancel date = 30/09/2013)  => AO1 is now included in new plan, so should be cancelled
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -521,7 +521,7 @@ module KillBillIntegrationTests
       # Change Plan for BP immediately => AO1 is now included in new plan, so should be cancelled immediately
       requested_date = nil
       billing_policy = "IMMEDIATE"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -1195,7 +1195,7 @@ module KillBillIntegrationTests
       # Change Plan for BP (future cancel date = 30/09/2013) => AO1 is now included in new plan
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions  = get_subscriptions(bp.bundle_id, @options)

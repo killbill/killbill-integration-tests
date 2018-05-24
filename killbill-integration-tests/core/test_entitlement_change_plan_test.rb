@@ -28,7 +28,7 @@ module KillBillIntegrationTests
       # Change plan
       requested_date = nil
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)
@@ -58,7 +58,7 @@ module KillBillIntegrationTests
       # Change plan
       requested_date = "2013-08-05"
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       assert_equal(bp.product_name, 'Super')
       assert_equal(bp.product_category, 'BASE')
       assert_equal(bp.billing_period, 'MONTHLY')
@@ -95,7 +95,7 @@ module KillBillIntegrationTests
       # Change plan
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)
