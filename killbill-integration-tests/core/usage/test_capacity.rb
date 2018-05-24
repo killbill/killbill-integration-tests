@@ -27,7 +27,7 @@ module KillBillIntegrationTests
     def test_basic
       aggregate_mode
 
-      bp = create_entitlement('basic-monthly')
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly', @user, @options)
 
       usage_input = [{:unit_type => 'members',
                       :usage_records => [{:record_date => '2015-01-01', :amount => 6},
@@ -115,7 +115,7 @@ module KillBillIntegrationTests
     def test_multiple_units
       aggregate_mode
 
-      bp = create_entitlement('basic-monthly')
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly', @user, @options)
 
       # Both unit are part of tier 1
       usage_input = [{:unit_type => 'members',
@@ -182,14 +182,6 @@ module KillBillIntegrationTests
     end
 
     private
-
-    def create_entitlement(plan_name)
-      result = KillBillClient::Model::Subscription.new
-      result.account_id = @account.account_id
-      result.plan_name = plan_name
-      result.create(@user, nil, nil, nil, nil, @options)
-    end
-
 
     def find_usage_ii(subscription_id, items)
       filtered = items.select do |ii|

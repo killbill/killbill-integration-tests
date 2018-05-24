@@ -30,7 +30,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.2.0
-      - image: killbill/killbill:0.19.5
+      - image: killbill/killbill:0.19.8
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -92,10 +92,10 @@ jobs:
             source /usr/share/rvm/scripts/rvm
             rvm use ruby-2.4.2
             # Until plugins are released
-            #bundle exec rake test:all | tee /tmp/test-results/test.txt 2>&1
-            bundle exec rake test:core | tee /tmp/test-results/test.txt 2>&1
+            #bundle exec rake ci:all | tee /tmp/test-results/test.txt 2>&1
+            bundle exec rake ci:core | tee /tmp/test-results/test.txt 2>&1
       - store_test_results:
-          path: /tmp/test-results
+          path: test/reports/
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
@@ -104,7 +104,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.2.0
-      - image: killbill/killbill:0.19.5
+      - image: killbill/killbill:0.19.8
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -167,10 +167,10 @@ jobs:
             source /usr/share/rvm/scripts/rvm
             rvm use ruby-2.4.2
             # Until plugins are released
-            #bundle exec rake test:all | tee /tmp/test-results/test.txt 2>&1
-            bundle exec rake test:core | tee /tmp/test-results/test.txt 2>&1
+            #bundle exec rake ci:all | tee /tmp/test-results/test.txt 2>&1
+            bundle exec rake ci:core | tee /tmp/test-results/test.txt 2>&1
       - store_test_results:
-          path: /tmp/test-results
+          path: test/reports/
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results

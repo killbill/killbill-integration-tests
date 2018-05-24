@@ -104,5 +104,11 @@ namespace :test do
   end
 end
 
+namespace :ci do
+  require 'ci/reporter/rake/test_unit'
+  task :core => ['ci:setup:testunit', 'test:core']
+  task :all => ['ci:setup:testunit', 'test:all']
+end
+
 # Run tests by default
 task :default => 'test:all'

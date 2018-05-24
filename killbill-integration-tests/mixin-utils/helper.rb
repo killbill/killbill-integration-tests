@@ -25,6 +25,12 @@ module KillBillIntegrationTests
     USAGE_DETAIL_MODE_KEY = 'org.killbill.invoice.item.result.behavior.mode'.freeze
     PER_TENANT_CONFIG = 'PER_TENANT_CONFIG'
 
+    def check_error_message(expected, e)
+      assert_not_nil(e)
+      assert_not_nil(e.message)
+      assert_equal(expected, JSON.parse(e.message)['message'])
+    end
+
     def get_resource_as_string(resource_name)
       resource_path_name = File.expand_path("../../resources/#{resource_name}", __FILE__)
       if !File.exist?(resource_path_name) || !File.file?(resource_path_name)

@@ -92,7 +92,6 @@ module KillBillIntegrationTests
                                    {:type => "STOP_BILLING", :date => "2013-08-21"}], aos[0].events)
     end
 
-
     def test_cancel_bp_default_policy_after_trial
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -143,7 +142,6 @@ module KillBillIntegrationTests
                                    {:type => "STOP_ENTITLEMENT", :date => "2013-09-01"},
                                    {:type => "STOP_BILLING", :date => "2013-09-30"}], aos[0].events)
     end
-
 
     def test_cancel_bp_with_cancel_date_and_uncancel
 
@@ -225,7 +223,6 @@ module KillBillIntegrationTests
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
     end
-
 
     def test_cancel_bp_with_ent_eot_bill_imm
 
@@ -314,7 +311,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-09-30")
 
     end
-
 
     def test_uncancel_ao_ent_eot_bill_eot
 
@@ -457,7 +453,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
     end
 
-
     def test_change_bp_with_included_ao_eot
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -538,7 +533,6 @@ module KillBillIntegrationTests
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
     end
-
 
     def test_cancel_ao_prior_future_bp_cancel_date
 
@@ -795,7 +789,6 @@ module KillBillIntegrationTests
 
     end
 
-
     def test_future_cancel_ao_after_future_bp_cancel_date_and_reach_bp_cancellation
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -892,7 +885,6 @@ module KillBillIntegrationTests
 
 
     end
-
 
     def test_cancel_bp_prior_future_ao_cancel_date
 
@@ -1012,7 +1004,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
     end
-
 
     def test_future_cancel_bp_after_future_ao_cancel_date
 
@@ -1306,7 +1297,6 @@ module KillBillIntegrationTests
     end
 
     def test_create_an_entitlement_with_addOn_products
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
 
       # Check if account have 1 bundle
@@ -1315,16 +1305,26 @@ module KillBillIntegrationTests
 
       # Change bundle external key
       bp.external_key = 'test_key'
+      # since this is a new bundle with add-on, bundle id must not be set
+      bp.bundle_id = nil
+      # Product Name should not be set when Plan Name is specified
+      bp.product_name = nil
+      # Product Category should not be set when Plan Name is specified
+      bp.product_category = nil
+      # Billing Period should not be set when Plan Name is specified"
+      bp.billing_period = nil
+      # Price List should not be set when Plan Name is specified
+      bp.price_list = nil
+
       entitlements = [bp]
 
-      # Create entitlement with addOn
+      # Test create entitlement with addOn API
       result = KillBillClient::Model::Subscription.new
       result.create_entitlement_with_add_on(entitlements, nil, nil, nil, false, 3, @user, nil, nil, @options)
 
       # Check if account have 2 bundles
       bundles = @account.bundles(@options)
       assert_equal(2, bundles.size)
-
     end
 
     def test_block_a_subscription
@@ -1342,9 +1342,7 @@ module KillBillIntegrationTests
       # Verify if the returned list has now one element
       assert_equal(1, blocking_states.size)
 
-      result = KillBillClient::Model::Subscription.new
-      result.subscription_id = subscription[0].subscription_id
-      result.set_blocking_state('STATE1', 'ServiceStateService', false, false, false, nil, @user, nil, nil, @options)
+      set_subscription_blocking_state(subscription[0].subscription_id, 'STATE1', 'ServiceStateService', false, false, false, nil, @user, @options)
 
       # Verify if the returned list has now two elements
       blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)

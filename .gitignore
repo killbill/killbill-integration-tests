@@ -8,3 +8,4 @@ killbill-integration-tests/load/jmeter/logs
 .bundle
 vendor/bundle
 *_temp_state.yml
+test/
