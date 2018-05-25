@@ -135,7 +135,7 @@ module KillBillIntegrationTests
 
 
       # Change plan EOT
-      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, nil, false, @options)
       check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
 
       # Change plan becomes effective: We verify that the changePlan correctly skips the initial TRIAL for the new plan

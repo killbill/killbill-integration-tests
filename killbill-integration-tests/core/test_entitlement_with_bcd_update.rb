@@ -44,7 +44,7 @@ module KillBillIntegrationTests
 
 
       # Change plan to also make it effective on the 16
-      bp = bp.change_plan({:productName => 'Basic', :billingPeriod => 'ANNUAL', :priceList => 'DEFAULT'}, @user, nil, nil, effective_from_date, nil, false, @options)
+      bp = bp.change_plan({:productName => 'Basic', :billingPeriod => 'ANNUAL', :priceList => 'DEFAULT'}, @user, nil, nil, effective_from_date, nil, nil, false, @options)
 
 
       # Position the clock to be on 2013-08-16 and trigger the changes
