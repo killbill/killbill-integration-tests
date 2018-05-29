@@ -11,7 +11,7 @@ module KillBillIntegrationTests
       payment                  = KillBillClient::Model::InvoicePayment.new
       payment.account_id       = account_id
       payment.purchased_amount = payment_amount
-      payment.bulk_create(external_payment, user, nil, nil, options)
+      payment.bulk_create(external_payment, nil, nil, user, nil, nil, options)
     end
 
     def create_auth(account_id, payment_external_key, transaction_external_key, amount, currency, user, options)
