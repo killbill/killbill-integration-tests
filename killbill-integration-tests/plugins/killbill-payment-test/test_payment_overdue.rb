@@ -71,7 +71,7 @@ module KillBillIntegrationTests
       # Verify we can't change the plan anymore ()
       begin
         billing_policy = nil
-        bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, billing_policy, false, @options)
+        bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, billing_policy, nil, false, @options)
       rescue KillBillClient::API::BadRequest => e
       end
 

@@ -107,7 +107,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(1, nil, @options)
 
       # Change immediately
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', '2017-08-01', nil)
 
       # Verify the second and third invoices, latest invoice amount is -$466.67 - $4.67 - $30.33 + $9.03 + $58.71 + $903.23 = $469.30

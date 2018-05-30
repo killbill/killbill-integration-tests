@@ -102,7 +102,7 @@ module KillBillIntegrationTests
 
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Standard', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT', :priceOverrides => overrides2}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Standard', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT', :priceOverrides => overrides2}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       kb_clock_add_months(1, nil, @options)
       check_next_invoice_amount(3, 1000.0, '2013-09-30', @account, @options, &@proc_account_invoices_nb)

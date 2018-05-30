@@ -300,7 +300,7 @@ module KillBillIntegrationTests
     end
 
     def change_base_entitlement(bp, invoice_nb=1, product='Basic', billing_period='MONTHLY', start_date='2013-08-01', inv_start_date='2013-08-01', inv_end_date='2013-09-01', amount=1000.0, balance=1000.0)
-      bp = bp.change_plan({:productName => product, :billingPeriod => billing_period, :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', false, @options)
+      bp = bp.change_plan({:productName => product, :billingPeriod => billing_period, :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_entitlement(bp, 'Basic', 'BASE', billing_period, 'DEFAULT', start_date, nil)
       check_evergreen_item(invoice_nb, 'basic-' + billing_period.downcase, inv_start_date, inv_end_date, amount, balance)
       bp
@@ -314,7 +314,7 @@ module KillBillIntegrationTests
     end
 
     def change_ao_entitlement(ao, invoice_nb, product, billing_period='MONTHLY', ao_start_date='2013-08-01', amount=0.0, invoice_date=start_date)
-      ao = ao.change_plan({:productName => product, :billingPeriod => billing_period, :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      ao = ao.change_plan({:productName => product, :billingPeriod => billing_period, :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, nil, false, @options)
       check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', ao_start_date, nil, ao_start_date, nil)
       check_fixed_item(invoice_nb, product + '-'+ billing_period.downcase, invoice_date, amount)
     end

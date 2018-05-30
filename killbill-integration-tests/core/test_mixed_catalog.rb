@@ -62,8 +62,9 @@ module KillBillIntegrationTests
       requested_date = nil
       billing_policy = "IMMEDIATE"
 
-      # Move from a plan that was billed in advance to a plan that is now billed in arrear
-      bp = bp.change_plan({:planName => 'basic-monthly-in-arrear'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+
+        # Move from a plan that was billed in advance to a plan that is now billed in arrear
+      bp = bp.change_plan({:planName => 'basic-monthly-in-arrear'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       changed_bp = get_subscription(bp.subscription_id, @options)
       assert_equal('basic-monthly-in-arrear', changed_bp.plan_name)
 
