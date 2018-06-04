@@ -8,11 +8,11 @@ jobs:
   build-ruby-2.4.2:
     <<: *defaults
     docker:
-      - image: killbill/kbbuild:0.2.0
+      - image: killbill/kbbuild:0.5.0
     steps:
       - checkout
       - restore_cache:
-          key: v3-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v4-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
       - run:
           name: Install gem dependencies
           command: |
@@ -24,13 +24,13 @@ jobs:
             - Gemfile.lock
             - .bundle
             - vendor/bundle
-          key: v3-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v4-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
 
   test-mysql-ruby-2.4.2:
     <<: *defaults
     docker:
-      - image: killbill/kbbuild:0.2.0
-      - image: killbill/killbill:0.19.8
+      - image: killbill/kbbuild:0.5.0
+      - image: killbill/killbill:0.19.16
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -46,7 +46,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v3-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v4-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
       - run:
           name: Setup DDL
           command: |
@@ -103,8 +103,8 @@ jobs:
   test-postgresql-ruby-2.4.2:
     <<: *defaults
     docker:
-      - image: killbill/kbbuild:0.2.0
-      - image: killbill/killbill:0.19.8
+      - image: killbill/kbbuild:0.5.0
+      - image: killbill/killbill:0.19.16
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -120,7 +120,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v3-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v4-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
       - run:
           name: Setup DDL
           command: |
