@@ -577,7 +577,6 @@ module KillBillIntegrationTests
       end
     end
 
-
     def test_with_usage_holes
 
       # 2008-8-2 Start (So BCD ends up being on the first)
@@ -615,14 +614,26 @@ module KillBillIntegrationTests
         check_usage_invoice_item_w_quantity(second_invoice.items[1], second_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-08-13', '2013-09-01', 3.95, 10)
       end
 
-      # 2013-09-02 Next invoice
+      # 2013-10-01 Next $0 invoice
       kb_clock_add_days(31, nil, @options)
-      # Should see no invoice
-      sleep 1
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      all_invoices = @account.invoices(true, @options)
+      sort_invoices!(all_invoices)
+      assert_equal(3, all_invoices.size)
+      third_invoice = all_invoices[2]
+      if aggregate_mode?
+        check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 0.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
+        check_invoice_consumable_item_detail(third_invoice.items[0],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 0, :tier_price => 3.95 }], 0.0)
+      else
+        check_usage_invoice_item_w_quantity(third_invoice.items[0], third_invoice.invoice_id, 0.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01', 3.95, 0)
+      end
 
 
-      # 2008-9-17
-      kb_clock_add_days(15, nil, @options)
+      # 2008-10-17
+      kb_clock_add_days(16, nil, @options)
+      # Late usage
       usage_input = [{:unit_type => 'gallons',
                       :usage_records => [{:record_date => '2013-09-17', :amount => 10}]
                      }]
@@ -630,20 +641,24 @@ module KillBillIntegrationTests
 
       # 2013-10-01 Next invoice
       kb_clock_add_days(15, nil, @options)
-      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
-      assert_equal(3, all_invoices.size)
-      third_invoice = all_invoices[2]
+      assert_equal(4, all_invoices.size)
+      fourth_invoice = all_invoices[3]
 
       if aggregate_mode?
-        check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
-        check_invoice_consumable_item_detail(third_invoice.items[0],
+        check_usage_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01')
+        # Late item
+        check_invoice_consumable_item_detail(fourth_invoice.items[0],
                                              [{:tier => 1, :unit_type => 'gallons', :unit_qty => 10, :tier_price => 3.95 }], 39.50)
+        check_invoice_consumable_item_detail(fourth_invoice.items[1],
+                                             [{:tier => 1, :unit_type => 'gallons', :unit_qty => 0, :tier_price => 3.95 }], 0.0)
       else
-        check_usage_invoice_item_w_quantity(third_invoice.items[0], third_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01', 3.95, 10)
+        check_usage_invoice_item_w_quantity(fourth_invoice.items[0], fourth_invoice.invoice_id, 39.50, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-09-01', '2013-10-01', 3.95, 10)
+        check_usage_invoice_item_w_quantity(fourth_invoice.items[1], fourth_invoice.invoice_id, 0.0, 'USD', 'USAGE', 'gas-monthly', 'gas-monthly-evergreen', 'gas-monthly-in-arrear', '2013-10-01', '2013-11-01', 3.95, 0)
       end
     end
 
