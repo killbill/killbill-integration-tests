@@ -55,7 +55,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(first_invoice, 1.00, 'USD', '2015-02-01')
       check_usage_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 1.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-01-01', '2015-02-01')
       check_invoice_capacity_item_detail(first_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 10, :tier_price => 1.0 }], 1.0)
+                                           [{:tier => 1, :unit_type => 'bandwith-meg-sec', :previous_billed_amount => 0, :unit_qty => 0, :tier_price => 1.0 }, {:tier => 1, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 10, :tier_price => 1.0 }], 1.0)
 
       usage_input = [{:unit_type => 'members',
                       :usage_records => [{:record_date => '2015-02-01', :amount => 6},
@@ -82,7 +82,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 5.00, 'USD', '2015-03-01')
       check_usage_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 5.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-02-01', '2015-03-01')
       check_invoice_capacity_item_detail(second_invoice.items[0],
-                                           [{:tier => 2, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 50, :tier_price => 5.0 }], 5.0)
+                                           [{:tier => 1, :unit_type => 'bandwith-meg-sec', :previous_billed_amount => 0, :unit_qty => 0, :tier_price => 1.0 }, {:tier => 2, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 50, :tier_price => 5.0 }], 5.0)
 
       usage_input = [{:unit_type => 'members',
                       :usage_records => [{:record_date => '2015-03-01', :amount => 6},
@@ -109,7 +109,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(third_invoice, 10.00, 'USD', '2015-04-01')
       check_usage_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 10.00, 'USD', 'USAGE', 'basic-monthly', 'basic-monthly-evergreen', 'basic-monthly-usage1', '2015-03-01', '2015-04-01')
       check_invoice_capacity_item_detail(third_invoice.items[0],
-                                           [{:tier => 3, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 51, :tier_price => 10.0}], 10.0)
+                                           [{:tier => 1, :unit_type => 'bandwith-meg-sec', :previous_billed_amount => 0, :unit_qty => 0, :tier_price => 1.0 }, {:tier => 3, :unit_type => 'members', :previous_billed_amount => 0, :unit_qty => 51, :tier_price => 10.0}], 10.0)
     end
 
     def test_multiple_units

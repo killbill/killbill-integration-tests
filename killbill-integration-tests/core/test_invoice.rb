@@ -124,7 +124,7 @@ module KillBillIntegrationTests
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'REPAIR_ADJ', -1000.00), dry_run_invoice.invoice_id, -1000.00, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-31', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'CBA_ADJ', 500.00), dry_run_invoice.invoice_id, 500.00, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
 
-      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -213,7 +213,7 @@ module KillBillIntegrationTests
       # 1. In one case whe get one invoice with 2 REPAIR_ADJ of  -416.67 and  -6.41
       # 2. In the other case whe get a first invoice for the adjustment on the ADD_ON  REPAIR_ADJ -6.41, CBA_ADJ +6.41 and a second invoice with REPAIR_ADJ of  -416.67 and CBA_ADJ  -6.41
 
-      #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       #wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
       #all_invoices = @account.invoices(true, @options)
       #sort_invoices!(all_invoices)
