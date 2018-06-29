@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
 
       # Create a second tenant
       @options2              = {:username => 'admin', :password => 'password'}
@@ -23,6 +24,8 @@ module KillBillIntegrationTests
     end
 
     def teardown
+      close_account(@account2.account_id, @user, @options2)
+
       teardown_base
     end
 
@@ -35,7 +38,7 @@ module KillBillIntegrationTests
                                       :is_blocked_billing     => false,
                                       :is_blocked_entitlement => false,
                                       :service_name           => 'entitlement-service',
-                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                      :service_state_name     => 'ENT_STARTED'},
                                      {:type                   => 'START_BILLING',
                                       :date                   => '2013-08-01',
                                       :is_blocked_billing     => false,
@@ -85,7 +88,7 @@ module KillBillIntegrationTests
                                       :is_blocked_billing     => false,
                                       :is_blocked_entitlement => false,
                                       :service_name           => 'entitlement-service',
-                                      :service_state_name     => 'START_ENTITLEMENT'},
+                                      :service_state_name     => 'ENT_STARTED'},
                                      {:type                   => 'START_BILLING',
                                       :date                   => '2013-10-31',
                                       :is_blocked_billing     => false,
@@ -155,24 +158,28 @@ module KillBillIntegrationTests
     def go_through_all_overdue_stages(account, expected_last_stage, start_date=DEFAULT_KB_INIT_DATE, options=@options)
       bp = create_entitlement_base(account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', start_date, nil)
-      wait_for_expected_clause(1, account, options) do |account|
-        account.invoices(false, options).size
+      wait_for_expected_clause(1, account, options) do |an_account|
+        an_account.invoices(false, options).size
       end
 
       # Move out of trial
       kb_clock_add_days(31, nil, options)
-      wait_for_expected_clause(2, account, options) do |account|
-        account.invoices(false, options).size
+      wait_for_expected_clause(2, account, options) do |an_account|
+        an_account.invoices(false, options).size
       end
       # Move to first overdue stage
       add_days_and_check_overdue_stage(account, 30, 'OD1', options)
 
       2.upto(3) do |i|
-        add_days_and_check_overdue_stage(account, 10, 'OD' + i.to_s, options)
+        kb_clock_add_days(5, nil, options)
+        wait_for_killbill(options)
+        add_days_and_check_overdue_stage(account, 5, 'OD' + i.to_s, options)
       end
 
       # Move to last overdue stage
-      add_days_and_check_overdue_stage(account, 10, expected_last_stage, options)
+      kb_clock_add_days(5, nil, options)
+      wait_for_killbill(options)
+      add_days_and_check_overdue_stage(account, 5, expected_last_stage, options)
 
       bp
     end
@@ -192,8 +199,9 @@ module KillBillIntegrationTests
     end
 
     def check_overdue_stage(account, stage, options=@options)
-      overdue_result = account.overdue(options)
-      assert_equal(stage, overdue_result.name, "Failed to retrieve overdue status associated with account #{account.account_id}")
+      wait_for_expected_clause(stage, account, options) do |an_account|
+        an_account.overdue(options).name
+      end
     end
   end
 end

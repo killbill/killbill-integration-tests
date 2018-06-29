@@ -18,7 +18,7 @@ module KillBillIntegrationTests
     ]
 
     def setup
-
+      @user = 'PaymentWithControl'
       setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
 
       @account = create_account(@user, @options)
@@ -47,7 +47,6 @@ module KillBillIntegrationTests
       check_transaction(auth1, payment_key, auth1_key, authorize, auth1_amount, payment_currency, success)
     end
 
-    # The plugin will throw a RuntimeException. Current behavior is to throw 500, so test verifies that, but should we really throw 500? Probably not...
     def test_authorize_plugin_exception
       payment_key = 'payment1-' + rand(1000000).to_s
       payment_currency = 'USD'
@@ -61,29 +60,31 @@ module KillBillIntegrationTests
       begin
         create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
         assert(false, "Called was supposed to fail")
-      rescue KillBillClient::API::InternalServerError => e
+      rescue KillBillClient::API::BadRequest => e
         got_exception= true
       end
       assert(got_exception, "Failed to get exception")
     end
 
-   # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
-    def test_authorize_plugin_timedout
-      payment_key = 'payment2-' + rand(1000000).to_s
-      payment_currency = 'USD'
+    unless ENV['CIRCLECI']
+      # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
+      def test_authorize_plugin_timedout
+        payment_key = 'payment2-' + rand(1000000).to_s
+        payment_currency = 'USD'
 
-      add_property('TEST_MODE', 'CONTROL')
-      add_property('SLEEP_TIME_SEC', '6.0')
+        add_property('TEST_MODE', 'CONTROL')
+        add_property('SLEEP_TIME_SEC', '6.0')
 
-      auth1_key = payment_key + '-auth'
-      auth1_amount = '123.5'
-      got_exception = false
+        auth1_key = payment_key + '-auth'
+        auth1_amount = '123.5'
+        got_exception = false
 
-      begin
-      auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-      flunk("Call should have timedout")
-      rescue KillBillClient::API::InternalServerError => e
-        # 202 in case of timeout
+        begin
+        auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
+        flunk("Call should have timedout")
+        rescue KillBillClient::API::GatewayTimeout => e
+          # 504 in case of timeout
+        end
       end
     end
 

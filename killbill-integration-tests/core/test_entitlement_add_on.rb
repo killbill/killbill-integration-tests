@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
       # Create account
       @account = create_account(@user, @options)
     end
@@ -91,7 +92,6 @@ module KillBillIntegrationTests
                                    {:type => "STOP_BILLING", :date => "2013-08-21"}], aos[0].events)
     end
 
-
     def test_cancel_bp_default_policy_after_trial
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -143,7 +143,6 @@ module KillBillIntegrationTests
                                    {:type => "STOP_BILLING", :date => "2013-09-30"}], aos[0].events)
     end
 
-
     def test_cancel_bp_with_cancel_date_and_uncancel
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -171,6 +170,26 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
+      assert_equal(4, bp.events.size)
+      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
+      assert_equal("sports-monthly", bp.events[0].plan)
+      assert_equal("sports-monthly-trial", bp.events[0].phase)
+      assert_equal("2013-08-01", bp.events[0].effective_date)
+
+      assert_equal("START_BILLING", bp.events[1].event_type)
+      assert_equal("sports-monthly", bp.events[1].plan)
+      assert_equal("sports-monthly-trial", bp.events[1].phase)
+      assert_equal("2013-08-01", bp.events[1].effective_date)
+
+      assert_equal("STOP_ENTITLEMENT", bp.events[2].event_type)
+      assert_equal("sports-monthly", bp.events[2].plan)
+      assert_equal("sports-monthly-trial", bp.events[2].phase)
+      assert_equal("2013-08-06", bp.events[2].effective_date)
+
+      assert_equal("STOP_BILLING", bp.events[3].event_type)
+      assert_equal("sports-monthly", bp.events[3].plan)
+      assert_equal("sports-monthly-trial", bp.events[3].phase)
+      assert_equal("2013-08-06", bp.events[3].effective_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
@@ -184,10 +203,26 @@ module KillBillIntegrationTests
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
 
+      assert_equal(3, bp.events.size)
+      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
+      assert_equal("sports-monthly", bp.events[0].plan)
+      assert_equal("sports-monthly-trial", bp.events[0].phase)
+      assert_equal("2013-08-01", bp.events[0].effective_date)
+
+      assert_equal("START_BILLING", bp.events[1].event_type)
+      assert_equal("sports-monthly", bp.events[1].plan)
+      assert_equal("sports-monthly-trial", bp.events[1].phase)
+      assert_equal("2013-08-01", bp.events[1].effective_date)
+
+      assert_equal("PHASE", bp.events[2].event_type)
+      assert_equal("sports-monthly", bp.events[2].plan)
+      assert_equal("sports-monthly-evergreen", bp.events[2].phase)
+      assert_equal("2013-08-31", bp.events[2].effective_date)
+
+
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
     end
-
 
     def test_cancel_bp_with_ent_eot_bill_imm
 
@@ -276,7 +311,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-09-30")
 
     end
-
 
     def test_uncancel_ao_ent_eot_bill_eot
 
@@ -419,7 +453,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
     end
 
-
     def test_change_bp_with_included_ao_eot
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -454,7 +487,7 @@ module KillBillIntegrationTests
       # Change Plan for BP (future cancel date = 30/09/2013)  => AO1 is now included in new plan, so should be cancelled
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -488,7 +521,7 @@ module KillBillIntegrationTests
       # Change Plan for BP immediately => AO1 is now included in new plan, so should be cancelled immediately
       requested_date = nil
       billing_policy = "IMMEDIATE"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -500,7 +533,6 @@ module KillBillIntegrationTests
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
     end
-
 
     def test_cancel_ao_prior_future_bp_cancel_date
 
@@ -757,7 +789,6 @@ module KillBillIntegrationTests
 
     end
 
-
     def test_future_cancel_ao_after_future_bp_cancel_date_and_reach_bp_cancellation
 
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
@@ -854,7 +885,6 @@ module KillBillIntegrationTests
 
 
     end
-
 
     def test_cancel_bp_prior_future_ao_cancel_date
 
@@ -974,7 +1004,6 @@ module KillBillIntegrationTests
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
 
     end
-
 
     def test_future_cancel_bp_after_future_ao_cancel_date
 
@@ -1166,7 +1195,7 @@ module KillBillIntegrationTests
       # Change Plan for BP (future cancel date = 30/09/2013) => AO1 is now included in new plan
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions  = get_subscriptions(bp.bundle_id, @options)
@@ -1265,6 +1294,60 @@ module KillBillIntegrationTests
       # Verify no new invoice has been generated
       all_invoices = @account.invoices(true, @options)
       assert_equal(7, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
+    end
+
+    def test_create_an_entitlement_with_addOn_products
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+
+      # Check if account have 1 bundle
+      bundles = @account.bundles(@options)
+      assert_equal(1, bundles.size)
+
+      # Change bundle external key
+      bp.external_key = 'test_key'
+      # since this is a new bundle with add-on, bundle id must not be set
+      bp.bundle_id = nil
+      # Product Name should not be set when Plan Name is specified
+      bp.product_name = nil
+      # Product Category should not be set when Plan Name is specified
+      bp.product_category = nil
+      # Billing Period should not be set when Plan Name is specified"
+      bp.billing_period = nil
+      # Price List should not be set when Plan Name is specified
+      bp.price_list = nil
+
+      entitlements = [bp]
+
+      # Test create entitlement with addOn API
+      result = KillBillClient::Model::Subscription.new
+      result.create_entitlement_with_add_on(entitlements, nil, nil, nil, false, 3, @user, nil, nil, @options)
+
+      # Check if account have 2 bundles
+      bundles = @account.bundles(@options)
+      assert_equal(2, bundles.size)
+    end
+
+    def test_block_a_subscription
+
+      account = create_account(@user, @options)
+
+      create_entitlement_base(account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+
+      bundles = account.bundles(@options)
+      subscription = bundles.first.subscriptions
+
+      # Get blocking states
+      blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)
+
+      # Verify if the returned list has now one element
+      assert_equal(1, blocking_states.size)
+
+      set_subscription_blocking_state(subscription[0].subscription_id, 'STATE1', 'ServiceStateService', false, false, false, nil, @user, @options)
+
+      # Verify if the returned list has now two elements
+      blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)
+      assert_equal(2, blocking_states.size)
+
     end
   end
 end

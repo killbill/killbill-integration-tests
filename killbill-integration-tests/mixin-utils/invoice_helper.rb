@@ -17,15 +17,15 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_payment(payment_id, options)
-      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, options)
+      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, false, options)
     end
 
     def get_invoice_by_id(id, options)
-      KillBillClient::Model::Invoice.find_by_id_or_number(id, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_id(id, true, "NONE", options)
     end
 
     def get_invoice_by_number(number, options)
-      KillBillClient::Model::Invoice.find_by_id_or_number(number, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_number(number, true, "NONE", options)
     end
 
     def create_charge(account_id, amount, currency, description, user, options)
@@ -34,10 +34,29 @@ module KillBillIntegrationTests
       invoice_item.amount      = amount
       invoice_item.currency    = currency
       invoice_item.description = description
-      invoice_item.create(user, nil, nil, options)
+      invoice_item.create(true, user, nil, nil, options)
     end
 
 
+    def create_account_credit(account_id, amount, currency, description, user, options)
+      credit_item                 = KillBillClient::Model::Credit.new()
+      credit_item.account_id      = account_id
+      credit_item.credit_amount   = amount
+      credit_item.currency        = currency
+      credit_item.description     = description
+      credit_item.create(true, user, nil, nil, options)
+    end
+
+    def adjust_invoice_item(account_id, invoice_id, invoice_item_id, amount, currency, description, user, options)
+      invoice_item                 = KillBillClient::Model::InvoiceItem.new()
+      invoice_item.account_id      = account_id
+      invoice_item.invoice_id      = invoice_id
+      invoice_item.invoice_item_id = invoice_item_id
+      invoice_item.amount          = amount
+      invoice_item.currency        = currency
+      invoice_item.description     = description
+      invoice_item.update(user, nil, nil, options)
+    end
 
 
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})

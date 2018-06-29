@@ -10,6 +10,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
       @account = create_account(@user, @options)
     end
 
@@ -22,10 +23,12 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
+      kb_clock_add_days(1, nil, @options)
+
       # Change plan
       requested_date = nil
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)
@@ -39,7 +42,7 @@ module KillBillIntegrationTests
       assert_equal(events[0].event_type, "START_ENTITLEMENT")
       assert_equal(events[1].effective_date, DEFAULT_KB_INIT_DATE)
       assert_equal(events[1].event_type, "START_BILLING")
-      assert_equal(events[2].effective_date, DEFAULT_KB_INIT_DATE)
+      assert_equal(events[2].effective_date, "2013-08-02")
       assert_equal(events[2].event_type, "CHANGE")
       assert_equal(events[3].effective_date, "2013-08-31")
       assert_equal(events[3].event_type, "PHASE")
@@ -55,7 +58,7 @@ module KillBillIntegrationTests
       # Change plan
       requested_date = "2013-08-05"
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       assert_equal(bp.product_name, 'Super')
       assert_equal(bp.product_category, 'BASE')
       assert_equal(bp.billing_period, 'MONTHLY')
@@ -92,7 +95,7 @@ module KillBillIntegrationTests
       # Change plan
       requested_date = nil
       billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
       changed_bp = get_subscription(bp.subscription_id, @options)

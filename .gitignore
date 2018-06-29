@@ -7,3 +7,6 @@ killbill-integration-tests/load/jmeter/logs
 .DS_Store
 .bundle
 vendor/bundle
+*_temp_state.yml
+test/
+.byebug_history

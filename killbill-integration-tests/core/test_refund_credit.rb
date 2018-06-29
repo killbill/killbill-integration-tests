@@ -8,6 +8,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      load_default_catalog
 
       @account          = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
@@ -16,7 +17,7 @@ module KillBillIntegrationTests
 
     def teardown
       teardown_base
-      end
+    end
 
     #
     # In the first scenario, we first cancel a subscription (before EOT), which results in a pro-ration credit.
@@ -203,7 +204,7 @@ module KillBillIntegrationTests
         adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
         refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
         raise MiniTest::Assertion, "Unexpected success on refund"
-      rescue KillBillClient::API::BadRequest => e
+      rescue KillBillClient::API::BadRequest
       end
 
       # However if we do a 333.33 refund with a 166.67 adjustment that should pass
@@ -305,6 +306,41 @@ module KillBillIntegrationTests
       refreshed_account = get_account(@account.account_id, true, true, @options)
       assert_equal(refreshed_account.account_balance, -166.67)
       assert_equal(refreshed_account.account_cba, 166.67)
+    end
+
+    def test_find_credit_by_id
+
+      @child_account = create_child_account(@account)
+
+      # Create new credit
+      credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+
+      # Verify if the returned list has now one element
+      get_credit = KillBillClient::Model::Credit.find_by_id(credit.credit_id , @options)
+
+      # Verify credit fields
+      assert_equal(@child_account.account_id, get_credit.account_id)
+      assert_equal(12.0, get_credit.credit_amount)
+      assert_equal('USD', get_credit.currency)
+      assert_equal('Child credit', get_credit.description)
+
+    end
+
+    private
+
+
+    def create_child_account(parent_account, name_key=nil, is_delegated=true)
+      data = {}
+      data[:name] = name_key.nil? ? "#{Time.now.to_i.to_s}-#{rand(1000000).to_s}" : name_key
+      data[:external_key] = data[:name]
+      data[:email] = "#{data[:name]}@hotbot.com"
+      data[:currency] = parent_account.currency
+      data[:time_zone] = parent_account.time_zone
+      data[:parent_account_id] = parent_account.account_id
+      data[:is_payment_delegated_to_parent] = is_delegated
+      data[:locale] = parent_account.locale
+
+      create_account_with_data(@user, data, @options)
     end
 
   end

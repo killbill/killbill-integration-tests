@@ -19,31 +19,35 @@
 <catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="CatalogSchema.xsd ">
 
-    <effectiveDate>2013-02-08T00:00:00+00:00</effectiveDate>
-    <catalogName>Cloud</catalogName>
+  <effectiveDate>2013-02-08T00:00:00+00:00</effectiveDate>
+  <catalogName>Cloud</catalogName>
 
-    <!-- TBD
-    Defines the billingMode for all recurring subscription in that catalog:
-    Goal is to avoid to end up in a situation where a user could switch plan and suddenly his
-    recurring billing goes from IN_ADVANCE to IN_ARREAR or the reverse.
-    -->
-    <recurringBillingMode>IN_ADVANCE</recurringBillingMode>
+  <!-- TBD
+  Defines the billingMode for all recurring subscription in that catalog:
+  Goal is to avoid to end up in a situation where a user could switch plan and suddenly his
+  recurring billing goes from IN_ADVANCE to IN_ARREAR or the reverse.
+  -->
+  <recurringBillingMode>IN_ADVANCE</recurringBillingMode>
 
-    <currencies>
-        <currency>USD</currency>
-    </currencies>
+  <currencies>
+    <currency>USD</currency>
+  </currencies>
 
-    <units>
-      <unit name="server-hourly-type-1"/>
-      <unit name="server-hourly-type-2"/>
-      <unit name="server-hourly-type-3"/>
-    </units>
+  <units>
+    <unit name="server-hourly-type-1"/>
+    <unit name="server-hourly-type-2"/>
+    <unit name="server-hourly-type-3"/>
+    <unit name="lb-hourly"/>
+  </units>
 
-    <products>
-        <product name="Server">
-            <category>BASE</category>
-        </product>
-    </products>
+  <products>
+    <product name="Server">
+      <category>BASE</category>
+    </product>
+    <product name="LB">
+      <category>BASE</category>
+    </product>
+  </products>
 
   <rules>
     <changePolicy>
@@ -78,94 +82,150 @@
     </priceList>
   </rules>
 
-    <plans>
-        <plan name="server-monthly">
-            <product>Server</product>
-            <finalPhase type="EVERGREEN">
-                <duration>
-                    <unit>UNLIMITED</unit>
-                </duration>
-                <recurring>
-                    <billingPeriod>MONTHLY</billingPeriod>
-                    <recurringPrice>
-                        <price>
-                            <currency>USD</currency>
-                            <value>0.00</value>
-                        </price>
-                    </recurringPrice>
-                </recurring>
-                <usages>
-                  <usage name="server-monthly-usage-type-1" billingMode="IN_ARREAR" usageType="CONSUMABLE">
-                    <billingPeriod>MONTHLY</billingPeriod>
-                    <tiers>
-                      <tier>
-                        <blocks>
-                          <tieredBlock>
-                            <unit>server-hourly-type-1</unit>
-                            <size>1</size>
-                            <prices>
-                              <price>
-                                <currency>USD</currency>
-                                <value>1.00</value>
-                              </price>
-                            </prices>
-                            <max>100000</max>
-                          </tieredBlock>
-                        </blocks>
-                      </tier>
-                    </tiers>
-                  </usage>
+  <plans>
+    <plan name="server-monthly">
+      <product>Server</product>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>MONTHLY</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>0.00</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+        <usages>
+          <usage name="server-monthly-usage-type-1" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>server-hourly-type-1</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>1.00</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
 
-                  <usage name="server-monthly-usage-type-2" billingMode="IN_ARREAR" usageType="CONSUMABLE">
-                    <billingPeriod>MONTHLY</billingPeriod>
-                    <tiers>
-                      <tier>
-                        <blocks>
-                          <tieredBlock>
-                            <unit>server-hourly-type-2</unit>
-                            <size>1</size>
-                            <prices>
-                              <price>
-                                <currency>USD</currency>
-                                <value>2.00</value>
-                              </price>
-                            </prices>
-                            <max>100000</max>
-                          </tieredBlock>
-                        </blocks>
-                      </tier>
-                    </tiers>
-                  </usage>
+          <usage name="server-monthly-usage-type-2" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>server-hourly-type-2</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>2.00</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
 
-                  <usage name="server-monthly-usage-type-3" billingMode="IN_ARREAR" usageType="CONSUMABLE">
-                    <billingPeriod>MONTHLY</billingPeriod>
-                    <tiers>
-                      <tier>
-                        <blocks>
-                          <tieredBlock>
-                            <unit>server-hourly-type-3</unit>
-                            <size>1</size>
-                            <prices>
-                              <price>
-                                <currency>USD</currency>
-                                <value>3.00</value>
-                              </price>
-                            </prices>
-                            <max>100000</max>
-                          </tieredBlock>
-                        </blocks>
-                      </tier>
-                    </tiers>
-                  </usage>
-                </usages>
-            </finalPhase>
-        </plan>
-    </plans>
-    <priceLists>
-        <defaultPriceList name="DEFAULT">
-            <plans>
-                <plan>server-monthly</plan>
-            </plans>
-        </defaultPriceList>
-    </priceLists>
+          <usage name="server-monthly-usage-type-3" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>server-hourly-type-3</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>3.00</value>
+                      </price>
+                    </prices>
+                    <max>100000</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
+        </usages>
+      </finalPhase>
+    </plan>
+
+    <plan name="lb-monthly">
+      <product>LB</product>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>MONTHLY</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>0.00</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+        <usages>
+          <usage name="lb-monthly-hourly-usage-type" billingMode="IN_ARREAR" usageType="CONSUMABLE">
+            <billingPeriod>MONTHLY</billingPeriod>
+            <tiers>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>lb-hourly</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>0.00</value>
+                      </price>
+                    </prices>
+                    <max>100</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+              <tier>
+                <blocks>
+                  <tieredBlock>
+                    <unit>lb-hourly</unit>
+                    <size>1</size>
+                    <prices>
+                      <price>
+                        <currency>USD</currency>
+                        <value>1.00</value>
+                      </price>
+                    </prices>
+                    <max>-1</max>
+                  </tieredBlock>
+                </blocks>
+              </tier>
+            </tiers>
+          </usage>
+        </usages>
+      </finalPhase>
+    </plan>
+  </plans>
+  <priceLists>
+    <defaultPriceList name="DEFAULT">
+      <plans>
+        <plan>server-monthly</plan>
+        <plan>lb-monthly</plan>
+      </plans>
+    </defaultPriceList>
+  </priceLists>
 </catalog>

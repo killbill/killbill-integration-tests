@@ -48,10 +48,13 @@
     </changeAlignment>
 
     <cancelPolicy>
-      <cancelPolicyCase>
-        <productCategory>BASE</productCategory>
-        <policy>END_OF_TERM</policy>
-      </cancelPolicyCase>
+        <cancelPolicyCase>
+            <productCategory>BASE</productCategory>
+            <policy>END_OF_TERM</policy>
+        </cancelPolicyCase>
+        <cancelPolicyCase>
+            <policy>END_OF_TERM</policy>
+        </cancelPolicyCase>
     </cancelPolicy>
 
     <createAlignment>

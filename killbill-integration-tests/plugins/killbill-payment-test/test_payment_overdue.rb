@@ -1,17 +1,28 @@
 $LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 
-require 'test_base'
+require 'plugin_base'
 
 module KillBillIntegrationTests
 
-  class TestOverdue < Base
+  class TestPaymentOverdue < KillBillIntegrationTests::PluginBase
+
+    PLUGIN_KEY = "payment-test"
+    # Default to latest
+    PLUGIN_VERSION = nil
+
+
+    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'payment-test-plugin'},
+                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.ruby'},
+                    {:key => 'pluginType', :value => 'ruby'},
+    ]
 
     def setup
       @user = "Overdue"
-      setup_base(@user)
+      setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
 
       overdue_file_xml = get_resource_as_string("Overdue.xml")
-      KillBillClient::Model::Overdue.upload_tenant_overdue_config(overdue_file_xml, @user, "overdue specific to this test", "upload overdue for tenant", @options)
+      KillBillClient::Model::Overdue.upload_tenant_overdue_config_xml(overdue_file_xml, @user, "overdue specific to this test", "upload overdue for tenant", @options)
 
       @account = create_account(@user, @options)
       add_payment_method(@account.account_id, 'killbill-payment-test', true, nil, @user, @options)
@@ -22,7 +33,7 @@ module KillBillIntegrationTests
     end
 
     def teardown
-      teardown_base
+      teardown_plugin_base(PLUGIN_KEY)
     end
 
     def test_overdue_basic
@@ -60,7 +71,7 @@ module KillBillIntegrationTests
       # Verify we can't change the plan anymore ()
       begin
         billing_policy = nil
-        bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, billing_policy, false, @options)
+        bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, billing_policy, nil, false, @options)
       rescue KillBillClient::API::BadRequest => e
       end
 

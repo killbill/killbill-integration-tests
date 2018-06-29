@@ -18,11 +18,9 @@ namespace :test do
     t.verbose    = true
   end
 
-
   Rake::TestTask.new('core:usage') do |t|
     t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/core/usage/test_default_catalog_consumable_in_arrear.rb",
-                            "#{BASE_DIR}/core/usage/test_cloud.rb"]
+    t.test_files = FileList["#{BASE_DIR}/core/usage/test_*.rb"]
     t.verbose    = true
   end
 
@@ -44,15 +42,27 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('plugins:killbill-invoice-test') do |t|
-    t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-invoice-test/test_*.rb"]
-    t.verbose    = true
-  end
-
   Rake::TestTask.new('plugins:killbill-payment-test') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins:avatax') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/avatax/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/*/test_*.rb"]
     t.verbose    = true
   end
 
@@ -72,8 +82,7 @@ namespace :test do
   Rake::TestTask.new('all') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/core/test_*.rb",
-                            "#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb",
-                            "#{BASE_DIR}/plugins/multi-nodes/test_*.rb"]
+                            "#{BASE_DIR}/plugins/*/test_*.rb"]
     t.verbose    = true
   end
 
@@ -100,6 +109,12 @@ namespace :test do
     t.verbose    = true
   end
 
+end
+
+namespace :ci do
+  require 'ci/reporter/rake/test_unit'
+  task :core => ['ci:setup:testunit', 'test:core']
+  task :all => ['ci:setup:testunit', 'test:all']
 end
 
 # Run tests by default
