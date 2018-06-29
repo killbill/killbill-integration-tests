@@ -41,8 +41,6 @@ module KillBillIntegrationTests
       account_data.country = original_account.country
       account_data.locale = original_account.locale
       account_data.phone = original_account.phone
-      account_data.is_notified_for_invoices = original_account.is_notified_for_invoices
-
 
       #
       # Add some notes and perform update
@@ -69,10 +67,8 @@ module KillBillIntegrationTests
       assert_equal(new_account.country, original_account.country)
       assert_equal(new_account.locale, original_account.locale)
       assert_equal(new_account.phone, original_account.phone)
-      assert_equal(new_account.is_notified_for_invoices, original_account.is_notified_for_invoices)
       assert_equal(new_account.notes, 'My notes')
       assert_nil(original_account.notes)
-
 
       #
       # RESET notes and perform update
@@ -98,7 +94,6 @@ module KillBillIntegrationTests
       assert_equal(new_account.country, original_account.country)
       assert_equal(new_account.locale, original_account.locale)
       assert_equal(new_account.phone, original_account.phone)
-      assert_equal(new_account.is_notified_for_invoices, original_account.is_notified_for_invoices)
       assert_nil(new_account.notes)
 
       #
@@ -127,9 +122,7 @@ module KillBillIntegrationTests
       assert_equal(new_account.country, original_account.country)
       assert_equal(new_account.locale, original_account.locale)
       assert_equal(new_account.phone, original_account.phone)
-      assert_equal(new_account.is_notified_for_invoices, original_account.is_notified_for_invoices)
       assert_equal(new_account.notes, 'My new notes')
-
     end
 
     def test_emails_notifications

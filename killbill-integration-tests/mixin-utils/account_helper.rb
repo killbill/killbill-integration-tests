@@ -36,7 +36,6 @@ module KillBillIntegrationTests
       account.country = data[:country].nil? ? 'US' : data[:country]
       account.locale = data[:locale].nil? ? 'fr_FR' : data[:locale]
       account.phone = data[:phone]
-      account.is_notified_for_invoices = false
       assert_nil(account.account_id)
 
       account = account.create(user, nil, nil, options)
