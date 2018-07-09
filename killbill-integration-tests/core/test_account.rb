@@ -17,7 +17,6 @@ module KillBillIntegrationTests
     end
 
     def test_account_update
-
       original_account = create_account(@user, @options)
 
       # Copy original account
@@ -125,17 +124,7 @@ module KillBillIntegrationTests
       assert_equal(new_account.notes, 'My new notes')
     end
 
-    def test_emails_notifications
-
-      account = create_account(@user, @options)
-
-      # Verify if response is success
-      assert(account.email_notifications(@options).response.kind_of? Net::HTTPSuccess)
-
-    end
-
     def test_account_blocking_state
-
       account = create_account(@user, @options)
 
       # Verify account methods
@@ -163,20 +152,16 @@ module KillBillIntegrationTests
       assert_false(blocking_states.is_block_change)
       assert_false(blocking_states.is_block_entitlement)
       assert_false(blocking_states.is_block_billing)
-
     end
 
     def test_cba_rebalancing
-
       account = create_account(@user, @options)
 
       # Verify if response is success
       assert(account.cba_rebalancing(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
-
     end
 
     def test_custom_fields
-
       account = create_account(@user, @options)
 
       custom_field = KillBillClient::Model::CustomFieldAttributes.new
@@ -202,8 +187,6 @@ module KillBillIntegrationTests
 
       custom_field = account.custom_fields('NONE', @options)
       assert_empty(custom_field)
-
     end
-
   end
 end
