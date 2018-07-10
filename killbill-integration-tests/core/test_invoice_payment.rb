@@ -16,7 +16,7 @@ module KillBillIntegrationTests
 
     def teardown
       teardown_base
-      end
+    end
 
     def test_external_payment_with_exact_amount
       create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
@@ -152,6 +152,61 @@ module KillBillIntegrationTests
       invoice = get_invoice_by_id(charge.invoice_id, @options)
       assert_equal(0.0, invoice.balance)
       assert_equal(-50.0, invoice.refund_adj)
+    end
+
+    def test_get_account_invoice_payments
+      # Verify if the returned list is empty
+      assert(@account.invoice_payments('NONE', false, false, @options).empty?)
+
+      # Create payments
+      create_charge(@account.account_id, "7.0", 'USD', 'My first charge', @user, @options)
+      create_charge(@account.account_id, "5.0", 'USD', 'My second charge', @user, @options)
+      pay_all_unpaid_invoices(@account.account_id, true, "12.0", @user, @options)
+
+      # Verify account invoice payments
+      account_invoice_payments = @account.invoice_payments('NONE', false, false, @options)
+      assert_equal(7.0, account_invoice_payments[0].purchased_amount)
+      assert_equal(5.0, account_invoice_payments[1].purchased_amount)
+    end
+
+    def test_create_chargeback_and_chargeback_reversal
+
+      # Create a charge to account
+      create_charge(@account.account_id, '50.0', 'USD', 'My charge', @user, @options)
+
+      # Create a payment
+      pay_all_unpaid_invoices(@account.account_id, true, '50.0', @user, @options)
+
+      account = get_account(@account.account_id, true, true, @options)
+      payment_id = account.payments(@options).first.payment_id
+
+      # Verify if a new transaction is created and if their type is PURCHASE
+      account_transactions = account.payments(@options).first.transactions
+      assert_equal(1, account_transactions.size)
+      assert_equal('PURCHASE', account_transactions[0].transaction_type)
+      assert_equal(0, get_account(@account.account_id, true, true, @options).account_balance)
+
+      # Trigger chargerback
+      chargeback = KillBillClient::Model::InvoicePayment.chargeback(payment_id, '50.0', 'USD', nil, @user, nil, nil, @options)
+
+      # Verify if a new transaction is created and if their type is CHARGEBACK
+      account_transactions = account.payments(@options).first.transactions
+      assert_equal(2, account_transactions.size)
+      assert_equal('CHARGEBACK', account_transactions[1].transaction_type)
+      assert_equal(50, get_account(@account.account_id, true, true, @options).account_balance)
+      assert_equal('SUCCESS', account_transactions[1].status)
+
+      # Trigger chargerback reversal
+      transaction_external_key = chargeback.transactions[1].transaction_external_key
+      KillBillClient::Model::InvoicePayment.chargeback_reversal(payment_id, transaction_external_key, nil, @user, nil, nil, @options)
+
+      # Verify if a new transaction is created and if their type is CHARGEBACK
+      account_transactions = account.payments(@options).first.transactions
+      assert_equal(3, account_transactions.size)
+      assert_equal('CHARGEBACK', account_transactions[2].transaction_type)
+      assert_equal(0, get_account(@account.account_id, true, true, @options).account_balance)
+      assert_equal('PAYMENT_FAILURE', account_transactions[2].status)
+
     end
 
   end

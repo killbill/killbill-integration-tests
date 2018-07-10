@@ -379,7 +379,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
 
       # Upgrade to Super IMMEDIATELY
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, nil, false, @options)
       wait_for_expected_clause(3, @child_account, @options, &@proc_account_invoices_nb)
 
       # '2013-09-02' Verify we see the parent invoice
@@ -426,7 +426,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @parent_account, @options, &@proc_account_invoices_nb)
 
       # Downgrade to Sport IMMEDIATELY
-      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', false, @options)
+      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       wait_for_expected_clause(3, @child_account, @options, &@proc_account_invoices_nb)
 
       # '2013-09-02' Verify we see the parent invoice
@@ -556,8 +556,6 @@ module KillBillIntegrationTests
       get_and_check_child_invoice(@child_account, 2, 400.00, 'USD', '2013-08-31')
       get_and_check_parent_invoice(@parent_account, 2, 400.00, 'USD', '2013-08-31')
     end
-
-
 
     private
 

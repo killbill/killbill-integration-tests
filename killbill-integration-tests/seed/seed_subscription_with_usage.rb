@@ -16,6 +16,7 @@ module KillBillIntegrationSeed
     end
 
     def test_subscription_with_pure_usage
+      aggregate_mode
 
       data = {}
       data[:name] = 'James Bond'

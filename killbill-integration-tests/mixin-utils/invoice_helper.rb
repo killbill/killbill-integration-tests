@@ -17,15 +17,15 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_payment(payment_id, options)
-      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, options)
+      KillBillClient::Model::InvoicePayment.find_by_id(payment_id, false, false, options)
     end
 
     def get_invoice_by_id(id, options)
-      KillBillClient::Model::Invoice.find_by_id_or_number(id, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_id(id, true, "NONE", options)
     end
 
     def get_invoice_by_number(number, options)
-      KillBillClient::Model::Invoice.find_by_id_or_number(number, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_number(number, true, "NONE", options)
     end
 
     def create_charge(account_id, amount, currency, description, user, options)

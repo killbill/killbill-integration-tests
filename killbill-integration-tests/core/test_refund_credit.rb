@@ -308,5 +308,40 @@ module KillBillIntegrationTests
       assert_equal(refreshed_account.account_cba, 166.67)
     end
 
+    def test_find_credit_by_id
+
+      @child_account = create_child_account(@account)
+
+      # Create new credit
+      credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+
+      # Verify if the returned list has now one element
+      get_credit = KillBillClient::Model::Credit.find_by_id(credit.credit_id , @options)
+
+      # Verify credit fields
+      assert_equal(@child_account.account_id, get_credit.account_id)
+      assert_equal(12.0, get_credit.credit_amount)
+      assert_equal('USD', get_credit.currency)
+      assert_equal('Child credit', get_credit.description)
+
+    end
+
+    private
+
+
+    def create_child_account(parent_account, name_key=nil, is_delegated=true)
+      data = {}
+      data[:name] = name_key.nil? ? "#{Time.now.to_i.to_s}-#{rand(1000000).to_s}" : name_key
+      data[:external_key] = data[:name]
+      data[:email] = "#{data[:name]}@hotbot.com"
+      data[:currency] = parent_account.currency
+      data[:time_zone] = parent_account.time_zone
+      data[:parent_account_id] = parent_account.account_id
+      data[:is_payment_delegated_to_parent] = is_delegated
+      data[:locale] = parent_account.locale
+
+      create_account_with_data(@user, data, @options)
+    end
+
   end
 end

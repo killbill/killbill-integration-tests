@@ -45,4 +45,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'toxiproxy', '~> 0.1.2'
   s.add_development_dependency 'faker', '~> 1.5'
   s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
+  s.add_development_dependency 'ci_reporter_test_unit', '~> 1.0.1'
 end

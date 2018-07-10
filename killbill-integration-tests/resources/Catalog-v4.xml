@@ -19,14 +19,14 @@
 
 <!---
 
-Changes compared to Catalog-v1.xml:
-  * basic-monthly price change ($1000.00 -> $1200.00)
+Changes compared to Catalog-v3.xml:
+  * CHANGE_OF_PLAN change alignment from BIMESTRIAL to ANNUAL (START_OF_BUNDLE grandfathered)
 
 -->
 <catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="CatalogSchema.xsd ">
 
-  <effectiveDate>2013-09-01T00:00:00+00:00</effectiveDate>
+  <effectiveDate>2013-11-01T00:00:00+00:00</effectiveDate>
   <catalogName>Movies</catalogName>
 
   <recurringBillingMode>IN_ADVANCE</recurringBillingMode>
@@ -50,6 +50,12 @@ Changes compared to Catalog-v1.xml:
     </changePolicy>
 
     <changeAlignment>
+      <changeAlignmentCase>
+        <fromBillingPeriod>BIMESTRIAL</fromBillingPeriod>
+        <toProduct>Basic</toProduct>
+        <toBillingPeriod>ANNUAL</toBillingPeriod>
+        <alignment>CHANGE_OF_PLAN</alignment>
+      </changeAlignmentCase>
       <changeAlignmentCase>
         <alignment>START_OF_BUNDLE</alignment>
       </changeAlignmentCase>
@@ -131,12 +137,43 @@ Changes compared to Catalog-v1.xml:
         </recurring>
       </finalPhase>
     </plan>
+    <plan name="basic-annual">
+      <effectiveDateForExistingSubscriptions>2014-01-01T00:00:00+00:00</effectiveDateForExistingSubscriptions>
+      <product>Basic</product>
+      <initialPhases>
+        <phase type="TRIAL">
+          <duration>
+            <unit>DAYS</unit>
+            <number>30</number>
+          </duration>
+          <fixed>
+            <fixedPrice>
+            </fixedPrice>
+          </fixed>
+        </phase>
+      </initialPhases>
+      <finalPhase type="EVERGREEN">
+        <duration>
+          <unit>UNLIMITED</unit>
+        </duration>
+        <recurring>
+          <billingPeriod>ANNUAL</billingPeriod>
+          <recurringPrice>
+            <price>
+              <currency>USD</currency>
+              <value>14000.00</value>
+            </price>
+          </recurringPrice>
+        </recurring>
+      </finalPhase>
+    </plan>
   </plans>
   <priceLists>
     <defaultPriceList name="DEFAULT">
       <plans>
         <plan>basic-monthly</plan>
         <plan>basic-bimestrial</plan>
+        <plan>basic-annual</plan>
       </plans>
     </defaultPriceList>
   </priceLists>

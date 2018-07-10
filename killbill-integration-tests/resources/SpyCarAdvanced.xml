@@ -67,6 +67,9 @@
         <product name="Gas">
             <category>ADD_ON</category>
         </product>
+        <product name="Knife">
+            <category>STANDALONE</category>
+        </product>
     </products>
 
     <rules>
@@ -788,6 +791,31 @@
                 </usages>
             </finalPhase>
         </plan>
+        <plan name="knife-monthly-notrial">
+            <product>Knife</product>
+            <finalPhase type="EVERGREEN">
+                <duration>
+                    <unit>UNLIMITED</unit>
+                </duration>
+                <recurring>
+                    <billingPeriod>MONTHLY</billingPeriod>
+                    <recurringPrice>
+                        <price>
+                            <currency>USD</currency>
+                            <value>29.95</value>
+                        </price>
+                        <price>
+                            <currency>EUR</currency>
+                            <value>29.95</value>
+                        </price>
+                        <price>
+                            <currency>GBP</currency>
+                            <value>29.95</value>
+                        </price>
+                    </recurringPrice>
+                </recurring>
+            </finalPhase>
+        </plan>
     </plans>
     <priceLists>
         <defaultPriceList name="DEFAULT">
@@ -818,6 +846,11 @@
                 <plan>discount-super-monthly</plan>
                 <plan>remotecontrol-monthly</plan>
                 <plan>oilslick-monthly</plan>
+            </plans>
+        </childPriceList>
+        <childPriceList name="standalones">
+            <plans>
+                <plan>knife-monthly-notrial</plan>
             </plans>
         </childPriceList>
     </priceLists>

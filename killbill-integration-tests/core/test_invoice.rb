@@ -87,7 +87,7 @@ module KillBillIntegrationTests
       check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
 
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(true, @options)
@@ -124,7 +124,7 @@ module KillBillIntegrationTests
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'REPAIR_ADJ', -1000.00), dry_run_invoice.invoice_id, -1000.00, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-31', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'CBA_ADJ', 500.00), dry_run_invoice.invoice_id, 500.00, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
 
-      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
       all_invoices = @account.invoices(true, @options)
       sort_invoices!(all_invoices)
@@ -180,7 +180,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01
@@ -213,7 +213,7 @@ module KillBillIntegrationTests
       # 1. In one case whe get one invoice with 2 REPAIR_ADJ of  -416.67 and  -6.41
       # 2. In the other case whe get a first invoice for the adjustment on the ADD_ON  REPAIR_ADJ -6.41, CBA_ADJ +6.41 and a second invoice with REPAIR_ADJ of  -416.67 and CBA_ADJ  -6.41
 
-      #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, false, @options)
+      #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       #wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
       #all_invoices = @account.invoices(true, @options)
       #sort_invoices!(all_invoices)
@@ -232,7 +232,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
+      create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Invoice bp 2013-08-31 -> 2013-09-30, and AO with monthly DISCOUNT and BUNDLE aligned from  2013-08-31 -> 2013-09-01
@@ -253,6 +253,29 @@ module KillBillIntegrationTests
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'CBA_ADJ', 423.08), dry_run_invoice.invoice_id, 423.08, 'USD', 'CBA_ADJ', nil, nil, '2013-09-05', '2013-09-05')
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'REPAIR_ADJ', -416.67), dry_run_invoice.invoice_id, -416.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(dry_run_invoice.items, 'REPAIR_ADJ', -6.41), dry_run_invoice.invoice_id, -6.41, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-05', '2013-09-30')
+
+    end
+
+    def test_create_a_migration_invoice
+
+      test_account = create_account(@user, @options)
+
+      # Create invoices
+      invoice = create_charge(test_account.account_id, '50.0', 'USD', 'First Invoice', @user, @options)
+
+      # Create a list of invoices
+      invoices = [invoice]
+
+      # Verify if account hasn't have migration invoices
+      migration_invoices = @account.migration_invoices(true, @options)
+      assert_equal(0, migration_invoices.size)
+
+      # Verify if response is success
+      assert(KillBillClient::Model::Invoice.create_migration_invoice(@account.account_id, invoices, '2018-03-15', @user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+
+      # Verify if account has have migration invoices
+      migration_invoices = @account.migration_invoices(true, @options)
+      assert_equal(1, migration_invoices.size)
 
     end
 

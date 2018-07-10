@@ -28,6 +28,22 @@ module KillBillIntegrationTests
       bundle.set_blocking_state(state_name, service, block_change, block_entitlement, block_billing, requested_date, user, nil, nil, options)
     end
 
+    def set_subscription_blocking_state(subscription_id, state_name, service, block_change, block_entitlement, block_billing, requested_date, user, options)
+      sub = KillBillClient::Model::Subscription.new
+      sub.subscription_id = subscription_id
+      sub.set_blocking_state(state_name, service, block_change, block_entitlement, block_billing, requested_date, user, nil, nil, options)
+    end
+
+    def create_entitlement_from_plan(account_id, external_key, plan_name, user, options)
+      result = KillBillClient::Model::Subscription.new
+      result.account_id = account_id
+      result.external_key = external_key
+      result.plan_name = plan_name
+      result = result.create(user, nil, nil, nil, nil, options)
+      assert_not_nil(result.subscription_id)
+
+      result
+    end
 
     def create_entitlement_base_with_overrides(account_id, product_name, billing_period, price_list, overrides, user, options)
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, overrides, nil, user, options)
@@ -76,6 +92,7 @@ module KillBillIntegrationTests
     end
 
     private
+
 
     def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, phase_type, overrides, requested_date, user, options)
 

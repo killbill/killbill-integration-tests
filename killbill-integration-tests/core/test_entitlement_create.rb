@@ -36,7 +36,6 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-01', '2013-09-01')
     end
 
-
     def test_create_ao_bundle_aligned_skip_trial
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -136,7 +135,7 @@ module KillBillIntegrationTests
 
 
       # Change plan EOT
-      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, false, @options)
+      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, nil, false, @options)
       check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
 
       # Change plan becomes effective: We verify that the changePlan correctly skips the initial TRIAL for the new plan

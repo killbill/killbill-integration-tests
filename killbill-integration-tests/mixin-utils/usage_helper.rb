@@ -6,7 +6,7 @@ module KillBillIntegrationTests
     #
     def record_usage(subscription_id, usage_input, user, options)
       result = KillBillClient::Model::UsageRecord.new
-      result.subscription_id =  subscription_id
+      result.subscription_id = subscription_id
       result.unit_usage_records = []
       usage_input.each do |e|
         unit_usage_record = KillBillClient::Model::UnitUsageRecordAttributes.new

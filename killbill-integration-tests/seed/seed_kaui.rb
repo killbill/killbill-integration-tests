@@ -128,7 +128,7 @@ module KillBillIntegrationSeed
           :city => Faker::Address.city,
           :state => Faker::Address.state,
           :country => Faker::Address.country_code,
-          :company => "#{Faker::Company.name}: #{Faker::Company.catch_phrase}"
+          :company => "#{Faker::Company.name}: #{Faker::Company.catch_phrase}"[0..49]
       }
       account = create_account_with_data(@user, data, @options)
       @logger.info "Created account #{account.account_id}: #{account.name}"

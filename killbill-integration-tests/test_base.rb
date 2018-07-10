@@ -24,15 +24,16 @@ module KillBillIntegrationTests
                                  :create_multi_tenant => true}
 
     def setup_base(user=self.method_name, tenant_info=DEFAULT_MULTI_TENANT_INFO, init_clock=DEFAULT_KB_INIT_CLOCK, killbill_address=DEFAULT_KB_ADDRESS, killbill_port=DEFAULT_KB_PORT)
-
       # make sure this fits into 50 characters
       @user = user.slice(0..45)
 
       # Default running instance of Kill Bill server
       reset_killbill_client_url(killbill_address, killbill_port)
 
-      # If needed we can activate client logger
-      #setup_logger
+      if ENV['CIRCLECI']
+        setup_logger
+        KillBillClient.return_full_stacktraces = true
+      end
 
       # RBAC default options
       @options = {:username => ENV['USERNAME'] || 'admin', :password => ENV['PASSWORD'] || 'password'}
@@ -77,9 +78,7 @@ module KillBillIntegrationTests
     end
 
     def teardown_base
-
       close_account(@account.account_id, @user, @options) unless @account.nil?
-
 
       # Reset clock to now to avoid lengthy catch-ups later on
       kb_clock_set(nil, nil, @options)
@@ -87,7 +86,38 @@ module KillBillIntegrationTests
       # TODO cleanup of data with control parameter
     end
 
+    def detail_mode
+      usage_detail_mode(DETAIL_MODE)
+    end
+
+    def aggregate_mode
+      usage_detail_mode(AGGREGATE_MODE)
+    end
+
+    def detail_mode?
+      !aggregate_mode?
+    end
+
+    def aggregate_mode?
+      result = get_tenant_user_key_value(PER_TENANT_CONFIG, @options)
+      return true if result.values.empty?
+
+      configurations = result.values.reject do |value|
+        conf = JSON.parse(value)
+        conf[USAGE_DETAIL_MODE_KEY].nil?
+      end
+      configurations.nil? || configurations[0][USAGE_DETAIL_MODE_KEY] == AGGREGATE_MODE
+    end
+
+    def usage_detail_mode(usage_detail_mode_value)
+      mode = {}
+      mode[USAGE_DETAIL_MODE_KEY] = usage_detail_mode_value
+      upload_tenant_user_key_value(PER_TENANT_CONFIG, mode.to_json)
+    end
+
+    def upload_tenant_user_key_value(key, value)
+      super(key, value, @user, @options)
+    end
   end
 end
-
 
