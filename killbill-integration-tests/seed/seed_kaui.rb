@@ -25,6 +25,7 @@ module Faker
   end
 end
 
+
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
 
@@ -166,24 +167,24 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-cybersource', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-stripe', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
-      product = case rand(10)
-                  when 0..5 then
-                    'Standard'
-                  when 6..8 then
-                    'Sports'
-                  else
-                    'Super'
-                end
 
-      # Assume the bulk of the subscriptions are monthly
-      billing_period = rand(10) > 8 && product == 'Standard' ? 'ANNUAL' : 'MONTHLY'
+      product, billing_period, price_list = case rand(10)
+                                             when 0..4 then
+                                               ['reserved-metal', 'MONTHLY', 'TRIAL']
+                                             when 5 then
+                                               ['reserved-metal', 'ANNUAL', 'DEFAULT']
+                                             when 6..8 then
+                                               ['reserved-vm', 'MONTHLY', 'TRIAL']
+                                             else
+                                               ['on-demand-metal', 'NO_BILLING_PERIOD', 'DEFAULT']
+                                           end
 
-      base = create_entitlement_base(account.account_id, product, billing_period, 'DEFAULT', @user, @options)
-      @logger.info "Created #{product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
+      base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
+      @logger.info "Created #{product.downcase}-#{billing_period.downcase}-#{price_list} subscription for account id #{account.account_id}"
 
       @base_subscriptions << base
 
@@ -192,17 +193,13 @@ module KillBillIntegrationSeed
 
     def create_add_on(account, base)
       # Not available
-      return if base.product_name == 'Standard'
 
-      ao_product = case rand(10)
-                     when 0..4 then
-                       nil
-                     when 5..7 then
-                       'OilSlick'
-                     else
-                       'RemoteControl'
-                   end
-      return if ao_product.nil? || (ao_product == 'OilSlick' && base.product_name == 'Super') # Already included?
+      @logger.info "create_add_on: base = #{base.inspect}"
+
+      return if base.product_name != 'reserved-vm' || base.price_list != 'TRIAL'
+
+      ao_product = 'backup-daily'
+      return ao_product
 
       # Only monthly add-ons are supported
       billing_period = 'MONTHLY'
@@ -223,8 +220,10 @@ module KillBillIntegrationSeed
       sub = @subs_mutex.synchronize do
         # Assume most of the cancellations are for add-ons
         if rand(10) > 3
-          bundle_id = @ao_subscriptions.keys.sample
-          sub = @ao_subscriptions[bundle_id].shuffle.pop
+          if  ! @ao_subscriptions.empty?
+            bundle_id = @ao_subscriptions.keys.sample
+            sub = @ao_subscriptions[bundle_id].shuffle.pop
+          end
         else
           sub = @base_subscriptions.shuffle.pop
           @ao_subscriptions.delete(sub.bundle_id)
