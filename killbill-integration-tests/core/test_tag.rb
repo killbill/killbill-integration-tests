@@ -31,14 +31,14 @@ module KillBillIntegrationTests
       @account.add_tag('TEST', @user, nil, nil, @options)
       assert_true @account.control_tag?(KillBillClient::Model::TagHelper::TEST_ID, @options)
       assert_false @account.control_tag?(KillBillClient::Model::TagHelper::AUTO_PAY_OFF_ID, @options)
-      assert_false @account.control_tag?(KillBillClient::Model::TagHelper::WRITTEN_OFF_ID, @options)
+      assert_false @account.control_tag?(KillBillClient::Model::TagHelper::AUTO_INVOICING_OFF_ID, @options)
       @account.set_tags([
         KillBillClient::Model::TagHelper::AUTO_PAY_OFF_ID,
-        KillBillClient::Model::TagHelper::WRITTEN_OFF_ID
+        KillBillClient::Model::TagHelper::AUTO_INVOICING_OFF_ID
       ], @user, nil, nil, @options)
       assert_false @account.test?(@options)
       assert_true @account.auto_pay_off?(@options)
-      assert_true @account.written_off?(@options)
+      assert_true @account.auto_invoicing_off?(@options)
     end
   end
 end
