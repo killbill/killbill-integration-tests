@@ -4,6 +4,7 @@
 
 * [test_catalog.rb](test_catalog.rb): Advanced catalogs tests (alignments, price change, grandfathering, etc.).
 * [test_mixed_catalog.rb](test_mixed_catalog.rb): Tests with catalog mixing in advance and in arrear recurring plans. See [Catalog-Mixed.xml](https://github.com/killbill/killbill-integration-tests/tree/master/killbill-integration-tests/resources/Catalog-Mixed.xml).
+* [test_mixed_catalog_with_usage.rb](test_mixed_catalog_with_usage.rb): Tests with catalog mixing in advance recurring plans and in arrear usage plans. See [Catalog-Mixed-With-Usage.xml](https://github.com/killbill/killbill-integration-tests/tree/master/killbill-integration-tests/resources/Catalog-Mixed-With-Usage.xml).
 * [test_recurring_in_arrear.rb](test_recurring_in_arrear.rb): Tests for in arrear recurring plans. See [newspaper.xml](https://github.com/killbill/killbill-integration-tests/tree/master/killbill-integration-tests/resources/newspaper.xml).
 * [usage/test_capacity.rb](usage/test_capacity.rb): Tests for capacity in arrear usage plans. See [Capacity.xml](https://github.com/killbill/killbill-integration-tests/tree/master/killbill-integration-tests/resources/usage/Capacity.xml).
 * [usage/test_cloud.rb](usage/test_cloud.rb): Demo how to use the usage APIs. See [Cloud.xml](https://github.com/killbill/killbill-integration-tests/tree/master/killbill-integration-tests/resources/usage/Cloud.xml).
