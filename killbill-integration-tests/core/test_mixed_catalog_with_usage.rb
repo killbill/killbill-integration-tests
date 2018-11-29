@@ -220,6 +220,92 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-11-01', '2013-12-01')
     end
 
+    # Basic test to verify/understand the catalog
+    def test_pause_resume_usage
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
+      assert_equal('voip-monthly-by-usage', bp.plan_name)
+      assert_equal(0, @account.invoices(true, @options).size)
+
+      # Add usage for the month
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
+                                         {:record_date => '2013-08-02', :amount => 1},
+                                         {:record_date => '2013-08-03', :amount => 1},
+                                         {:record_date => '2013-08-04', :amount => 1},
+                                         {:record_date => '2013-08-05', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 2013-08-05: pause entitlement now, billing at BCD
+      kb_clock_add_days(4, nil, @options)
+      set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'BillingAdmin', false, false, true, '2013-09-01', @user, @options)
+      set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'EntitlementAdmin', false, true, false, nil, @user, @options)
+
+      # No invoice
+      assert_equal(0, @account.invoices(true, @options).size)
+
+      # 2013-09-01
+      kb_clock_add_days(27, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # First invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 4.95, 'USD', '2013-09-01')
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-09-01')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(first_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
+
+      # 2013-09-05: resume both entitlement and billing now
+      kb_clock_add_days(4, nil, @options)
+      set_bundle_blocking_state(bp.bundle_id, 'UNSUSPENDED', 'EntitlementAdmin', false, false, false, nil, @user, @options)
+      set_bundle_blocking_state(bp.bundle_id, 'UNSUSPENDED', 'BillingAdmin', false, false, false, nil, @user, @options)
+
+      # Reset the BCD
+      bp.bill_cycle_day_local = 5;
+      effective_from_date  = nil
+      bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
+
+      # Second invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(2, all_invoices.size)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 0, 'USD', '2013-09-05')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-09-05')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(second_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 0, :tier_price => 0.99 }], 0)
+
+      # Add usage for the month
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-09-05', :amount => 1},
+                                         {:record_date => '2013-09-06', :amount => 1},
+                                         {:record_date => '2013-09-07', :amount => 1},
+                                         {:record_date => '2013-10-01', :amount => 1},
+                                         {:record_date => '2013-10-02', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 2013-10-05
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      # Third invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(3, all_invoices.size)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 4.95, 'USD', '2013-10-05')
+      # Verify new BCD
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-05', '2013-10-05')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(third_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
+    end
   end
 
 end
