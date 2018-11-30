@@ -16,7 +16,7 @@ module KillBillIntegrationTests
       setup_base(self.method_name, DEFAULT_MULTI_TENANT_INFO, KB_INIT_CLOCK, DEFAULT_KB_ADDRESS, DEFAULT_KB_PORT)
 
       upload_catalog('CatalogForChangePlanPolicies.xml', false, @user, @options)
-      @account = create_account(@user, @options)
+      @account = create_account_with_data(@user, {:bill_cycle_day_local => 1}, @options)
     end
 
     def teardown
