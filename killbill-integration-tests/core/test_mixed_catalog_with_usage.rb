@@ -79,7 +79,7 @@ module KillBillIntegrationTests
       assert_equal(0, @account.invoices(true, @options).size)
 
       # Verify account BCD
-      assert_account_bcd(0)
+      assert_account_bcd(1)
 
       # 2013-08-01 -> 2013-08-31, record a total of 15 minutes
       (0..30).each do |day|
@@ -106,9 +106,6 @@ module KillBillIntegrationTests
 
       # 2013-09-01
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
-
-      # Verify account BCD
-      assert_account_bcd(0)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -251,7 +248,7 @@ module KillBillIntegrationTests
       assert_equal(0, @account.invoices(true, @options).size)
 
       # Verify account BCD
-      assert_account_bcd(0)
+      assert_account_bcd(1)
 
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
@@ -268,18 +265,12 @@ module KillBillIntegrationTests
       set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'BillingAdmin', false, false, true, '2013-09-01', @user, @options)
       set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'EntitlementAdmin', false, true, false, nil, @user, @options)
 
-      # Verify account BCD
-      assert_account_bcd(0)
-
       # No invoice
       assert_equal(0, @account.invoices(true, @options).size)
 
       # 2013-09-01
       kb_clock_add_days(27, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
-
-      # Verify account BCD
-      assert_account_bcd(0)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -301,9 +292,6 @@ module KillBillIntegrationTests
       bp.bill_cycle_day_local = 5;
       effective_from_date  = nil
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
-
-      # Verify account BCD
-      assert_account_bcd(0)
 
       # Second invoice
       all_invoices = @account.invoices(true, @options)
@@ -352,6 +340,9 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
 
+      # Verify account BCD
+      assert_account_bcd(1)
+
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
                       :usage_records => [{:record_date => '2013-08-01', :amount => 1},
@@ -373,6 +364,9 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
+      # Verify account BCD
+      assert_account_bcd(1)
+
       # First invoice
       all_invoices = @account.invoices(true, @options)
       assert_equal(1, all_invoices.size)
@@ -383,9 +377,6 @@ module KillBillIntegrationTests
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(first_invoice.items[0],
                                            [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
-
-      # Verify account BCD
-      assert_account_bcd(0)
 
       # Upgrade
       requested_date = nil
@@ -403,9 +394,6 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 39.99, 'USD', '2013-08-15')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-08-15', '2013-09-15')
-
-      # Verify account BCD
-      assert_account_bcd(15)
 
       # 2013-09-15
       kb_clock_add_months(1, nil, @options)
