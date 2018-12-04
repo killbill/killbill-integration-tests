@@ -11,7 +11,7 @@ module KillBillIntegrationTests
     def setup
       setup_base
       upload_catalog('Catalog-Mixed-With-Usage.xml', false, @user, @options)
-      @account  = create_account(@user, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown
@@ -20,9 +20,15 @@ module KillBillIntegrationTests
 
     # Basic test to verify/understand the catalog
     def test_basic_recurring
+      # Verify account BCD
+      assert_account_bcd(0)
+
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-unlimited', @user, @options)
       assert_equal('voip-monthly-unlimited', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Verify account BCD
+      assert_account_bcd(1)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -65,9 +71,15 @@ module KillBillIntegrationTests
 
     # Basic test to verify/understand the catalog
     def test_basic_usage
+      # Verify account BCD
+      assert_account_bcd(0)
+
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
+
+      # Verify account BCD
+      assert_account_bcd(1)
 
       # 2013-08-01 -> 2013-08-31, record a total of 15 minutes
       (0..30).each do |day|
@@ -167,9 +179,15 @@ module KillBillIntegrationTests
 
     # Basic test to verify/understand the catalog
     def test_pause_resume_recurring
+      # Verify account BCD
+      assert_account_bcd(0)
+
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-unlimited', @user, @options)
       assert_equal('voip-monthly-unlimited', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Verify account BCD
+      assert_account_bcd(1)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -222,9 +240,15 @@ module KillBillIntegrationTests
 
     # Basic test to verify/understand the catalog
     def test_pause_resume_usage
+      # Verify account BCD
+      assert_account_bcd(0)
+
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
+
+      # Verify account BCD
+      assert_account_bcd(1)
 
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
@@ -305,6 +329,89 @@ module KillBillIntegrationTests
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(third_invoice.items[0],
                                            [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
+    end
+
+    # Upgrade to the unlimited plan
+    def test_change_usage_to_recurring_before_first_invoice
+      # Verify account BCD
+      assert_account_bcd(0)
+
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
+      assert_equal('voip-monthly-by-usage', bp.plan_name)
+      assert_equal(0, @account.invoices(true, @options).size)
+
+      # Verify account BCD
+      assert_account_bcd(1)
+
+      # Add usage for the month
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
+                                         {:record_date => '2013-08-02', :amount => 1},
+                                         {:record_date => '2013-08-03', :amount => 1},
+                                         {:record_date => '2013-08-04', :amount => 1},
+                                         {:record_date => '2013-08-05', :amount => 1},
+                                         {:record_date => '2013-08-07', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 2013-08-15
+      kb_clock_add_days(14, nil, @options)
+      assert_equal(0, @account.invoices(true, @options).size)
+
+      # Reset the BCD: we want both outstanding usage and new recurring charged right away
+      bp.bill_cycle_day_local = 15;
+      effective_from_date  = nil
+      bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Verify account BCD
+      assert_account_bcd(1)
+
+      # First invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 5.94, 'USD', '2013-08-15')
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-08-15')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(first_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+
+      # Upgrade
+      requested_date = nil
+      billing_policy = nil
+      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      check_entitlement(bp, 'Voip', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      assert_equal('voip-monthly-unlimited', bp.plan_name)
+
+      # Second invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(2, all_invoices.size)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 39.99, 'USD', '2013-08-15')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-08-15', '2013-09-15')
+
+      # 2013-09-15
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      # Third invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(3, all_invoices.size)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 39.99, 'USD', '2013-09-15')
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-09-15', '2013-10-15')
+    end
+
+    private
+
+    def assert_account_bcd(expected_bcd)
+      assert_equal(expected_bcd, get_account(@account.account_id, true, true, @options).bill_cycle_day_local)
     end
   end
 
