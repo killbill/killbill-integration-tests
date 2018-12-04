@@ -408,6 +408,168 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-09-15', '2013-10-15')
     end
 
+    # Upgrade to the unlimited plan
+    def test_change_usage_to_recurring_after_first_invoice
+      # Verify account BCD
+      assert_account_bcd(0)
+
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
+      assert_equal('voip-monthly-by-usage', bp.plan_name)
+      assert_equal(0, @account.invoices(true, @options).size)
+
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
+
+      # Add usage for the month
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
+                                         {:record_date => '2013-08-02', :amount => 1},
+                                         {:record_date => '2013-08-03', :amount => 1},
+                                         {:record_date => '2013-08-04', :amount => 1},
+                                         {:record_date => '2013-08-05', :amount => 1},
+                                         {:record_date => '2013-08-07', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 2013-09-01
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # First invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 5.94, 'USD', '2013-09-01')
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-09-01')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(first_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+
+      # 2013-09-15
+      kb_clock_add_days(14, nil, @options)
+      assert_equal(1, @account.invoices(true, @options).size)
+
+      # Reset the BCD: we want both outstanding usage (nothing in this case) and new recurring charged right away
+      bp.bill_cycle_day_local = 15;
+      effective_from_date  = nil
+      bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      # Second invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(2, all_invoices.size)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 0, 'USD', '2013-09-15')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-09-15')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(second_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 0, :tier_price => 0.99 }], 0)
+
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
+
+      # Upgrade
+      requested_date = nil
+      billing_policy = nil
+      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+
+      check_entitlement(bp, 'Voip', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      assert_equal('voip-monthly-unlimited', bp.plan_name)
+
+      # Third invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(3, all_invoices.size)
+      sort_invoices!(all_invoices)
+      third_invoice = all_invoices[2]
+      check_invoice_no_balance(third_invoice, 39.99, 'USD', '2013-09-15')
+      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-09-15', '2013-10-15')
+
+      # 2013-10-15
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
+
+      # Fourth invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(4, all_invoices.size)
+      sort_invoices!(all_invoices)
+      fourth_invoice = all_invoices[3]
+      check_invoice_no_balance(fourth_invoice, 39.99, 'USD', '2013-10-15')
+      check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-10-15', '2013-11-15')
+    end
+
+    # Downgrade to the usage-based plan
+    def test_change_recurring_to_usage_after_first_invoice
+      # Verify account BCD
+      assert_account_bcd(0)
+
+      bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-unlimited', @user, @options)
+      assert_equal('voip-monthly-unlimited', bp.plan_name)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
+
+      # First invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(1, all_invoices.size)
+      sort_invoices!(all_invoices)
+      first_invoice = all_invoices[0]
+      check_invoice_no_balance(first_invoice, 39.99, 'USD', DEFAULT_KB_INIT_DATE)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 39.99, 'USD', 'RECURRING', 'voip-monthly-unlimited', 'voip-monthly-unlimited-evergreen', '2013-08-01', '2013-09-01')
+
+      # 2013-08-15
+      kb_clock_add_days(14, nil, @options)
+      assert_equal(1, @account.invoices(true, @options).size)
+
+      # Downgrade
+      requested_date = nil
+      billing_policy = nil
+      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'NO_BILLING_PERIOD', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
+
+      # Change is END_OF_TERM
+      bp = get_subscription(bp.subscription_id, @options)
+      check_entitlement(bp, 'Voip', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      assert_equal('voip-monthly-unlimited', bp.plan_name)
+
+      # 2013-09-01
+      kb_clock_add_days(17, nil, @options)
+      assert_equal(1, @account.invoices(true, @options).size)
+
+      bp = get_subscription(bp.subscription_id, @options)
+      check_entitlement(bp, 'Voip', 'BASE', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+      assert_equal('voip-monthly-by-usage', bp.plan_name)
+
+      # Add usage for the month
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-09-01', :amount => 1},
+                                         {:record_date => '2013-09-02', :amount => 1},
+                                         {:record_date => '2013-09-03', :amount => 1},
+                                         {:record_date => '2013-09-04', :amount => 1},
+                                         {:record_date => '2013-09-05', :amount => 1},
+                                         {:record_date => '2013-09-07', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+      # 2013-10-01
+      kb_clock_add_months(1, nil, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
+      # Second invoice
+      all_invoices = @account.invoices(true, @options)
+      assert_equal(2, all_invoices.size)
+      sort_invoices!(all_invoices)
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 5.94, 'USD', '2013-10-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-10-01')
+      # AGGREGATE mode by default
+      check_invoice_consumable_item_detail(second_invoice.items[0],
+                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+    end
+
     private
 
     def assert_account_bcd(expected_bcd)

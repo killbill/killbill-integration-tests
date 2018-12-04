@@ -17,6 +17,10 @@
     <rules>
         <changePolicy>
             <changePolicyCase>
+                <fromBillingPeriod>MONTHLY</fromBillingPeriod>
+                <policy>END_OF_TERM</policy>
+            </changePolicyCase>
+            <changePolicyCase>
                 <policy>IMMEDIATE</policy>
             </changePolicyCase>
         </changePolicy>
