@@ -27,8 +27,8 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-unlimited', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -78,8 +78,8 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # 2013-08-01 -> 2013-08-31, record a total of 15 minutes
       (0..30).each do |day|
@@ -186,8 +186,8 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-unlimited', bp.plan_name)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
@@ -247,8 +247,8 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
@@ -340,8 +340,8 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-by-usage', bp.plan_name)
       assert_equal(0, @account.invoices(true, @options).size)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
@@ -364,8 +364,8 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      # Verify account BCD
-      assert_account_bcd(1)
+      # Verify account BCD (SUBSCRIPTION alignment)
+      assert_account_bcd(0)
 
       # First invoice
       all_invoices = @account.invoices(true, @options)
