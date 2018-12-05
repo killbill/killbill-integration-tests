@@ -10,6 +10,7 @@ module KillBillIntegrationTests
 
     def setup
       setup_base
+      @account = create_account(@user, @options)
     end
 
     def teardown
@@ -122,6 +123,40 @@ module KillBillIntegrationTests
       assert_equal(new_account.locale, original_account.locale)
       assert_equal(new_account.phone, original_account.phone)
       assert_equal(new_account.notes, 'My new notes')
+    end
+
+    def test_account_several_updates
+      assert_equal(@account.name, 'KillBillClient')
+      assert_nil(@account.notes)
+      assert_equal(0, @account.bill_cycle_day_local)
+
+      @account.notes = 'My notes'
+      new_account = @account.update(false, @user, nil, nil, @options)
+      assert_equal(new_account.name, 'KillBillClient')
+      assert_equal(new_account.notes, 'My notes')
+      assert_equal(0, new_account.bill_cycle_day_local)
+
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
+
+      new_account = get_account(@account.account_id, true, true, @options)
+      assert_equal(new_account.name, 'KillBillClient')
+      assert_equal(new_account.notes, 'My notes')
+      assert_equal(31, new_account.bill_cycle_day_local)
+
+      new_account.name = nil
+      new_account.notes = 'My notes 2'
+      new_account = new_account.update(false, @user, nil, nil, @options)
+      assert_equal(new_account.name, 'KillBillClient')
+      assert_equal(new_account.notes, 'My notes 2')
+      assert_equal(31, new_account.bill_cycle_day_local)
+
+      new_account.name = nil
+      new_account.notes = 'My notes 3'
+      new_account = new_account.update(true, @user, nil, nil, @options)
+      assert_nil(new_account.name)
+      assert_equal(new_account.notes, 'My notes 3')
+      assert_equal(31, new_account.bill_cycle_day_local)
     end
 
     def test_account_blocking_state
