@@ -63,7 +63,7 @@ module KillBillIntegrationTests
     end
 
     # Change alignment in a subsequent catalog
-    def test_change_alignment_grandfathering
+    def test_change_plan_with_latest_policy
       # basic-bimestrial has a trial period
       bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', nil, 0)
 
@@ -89,8 +89,10 @@ module KillBillIntegrationTests
 
       add_days(1)
 
-      # Verify START_OF_BUNDLE change alignment is grandfathered: we are not in trial (account BCD is 31)
-      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', '2013-11-30', 1073.97, 106.76)
+      # Verify new CHANGE_OF_PLAN change alignment
+      # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
+      # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
+      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', nil, -967.21, 0)
     end
 
     def test_change_alignment_no_grandfathering
@@ -325,7 +327,6 @@ module KillBillIntegrationTests
       assert_equal Date.parse('2013-09-01T00:00:00+00:00'), Date.parse(versions[1])
       assert_equal Date.parse('2013-10-01T00:00:00+00:00'), Date.parse(versions[2])
     end
-
     private
 
     # This will:
