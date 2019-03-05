@@ -92,7 +92,7 @@ module KillBillIntegrationTests
       # Verify new CHANGE_OF_PLAN change alignment
       # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
       # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
-      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', nil, -967.21, 0)
+      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', nil, 0, -967.21)
     end
 
     def test_change_alignment_no_grandfathering
