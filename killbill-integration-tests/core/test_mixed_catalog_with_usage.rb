@@ -283,6 +283,15 @@ module KillBillIntegrationTests
       check_invoice_consumable_item_detail(first_invoice.items[0],
                                            [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
 
+      # Add a few usage points during the disabled period and verify they have not been taken into account
+      usage_input = [{:unit_type => 'minutes',
+                      :usage_records => [{:record_date => '2013-09-01', :amount => 1},
+                                         {:record_date => '2013-09-02', :amount => 1},
+                                         {:record_date => '2013-09-04', :amount => 1}]
+                     }]
+      record_usage(bp.subscription_id, usage_input, @user, @options)
+
+
       # 2013-09-05: resume both entitlement and billing now
       kb_clock_add_days(4, nil, @options)
       set_bundle_blocking_state(bp.bundle_id, 'UNSUSPENDED', 'EntitlementAdmin', false, false, false, nil, @user, @options)
@@ -293,16 +302,10 @@ module KillBillIntegrationTests
       effective_from_date  = nil
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
 
-      # Second invoice
+      # System will generate a null invoice - as there is nothing to build
+      wait_for_killbill(@options)
       all_invoices = @account.invoices(true, @options)
-      assert_equal(2, all_invoices.size)
-      sort_invoices!(all_invoices)
-      second_invoice = all_invoices[1]
-      check_invoice_no_balance(second_invoice, 0, 'USD', '2013-09-05')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-09-05')
-      # AGGREGATE mode by default
-      check_invoice_consumable_item_detail(second_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 0, :tier_price => 0.99 }], 0)
+      assert_equal(1, all_invoices.size)
 
       # Add usage for the month
       usage_input = [{:unit_type => 'minutes',
@@ -316,18 +319,18 @@ module KillBillIntegrationTests
 
       # 2013-10-05
       kb_clock_add_months(1, nil, @options)
-      wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      # Third invoice
+      # Second invoice
       all_invoices = @account.invoices(true, @options)
-      assert_equal(3, all_invoices.size)
+      assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
-      third_invoice = all_invoices[2]
-      check_invoice_no_balance(third_invoice, 4.95, 'USD', '2013-10-05')
+      second_invoice = all_invoices[1]
+      check_invoice_no_balance(second_invoice, 4.95, 'USD', '2013-10-05')
       # Verify new BCD
-      check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-05', '2013-10-05')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-05', '2013-10-05')
       # AGGREGATE mode by default
-      check_invoice_consumable_item_detail(third_invoice.items[0],
+      check_invoice_consumable_item_detail(second_invoice.items[0],
                                            [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
     end
 
