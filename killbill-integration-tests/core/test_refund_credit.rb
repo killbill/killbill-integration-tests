@@ -316,11 +316,11 @@ module KillBillIntegrationTests
       credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
 
       # Verify if the returned list has now one element
-      get_credit = KillBillClient::Model::Credit.find_by_id(credit.credit_id , @options)
+      get_credit = KillBillClient::Model::Credit.find_by_id(credit.invoice_item_id , @options)
 
       # Verify credit fields
       assert_equal(@child_account.account_id, get_credit.account_id)
-      assert_equal(12.0, get_credit.credit_amount)
+      assert_equal(12.0, get_credit.amount)
       assert_equal('USD', get_credit.currency)
       assert_equal('Child credit', get_credit.description)
 

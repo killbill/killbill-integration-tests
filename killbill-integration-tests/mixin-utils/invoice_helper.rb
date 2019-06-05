@@ -41,7 +41,7 @@ module KillBillIntegrationTests
     def create_account_credit(account_id, amount, currency, description, user, options)
       credit_item                 = KillBillClient::Model::Credit.new()
       credit_item.account_id      = account_id
-      credit_item.credit_amount   = amount
+      credit_item.amount          = amount
       credit_item.currency        = currency
       credit_item.description     = description
       credit_item.create(true, user, nil, nil, options)
