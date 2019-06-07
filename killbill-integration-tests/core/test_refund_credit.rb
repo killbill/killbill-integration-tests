@@ -308,15 +308,21 @@ module KillBillIntegrationTests
       assert_equal(refreshed_account.account_cba, 166.67)
     end
 
+
     def test_find_credit_by_id
 
       @child_account = create_child_account(@account)
 
       # Create new credit
-      credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+      credits = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+      assert_equal(1, credits.size)
+      assert_equal(@child_account.account_id, credits[0].account_id)
+      assert_equal(12.0, credits[0].amount)
+      assert_equal('USD', credits[0].currency)
+      assert_equal('Child credit', credits[0].description)
 
       # Verify if the returned list has now one element
-      get_credit = KillBillClient::Model::Credit.find_by_id(credit.invoice_item_id , @options)
+      get_credit = KillBillClient::Model::Credit.find_by_id(credits[0].invoice_item_id , @options)
 
       # Verify credit fields
       assert_equal(@child_account.account_id, get_credit.account_id)
