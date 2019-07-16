@@ -26,7 +26,7 @@ module KillBillIntegrationTests
 
 
       # Check active bundle
-      active_bundle = get_active_bundle_by_key(bp.external_key, @options)
+      active_bundle = get_active_bundle_by_key(bp.bundle_external_key, @options)
       assert_equal(active_bundle.account_id, @account.account_id)
 
       # Move clock  (BP after trial)
@@ -55,7 +55,7 @@ module KillBillIntegrationTests
 
 
       # Check active bundle (from its external_key as changed)
-      active_bundle = get_active_bundle_by_key(bp.external_key, @options)
+      active_bundle = get_active_bundle_by_key(bp.bundle_external_key, @options)
       assert_equal(active_bundle.account_id, new_account.account_id)
       assert_equal(active_bundle.bundle_id, new_bundle.bundle_id)
 
@@ -83,7 +83,7 @@ module KillBillIntegrationTests
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-02", nil)
 
       # Check active bundle
-      active_bundle = get_active_bundle_by_key(bp.external_key, @options)
+      active_bundle = get_active_bundle_by_key(bp.bundle_external_key, @options)
       assert_equal(active_bundle.account_id, @account.account_id)
 
       # Move clock  (BP still in trial)
@@ -111,7 +111,7 @@ module KillBillIntegrationTests
                                 {:type => "STOP_BILLING", :date => "2013-08-05"}], ao1.events)
 
       # Check active bundle (from its external_key as changed)
-      active_bundle = get_active_bundle_by_key(bp.external_key, @options)
+      active_bundle = get_active_bundle_by_key(bp.bundle_external_key, @options)
       assert_equal(active_bundle.account_id, new_account.account_id)
       assert_equal(active_bundle.bundle_id, new_bundle.bundle_id)
 

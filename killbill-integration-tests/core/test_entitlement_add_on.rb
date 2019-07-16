@@ -1303,8 +1303,10 @@ module KillBillIntegrationTests
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
 
+      bp.subscription_id = nil
+      bp.external_key = nil
       # Change bundle external key
-      bp.external_key = 'test_key'
+      bp.bundle_external_key = 'test_key'
       # since this is a new bundle with add-on, bundle id must not be set
       bp.bundle_id = nil
       # Product Name should not be set when Plan Name is specified

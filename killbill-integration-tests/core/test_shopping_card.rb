@@ -376,7 +376,7 @@ module KillBillIntegrationTests
 
       bundle1 = []
       subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
-      subscription.external_key = bp.external_key
+      subscription.bundle_external_key = bp.bundle_external_key
       bundle1 << subscription
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
@@ -422,7 +422,7 @@ module KillBillIntegrationTests
 
       bundle1 = []
       subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
-      subscription.external_key = bp.external_key
+      subscription.bundle_external_key = bp.bundle_external_key
       bundle1 << subscription
 
       begin
@@ -445,10 +445,10 @@ module KillBillIntegrationTests
       subscription
     end
 
-    def to_subscription_input(account_id, external_key, plan_name, phase_type, price_overrides)
+    def to_subscription_input(account_id, bundle_external_key, plan_name, phase_type, price_overrides)
       subscription = KillBillClient::Model::Subscription.new
       subscription.account_id = account_id
-      subscription.external_key = external_key
+      subscription.bundle_external_key = bundle_external_key
       subscription.plan_name = plan_name
       subscription.phase_type = phase_type
       subscription.price_overrides = price_overrides
