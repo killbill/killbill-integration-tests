@@ -274,7 +274,7 @@ module KillBillIntegrationTests
       assert(KillBillClient::Model::Invoice.create_migration_invoice(@account.account_id, invoices, '2018-03-15', @user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
 
       # Verify if account has have migration invoices
-      migration_invoices = @account.migration_invoices(true, @options)
+      migration_invoices = @account.migration_invoices(@options)
       assert_equal(1, migration_invoices.size)
 
     end
