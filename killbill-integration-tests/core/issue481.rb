@@ -24,7 +24,7 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Something', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       invoice = all_invoices[0]
@@ -40,7 +40,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(1, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       invoice = all_invoices[1]
@@ -55,7 +55,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(1,  nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       invoice = all_invoices[2]
@@ -68,7 +68,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       invoice = all_invoices[3]

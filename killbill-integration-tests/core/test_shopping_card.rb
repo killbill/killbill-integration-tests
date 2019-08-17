@@ -201,7 +201,7 @@ module KillBillIntegrationTests
       check_bundle(bundle2, bundles[1])
       check_bundle(bundle3, bundles[2])
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -238,7 +238,7 @@ module KillBillIntegrationTests
       check_bundle(bundle2, bundles[1])
       check_bundle(bundle3, bundles[2])
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -268,7 +268,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(14, nil, @options) # "2013-08-15"
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -295,7 +295,7 @@ module KillBillIntegrationTests
       check_bundle(bundle1, bundles[0])
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -330,7 +330,7 @@ module KillBillIntegrationTests
         check_bundle(b, bundles[i])
       end
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -359,7 +359,7 @@ module KillBillIntegrationTests
       assert_equal(1, bundles.size)
       assert_equal(2, bundles[0].subscriptions.size)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
 

@@ -26,7 +26,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -35,7 +35,7 @@ module KillBillIntegrationTests
 
       kb_clock_add_days(31, nil, @options)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -46,7 +46,7 @@ module KillBillIntegrationTests
       assert_raises(KillBillClient::API::BadRequest){ second_invoice.void(@user, nil, nil, @options) }
 
       # validate that the invoices did not change
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -62,7 +62,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::InvoicePayment.refund(payments[0].payment_id, second_invoice.amount, nil, @user, nil, nil, @options)
 
       # check that the invoice is not paid
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -70,7 +70,7 @@ module KillBillIntegrationTests
 
       # void invoice
       second_invoice.void(@user, nil, nil, @options)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
 
       # verify that account balance is zero after the void

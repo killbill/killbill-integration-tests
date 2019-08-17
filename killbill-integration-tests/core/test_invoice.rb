@@ -26,7 +26,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -35,7 +35,7 @@ module KillBillIntegrationTests
 
       kb_clock_add_days(31, nil, @options)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -54,7 +54,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -69,7 +69,7 @@ module KillBillIntegrationTests
 
       kb_clock_add_days(31, nil, @options)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -90,7 +90,7 @@ module KillBillIntegrationTests
       create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -126,7 +126,7 @@ module KillBillIntegrationTests
 
       bp = bp.change_plan({:productName => 'Sports', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -165,7 +165,7 @@ module KillBillIntegrationTests
       bp.cancel(@user, nil, nil, requested_date, nil, billing_policy, nil, @options)
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -215,7 +215,7 @@ module KillBillIntegrationTests
 
       #bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       #wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
-      #all_invoices = @account.invoices(true, @options)
+      #all_invoices = @account.invoices(@options)
       #sort_invoices!(all_invoices)
       #assert_equal(5, all_invoices.size)
       #fifth_invoice = all_invoices[4]
@@ -267,7 +267,7 @@ module KillBillIntegrationTests
       invoices = [invoice]
 
       # Verify if account hasn't have migration invoices
-      migration_invoices = @account.migration_invoices(true, @options)
+      migration_invoices = @account.migration_invoices(@options)
       assert_equal(0, migration_invoices.size)
 
       # Verify if response is success

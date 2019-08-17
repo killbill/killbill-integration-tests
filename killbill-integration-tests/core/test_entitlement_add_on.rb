@@ -1292,7 +1292,7 @@ module KillBillIntegrationTests
                     {:type => 'STOP_BILLING', :date => '2013-10-31'}], ao2.events)
 
       # Verify no new invoice has been generated
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(7, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
     end
 

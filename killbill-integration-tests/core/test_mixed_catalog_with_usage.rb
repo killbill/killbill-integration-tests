@@ -31,7 +31,7 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -43,7 +43,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -65,7 +65,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(1, nil, @options)
 
       # No new invoice is generated
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
     end
 
@@ -76,7 +76,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # Verify account BCD (SUBSCRIPTION alignment)
       assert_account_bcd(0)
@@ -99,7 +99,7 @@ module KillBillIntegrationTests
         assert_equal(recorded_usage.rolled_up_units[0].unit_type, 'minutes')
 
         # No invoice
-        assert_equal(0, @account.invoices(true, @options).size)
+        assert_equal(0, @account.invoices(@options).size)
 
         kb_clock_add_days(1, nil, @options)
       end
@@ -108,7 +108,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -122,7 +122,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(1, nil, @options)
 
       # Second invoice: verify month with no usage data
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -160,7 +160,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Third invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -174,7 +174,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(2, nil, @options)
 
       # No new invoice is generated
-      assert_equal(3, @account.invoices(true, @options).size)
+      assert_equal(3, @account.invoices(@options).size)
     end
 
     # Basic test to verify/understand the catalog
@@ -190,7 +190,7 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -203,13 +203,13 @@ module KillBillIntegrationTests
       set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'EntitlementAdmin', false, true, false, nil, @user, @options)
 
       # No new invoice
-      assert_equal(1, @account.invoices(true, @options).size)
+      assert_equal(1, @account.invoices(@options).size)
 
       # 2013-10-05
       kb_clock_add_months(2, nil, @options)
 
       # No new invoice
-      assert_equal(1, @account.invoices(true, @options).size)
+      assert_equal(1, @account.invoices(@options).size)
 
       # Resume entitlement now, billing at BCD (no proration)
       set_bundle_blocking_state(bp.bundle_id, 'UNSUSPENDED', 'EntitlementAdmin', false, false, false, nil, @user, @options)
@@ -218,7 +218,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -230,7 +230,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Third invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -245,7 +245,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # Verify account BCD (SUBSCRIPTION alignment)
       assert_account_bcd(0)
@@ -266,14 +266,14 @@ module KillBillIntegrationTests
       set_bundle_blocking_state(bp.bundle_id, 'SUSPENDED', 'EntitlementAdmin', false, true, false, nil, @user, @options)
 
       # No invoice
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # 2013-09-01
       kb_clock_add_days(27, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -304,7 +304,7 @@ module KillBillIntegrationTests
 
       # System will generate a null invoice - as there is nothing to build
       wait_for_killbill(@options)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
 
       # Add usage for the month
@@ -322,7 +322,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -341,7 +341,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # Verify account BCD (SUBSCRIPTION alignment)
       assert_account_bcd(0)
@@ -359,7 +359,7 @@ module KillBillIntegrationTests
 
       # 2013-08-15
       kb_clock_add_days(14, nil, @options)
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # Reset the BCD: we want both outstanding usage and new recurring charged right away
       bp.bill_cycle_day_local = 15;
@@ -371,7 +371,7 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -391,7 +391,7 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-unlimited', bp.plan_name)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -403,7 +403,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Third invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -418,7 +418,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_from_plan(@account.account_id, nil, 'voip-monthly-by-usage', @user, @options)
       assert_equal('voip-monthly-by-usage', bp.plan_name)
-      assert_equal(0, @account.invoices(true, @options).size)
+      assert_equal(0, @account.invoices(@options).size)
 
       # Verify account BCD (SUBSCRIPTION alignment)
       assert_account_bcd(0)
@@ -439,7 +439,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -451,7 +451,7 @@ module KillBillIntegrationTests
 
       # 2013-09-15
       kb_clock_add_days(14, nil, @options)
-      assert_equal(1, @account.invoices(true, @options).size)
+      assert_equal(1, @account.invoices(@options).size)
 
       # Reset the BCD: we want both outstanding usage (nothing in this case) and new recurring charged right away
       bp.bill_cycle_day_local = 15;
@@ -460,7 +460,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -483,7 +483,7 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-unlimited', bp.plan_name)
 
       # Third invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -495,7 +495,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       # Fourth invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
@@ -516,7 +516,7 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # First invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -525,7 +525,7 @@ module KillBillIntegrationTests
 
       # 2013-08-15
       kb_clock_add_days(14, nil, @options)
-      assert_equal(1, @account.invoices(true, @options).size)
+      assert_equal(1, @account.invoices(@options).size)
 
       # Downgrade
       requested_date = nil
@@ -540,7 +540,7 @@ module KillBillIntegrationTests
 
       # 2013-09-01
       kb_clock_add_days(17, nil, @options)
-      assert_equal(1, @account.invoices(true, @options).size)
+      assert_equal(1, @account.invoices(@options).size)
 
       bp = get_subscription(bp.subscription_id, @options)
       check_entitlement(bp, 'Voip', 'BASE', 'NO_BILLING_PERIOD', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -562,7 +562,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]

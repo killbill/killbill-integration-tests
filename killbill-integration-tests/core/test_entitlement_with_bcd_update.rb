@@ -30,7 +30,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -53,7 +53,7 @@ module KillBillIntegrationTests
 
 
       # Verify we see 1 new invoice and the ANNUAL is not realigned on this new BCD. There is a pro-ration credit for the part of the MONTHLY that was not used.
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -72,7 +72,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -87,7 +87,7 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -105,7 +105,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -121,7 +121,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(6, nil, @options) # '2013-08-07'
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -137,7 +137,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -161,7 +161,7 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, true, @options)
 
       # Check past invoice has been repaired and subscription reinvoiced with correct date
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -177,7 +177,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -204,7 +204,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(6, nil, @options) # '2013-08-07'
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]

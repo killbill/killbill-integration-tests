@@ -28,7 +28,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -52,7 +52,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -65,7 +65,7 @@ module KillBillIntegrationTests
       # Because we are BUNDLE aligned the discount period that starts on the 2013-08-01 and because it lasts a month we see a first long pro-ration until 2013-09-01 and then
       # when we move the clock again by ONE day, we see the remaining piece.
       #
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -75,7 +75,7 @@ module KillBillIntegrationTests
 
       kb_clock_add_days(1, nil, @options) # "2013-09-01"
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
@@ -100,7 +100,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -115,7 +115,7 @@ module KillBillIntegrationTests
       # Because we are SUBSCRIPTION aligned the discount period that starts on the 2013-08-16 and because it lasts a month we see a first pro-ration until 2013-09-01 and then
       # when we move the clock again by 16 day, we see the remaining piece.
       #
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -126,7 +126,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(16, nil, @options) # "2013-09-16"
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
@@ -145,7 +145,7 @@ module KillBillIntegrationTests
       ao_entitlement = get_subscription(ao_entitlement.subscription_id, @options)
       assert_equal('EVERGREEN', ao_entitlement.phase_type)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(5, all_invoices.size)
       fifth_invoice = all_invoices[4]

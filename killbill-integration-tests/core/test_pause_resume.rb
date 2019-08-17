@@ -31,7 +31,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 500.00, 'USD', '2013-08-31')
@@ -44,7 +44,7 @@ module KillBillIntegrationTests
       # Verify new invoice is generated for when we block
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
 
@@ -65,7 +65,7 @@ module KillBillIntegrationTests
 
       # Verify new invoice is generated for when we unblock
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
 
@@ -310,7 +310,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 500.00, 'USD', '2013-08-31')
@@ -320,7 +320,7 @@ module KillBillIntegrationTests
       # Move clock
       kb_clock_add_days(30, nil, @options) # 30/09/2013
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
       check_invoice_no_balance(third_invoice, 500.00, 'USD', '2013-09-30')
@@ -341,7 +341,7 @@ module KillBillIntegrationTests
       @account.remove_auto_invoicing_off(@user, 'test_pause_resume_in_the_past', 'Re-enable invoice prior pause/resume', @options)
 
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
 
@@ -360,7 +360,7 @@ module KillBillIntegrationTests
       # Move clock  (BP out of trial)
       kb_clock_add_days(30, nil, @options) # 31/08/2013
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -374,7 +374,7 @@ module KillBillIntegrationTests
       check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-09-02', nil)
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -388,7 +388,7 @@ module KillBillIntegrationTests
 
       # Verify we generated a new invoice
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
 
@@ -415,7 +415,7 @@ module KillBillIntegrationTests
 
       # Verify last invoice was adjusted
       wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(5, all_invoices.size)
       sort_invoices!(all_invoices)
       fifth_invoice = all_invoices[4]
@@ -463,7 +463,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -476,7 +476,7 @@ module KillBillIntegrationTests
 
       # Here all we can do is wait; we are waiting to check there is NO change in the system, no nothing to check against
       wait_for_killbill(@options)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       assert_equal(1, second_invoice.items.size)
@@ -498,7 +498,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
 
@@ -519,7 +519,7 @@ module KillBillIntegrationTests
 
       # Verify we generate a new invoice
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
 
