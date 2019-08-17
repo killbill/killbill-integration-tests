@@ -58,7 +58,7 @@ module KillBillIntegrationTests
 
       # Define the proc that is used to retrieve all accounts on the test account
       @proc_account_invoices_nb = Proc.new do |account|
-        account.invoices(false, @options).size
+        account.invoices(@options).size
       end
       @proc_invoice_items_nb = Proc.new { |invoice_id| get_invoice_by_id(invoice_id, @options).items.size }
     end

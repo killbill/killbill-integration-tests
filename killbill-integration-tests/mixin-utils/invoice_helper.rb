@@ -4,7 +4,7 @@ module KillBillIntegrationTests
     def check_next_invoice_amount(invoice_nb, amount, invoice_date, account, options, &proc_account_invoices_nb)
       wait_for_expected_clause(invoice_nb, account, options, &proc_account_invoices_nb)
 
-      all_invoices = account.invoices(true, options)
+      all_invoices = account.invoices(options)
       assert_equal(invoice_nb, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
 
       sort_invoices!(all_invoices)
