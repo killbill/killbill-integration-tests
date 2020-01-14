@@ -92,8 +92,7 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
 
@@ -126,8 +125,7 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
     def test_with_bcd_change_in_the_past
@@ -166,8 +164,7 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-16')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
     def test_with_multiple_change_same_day
@@ -209,8 +206,7 @@ module KillBillIntegrationTests
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
 
     end
 
