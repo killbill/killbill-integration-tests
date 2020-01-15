@@ -30,7 +30,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.6.0
-      - image: killbill/killbill:0.21.8
+      - image: killbill/killbill:0.21.9
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -104,7 +104,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.6.0
-      - image: killbill/killbill:0.21.8
+      - image: killbill/killbill:0.21.9
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
