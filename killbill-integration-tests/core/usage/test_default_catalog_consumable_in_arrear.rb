@@ -63,7 +63,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -93,7 +93,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -112,7 +112,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(31, nil, @options)
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
@@ -160,7 +160,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(31, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -201,7 +201,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -225,7 +225,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -256,7 +256,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(31, nil, @options)
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
@@ -287,7 +287,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(5, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(5, all_invoices.size)
       fifth_invoice = all_invoices[4]
@@ -326,7 +326,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -356,7 +356,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -405,7 +405,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(30, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -431,7 +431,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -471,7 +471,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -510,7 +510,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(8, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -555,7 +555,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
@@ -601,7 +601,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -618,7 +618,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(31, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -644,7 +644,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]

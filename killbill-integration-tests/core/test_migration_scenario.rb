@@ -56,7 +56,7 @@ module KillBillIntegrationTests
       @account.remove_auto_invoicing_off(@user, 'test_migration_scenario', 'Disable invoice prior block/unblock', @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
       check_invoice_no_balance(first_invoice, 1000.00, 'USD', '2013-07-01')
@@ -67,7 +67,7 @@ module KillBillIntegrationTests
       kb_clock_add_months(1, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 1000.00, 'USD', '2013-08-01')
@@ -77,7 +77,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(9, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
       check_invoice_no_balance(third_invoice, 10000.00, 'USD', '2013-08-10')
@@ -87,7 +87,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(22, nil, @options)
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
       check_invoice_no_balance(fourth_invoice, 1000.00, 'USD', '2013-09-01')

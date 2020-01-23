@@ -201,7 +201,7 @@ module KillBillIntegrationTests
       check_bundle(bundle2, bundles[1])
       check_bundle(bundle3, bundles[2])
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -238,7 +238,7 @@ module KillBillIntegrationTests
       check_bundle(bundle2, bundles[1])
       check_bundle(bundle3, bundles[2])
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -268,7 +268,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(14, nil, @options) # "2013-08-15"
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -295,7 +295,7 @@ module KillBillIntegrationTests
       check_bundle(bundle1, bundles[0])
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -330,7 +330,7 @@ module KillBillIntegrationTests
         check_bundle(b, bundles[i])
       end
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -359,7 +359,7 @@ module KillBillIntegrationTests
       assert_equal(1, bundles.size)
       assert_equal(2, bundles[0].subscriptions.size)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
 
@@ -376,7 +376,7 @@ module KillBillIntegrationTests
 
       bundle1 = []
       subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
-      subscription.external_key = bp.external_key
+      subscription.bundle_external_key = bp.bundle_external_key
       bundle1 << subscription
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1), @user, nil, nil, nil, nil, nil, @options)
@@ -422,7 +422,7 @@ module KillBillIntegrationTests
 
       bundle1 = []
       subscription = to_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
-      subscription.external_key = bp.external_key
+      subscription.bundle_external_key = bp.bundle_external_key
       bundle1 << subscription
 
       begin
@@ -445,10 +445,10 @@ module KillBillIntegrationTests
       subscription
     end
 
-    def to_subscription_input(account_id, external_key, plan_name, phase_type, price_overrides)
+    def to_subscription_input(account_id, bundle_external_key, plan_name, phase_type, price_overrides)
       subscription = KillBillClient::Model::Subscription.new
       subscription.account_id = account_id
-      subscription.external_key = external_key
+      subscription.bundle_external_key = bundle_external_key
       subscription.plan_name = plan_name
       subscription.phase_type = phase_type
       subscription.price_overrides = price_overrides

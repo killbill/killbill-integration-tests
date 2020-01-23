@@ -4,7 +4,7 @@ module KillBillIntegrationTests
     def check_next_invoice_amount(invoice_nb, amount, invoice_date, account, options, &proc_account_invoices_nb)
       wait_for_expected_clause(invoice_nb, account, options, &proc_account_invoices_nb)
 
-      all_invoices = account.invoices(true, options)
+      all_invoices = account.invoices(options)
       assert_equal(invoice_nb, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
 
       sort_invoices!(all_invoices)
@@ -21,11 +21,11 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_by_id(id, options)
-      KillBillClient::Model::Invoice.find_by_id(id, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_id(id, "NONE", options)
     end
 
     def get_invoice_by_number(number, options)
-      KillBillClient::Model::Invoice.find_by_number(number, true, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_number(number, "NONE", options)
     end
 
     def create_charge(account_id, amount, currency, description, user, options)
@@ -41,7 +41,7 @@ module KillBillIntegrationTests
     def create_account_credit(account_id, amount, currency, description, user, options)
       credit_item                 = KillBillClient::Model::Credit.new()
       credit_item.account_id      = account_id
-      credit_item.credit_amount   = amount
+      credit_item.amount          = amount
       credit_item.currency        = currency
       credit_item.description     = description
       credit_item.create(true, user, nil, nil, options)

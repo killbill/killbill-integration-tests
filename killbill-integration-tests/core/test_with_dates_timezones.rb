@@ -73,7 +73,7 @@ module KillBillIntegrationTests
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', expected_subscription_date, nil, expected_subscription_date, nil)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]

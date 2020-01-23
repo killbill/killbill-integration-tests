@@ -62,7 +62,7 @@ module KillBillIntegrationTests
     end
 
     def test_adjust_tax_after_repair
-      assert_equal(0, @account.invoices(true, @options).size, 'Account should not have any invoice')
+      assert_equal(0, @account.invoices(@options).size, 'Account should not have any invoice')
 
       # Create entitlement
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -277,13 +277,13 @@ module KillBillIntegrationTests
     private
 
     def setup_test_adjust_tax_after_item_adjustment(charge_amount, total_charge_after_taxes)
-      assert_equal(0, @account.invoices(true, @options).size, 'Account should not have any invoice')
+      assert_equal(0, @account.invoices(@options).size, 'Account should not have any invoice')
 
       # Create external charge
       create_charge(@account.account_id, charge_amount, 'USD', 'My first charge', @user, @options)
 
       # Verify the invoice
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
       invoice = all_invoices[0]
 

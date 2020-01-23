@@ -49,7 +49,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Verify we see the new credit item for the pro-rated period  '2013-09-10' -> '2013-09-30'
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -68,7 +68,7 @@ module KillBillIntegrationTests
       assert_equal(refund.transactions[1].amount, 333.33)
       assert_equal(refund.transactions[1].transaction_type, 'REFUND')
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       updated_second_invoice = all_invoices[1]
       check_invoice_item(updated_second_invoice.items[0], updated_second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
@@ -133,7 +133,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Verify we see the new credit item for the pro-rated period  '2013-09-10' -> '2013-09-30'
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
 
@@ -183,7 +183,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Verify we see the new credit item for the pro-rated period  '2013-09-10' -> '2013-09-30'
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
@@ -214,7 +214,7 @@ module KillBillIntegrationTests
       assert_equal(refund.transactions[1].amount, 333.33)
       assert_equal(refund.transactions[1].transaction_type, 'REFUND')
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       updated_second_invoice = all_invoices[1]
       check_invoice_item(updated_second_invoice.items[0], updated_second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
@@ -271,7 +271,7 @@ module KillBillIntegrationTests
       #
       # Issue a refund
       #
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -289,7 +289,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       # Verify we see the new credit item for the pro-rated period  '2013-09-10' -> '2013-09-30'
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(3, all_invoices.size)
 
@@ -308,19 +308,25 @@ module KillBillIntegrationTests
       assert_equal(refreshed_account.account_cba, 166.67)
     end
 
+
     def test_find_credit_by_id
 
       @child_account = create_child_account(@account)
 
       # Create new credit
-      credit = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+      credits = create_account_credit(@child_account.account_id, 12.0, 'USD', 'Child credit', @user, @options)
+      assert_equal(1, credits.size)
+      assert_equal(@child_account.account_id, credits[0].account_id)
+      assert_equal(12.0, credits[0].amount)
+      assert_equal('USD', credits[0].currency)
+      assert_equal('Child credit', credits[0].description)
 
       # Verify if the returned list has now one element
-      get_credit = KillBillClient::Model::Credit.find_by_id(credit.credit_id , @options)
+      get_credit = KillBillClient::Model::Credit.find_by_id(credits[0].invoice_item_id , @options)
 
       # Verify credit fields
       assert_equal(@child_account.account_id, get_credit.account_id)
-      assert_equal(12.0, get_credit.credit_amount)
+      assert_equal(12.0, get_credit.amount)
       assert_equal('USD', get_credit.currency)
       assert_equal('Child credit', get_credit.description)
 

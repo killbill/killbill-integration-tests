@@ -38,7 +38,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Free', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -55,7 +55,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Silver', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -77,7 +77,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Free', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -97,7 +97,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]
@@ -125,7 +125,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Free', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
@@ -142,7 +142,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Silver', 'BASE', 'MONTHLY', 'DEFAULT', KB_INIT_DATE, nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
       second_invoice = all_invoices[1]
@@ -164,7 +164,7 @@ module KillBillIntegrationTests
 
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(3, all_invoices.size)
       sort_invoices!(all_invoices)
       third_invoice = all_invoices[2]
@@ -183,7 +183,7 @@ module KillBillIntegrationTests
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(4, all_invoices.size)
       sort_invoices!(all_invoices)
       fourth_invoice = all_invoices[3]

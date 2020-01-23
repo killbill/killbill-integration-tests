@@ -113,10 +113,10 @@ module KillBillIntegrationTests
       # Move again to next month
       kb_clock_add_days(29, nil, @options)
       sleep 2.0
-      child_account_invoices = @child_account.invoices(true, @options)
+      child_account_invoices = @child_account.invoices(@options)
       assert_equal(2, child_account_invoices.size)
 
-      parent_account_invoices = @parent_account.invoices(true, @options)
+      parent_account_invoices = @parent_account.invoices(@options)
       assert_equal(2, parent_account_invoices.size)
     end
 
@@ -159,10 +159,10 @@ module KillBillIntegrationTests
       # Move again to next month
       kb_clock_add_days(29, nil, @options)
       sleep 2.0
-      child_account_invoices = @child_account.invoices(true, @options)
+      child_account_invoices = @child_account.invoices(@options)
       assert_equal(2, child_account_invoices.size)
 
-      parent_account_invoices = @parent_account.invoices(true, @options)
+      parent_account_invoices = @parent_account.invoices(@options)
       assert_equal(2, parent_account_invoices.size)
     end
 
@@ -208,10 +208,10 @@ module KillBillIntegrationTests
       # Move again to next month
       kb_clock_add_days(29, nil, @options)
       sleep 2.0
-      child_account_invoices = @child_account.invoices(true, @options)
+      child_account_invoices = @child_account.invoices(@options)
       assert_equal(3, child_account_invoices.size)
 
-      parent_account_invoices = @parent_account.invoices(true, @options)
+      parent_account_invoices = @parent_account.invoices(@options)
       assert_equal(2, parent_account_invoices.size)
 
     end
@@ -261,10 +261,10 @@ module KillBillIntegrationTests
       # Move again to next month
       kb_clock_add_days(29, nil, @options)
       sleep 2.0
-      child_account_invoices = @child_account.invoices(true, @options)
+      child_account_invoices = @child_account.invoices(@options)
       assert_equal(3, child_account_invoices.size)
 
-      parent_account_invoices = @parent_account.invoices(true, @options)
+      parent_account_invoices = @parent_account.invoices(@options)
       assert_equal(2, parent_account_invoices.size)
     end
 
@@ -570,7 +570,7 @@ module KillBillIntegrationTests
 
 
     def get_and_check_account_invoice(account, invoice_cnt, amount, currency, invoice_date, verify_count=true)
-      all_account_invoices = account.invoices(true, @options)
+      all_account_invoices = account.invoices(@options)
       assert_equal(invoice_cnt, all_account_invoices.size) if verify_count
       sort_invoices!(all_account_invoices)
       account_invoice = all_account_invoices[invoice_cnt - 1]

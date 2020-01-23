@@ -72,7 +72,7 @@ module KillBillIntegrationTests
       # Verify we see an invoice with:
       # * 3 usage items (one for each type) for the previous month (in arrear usage billing)
       #
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       last_invoice = all_invoices[1]

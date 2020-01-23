@@ -30,7 +30,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -53,7 +53,7 @@ module KillBillIntegrationTests
 
 
       # Verify we see 1 new invoice and the ANNUAL is not realigned on this new BCD. There is a pro-ration credit for the part of the MONTHLY that was not used.
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
@@ -72,7 +72,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -87,13 +87,12 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
 
@@ -105,7 +104,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -121,13 +120,12 @@ module KillBillIntegrationTests
       kb_clock_add_days(6, nil, @options) # '2013-08-07'
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
     def test_with_bcd_change_in_the_past
@@ -137,7 +135,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -161,13 +159,12 @@ module KillBillIntegrationTests
       bp.update_bcd(@user, nil, nil, effective_from_date, true, @options)
 
       # Check past invoice has been repaired and subscription reinvoiced with correct date
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-16')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
     end
 
     def test_with_multiple_change_same_day
@@ -177,7 +174,7 @@ module KillBillIntegrationTests
       assert_equal('EVERGREEN', bp.phase_type)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(1, all_invoices.size)
       first_invoice = all_invoices[0]
@@ -204,13 +201,12 @@ module KillBillIntegrationTests
       kb_clock_add_days(6, nil, @options) # '2013-08-07'
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 193.55, 'USD', '2013-08-07')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 1000.00, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-07', '2013-09-07')
-      check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -806.45, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-07', '2013-09-01')
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 193.55, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-01', '2013-09-07')
 
     end
 

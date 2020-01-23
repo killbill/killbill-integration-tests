@@ -86,7 +86,7 @@ module KillBillIntegrationTests
 
     def check_clean_account(account, options)
       assert_equal(0, account.bundles(options).size)
-      assert_equal(0, account.invoices(false, options).size)
+      assert_equal(0, account.invoices(options).size)
       assert_equal(0, account.payments(options).size)
     end
   end

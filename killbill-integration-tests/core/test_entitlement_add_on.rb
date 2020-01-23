@@ -1292,7 +1292,7 @@ module KillBillIntegrationTests
                     {:type => 'STOP_BILLING', :date => '2013-10-31'}], ao2.events)
 
       # Verify no new invoice has been generated
-      all_invoices = @account.invoices(true, @options)
+      all_invoices = @account.invoices(@options)
       assert_equal(7, all_invoices.size, "Invalid number of invoices: #{all_invoices.size}")
     end
 
@@ -1303,8 +1303,10 @@ module KillBillIntegrationTests
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
 
+      bp.subscription_id = nil
+      bp.external_key = nil
       # Change bundle external key
-      bp.external_key = 'test_key'
+      bp.bundle_external_key = 'test_key'
       # since this is a new bundle with add-on, bundle id must not be set
       bp.bundle_id = nil
       # Product Name should not be set when Plan Name is specified

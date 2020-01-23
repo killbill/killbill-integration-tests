@@ -34,10 +34,10 @@ module KillBillIntegrationTests
       sub.set_blocking_state(state_name, service, block_change, block_entitlement, block_billing, requested_date, user, nil, nil, options)
     end
 
-    def create_entitlement_from_plan(account_id, external_key, plan_name, user, options)
+    def create_entitlement_from_plan(account_id, bundle_external_key, plan_name, user, options)
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id
-      result.external_key = external_key
+      result.bundle_external_key = bundle_external_key
       result.plan_name = plan_name
       result = result.create(user, nil, nil, nil, nil, options)
       assert_not_nil(result.subscription_id)
@@ -98,7 +98,7 @@ module KillBillIntegrationTests
 
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id
-      result.external_key = "#{account_id}-" + rand(1000000).to_s if category == 'BASE'
+      result.bundle_external_key = "#{account_id}-" + rand(1000000).to_s if category == 'BASE'
       result.bundle_id = bundle_id if category == 'ADD_ON'
       result.product_name = product_name
       result.product_category = category
