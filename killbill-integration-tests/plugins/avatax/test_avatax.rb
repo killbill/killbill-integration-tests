@@ -98,13 +98,13 @@ module KillBillIntegrationTests
       ca_special_tax_amount = 0
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(ca_special_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-01', nil)
+      check_invoice_item(ca_special_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
       ca_county_taxes = second_invoice.items.select { |item| item.description == 'CA COUNTY TAX' }
       assert_not_empty(ca_county_taxes)
-      check_invoice_item(ca_county_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-01', nil)
+      check_invoice_item(ca_county_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
       ca_state_taxes = second_invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(ca_state_taxes)
-      check_invoice_item(ca_state_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-01', nil)
+      check_invoice_item(ca_state_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
       sport_monthly = second_invoice.items.select { |item| item.description == 'sports-monthly-evergreen' }
       assert_not_empty(sport_monthly)
       check_invoice_item(sport_monthly.first, second_invoice.invoice_id, second_invoice_charges, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
@@ -144,26 +144,26 @@ module KillBillIntegrationTests
       ca_special_tax_amount = 0
       adj_ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       adj_ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(adj_ca_special_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(adj_ca_special_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
       adj_ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'sports-monthly'}
       assert_not_empty(adj_ca_state_taxes)
-      check_invoice_item(adj_ca_state_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(adj_ca_state_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
       adj_ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'sports-monthly'}
       assert_not_empty(adj_ca_county_taxes)
-      check_invoice_item(adj_ca_county_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(adj_ca_county_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
       # charges
       ca_special_taxes = third_invoice.items.select { |item| item.description == 'CA SPECIAL TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_special_taxes)
       ca_special_tax_amount = 0
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(ca_special_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(ca_special_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
       ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly'}
       assert_not_empty(ca_county_taxes)
-      check_invoice_item(ca_county_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(ca_county_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
       ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'super-monthly'}
       assert_not_empty(ca_state_taxes)
-      check_invoice_item(ca_state_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', nil)
+      check_invoice_item(ca_state_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
       super_monthly = third_invoice.items.select { |item| item.description == 'super-monthly-evergreen' }
       assert_not_empty(super_monthly)
       check_invoice_item(super_monthly.first, third_invoice.invoice_id, third_invoice_charges, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
@@ -205,13 +205,13 @@ module KillBillIntegrationTests
       ca_special_tax_amount = 0
       adj_ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       adj_ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(adj_ca_special_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', nil)
+      check_invoice_item(adj_ca_special_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
       adj_ca_state_taxes = fourth_invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(adj_ca_state_taxes)
-      check_invoice_item(adj_ca_state_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', nil)
+      check_invoice_item(adj_ca_state_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
       adj_ca_county_taxes = fourth_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly'}
       assert_not_empty(adj_ca_county_taxes)
-      check_invoice_item(adj_ca_county_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', nil)
+      check_invoice_item(adj_ca_county_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
       cba_adjustment = fourth_invoice.items.select { |item| item.item_type == 'CBA_ADJ' }
       assert_not_empty(cba_adjustment)
       check_invoice_item(cba_adjustment.first, fourth_invoice.invoice_id, fourth_invoice_adj.abs, 'USD', 'CBA_ADJ', nil, nil, '2020-06-03', '2020-06-03')
@@ -251,19 +251,19 @@ module KillBillIntegrationTests
       ca_special_taxes = invoice.items.select { |item| item.description == 'CA SPECIAL TAX' }
       assert_not_empty(ca_special_taxes)
       ca_special_taxes = sum_items_amount(ca_special_taxes)
-      expected_ca_special_tax_amount = (charge_amount * @sf_special_tax).round(2) + (amount_adj * @sf_special_tax).round(2)
+      expected_ca_special_tax_amount = ((charge_amount * @sf_special_tax).round(2) + (amount_adj * @sf_special_tax).round(2)).round(2)
       check_invoice_item(ca_special_taxes, invoice.invoice_id, expected_ca_special_tax_amount, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       ca_county_taxes = invoice.items.select { |item| item.description == 'CA COUNTY TAX' }
       assert_not_empty(ca_county_taxes)
       ca_county_taxes = sum_items_amount(ca_county_taxes)
-      expected_ca_county_taxes = (charge_amount * @sf_county_tax).round(2) + (amount_adj * @sf_county_tax).round(2)
+      expected_ca_county_taxes = ((charge_amount * @sf_county_tax).round(2) + (amount_adj * @sf_county_tax).round(2)).round(2)
       check_invoice_item(ca_county_taxes, invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       ca_state_taxes = invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(ca_state_taxes)
       ca_state_taxes = sum_items_amount(ca_state_taxes)
-      expected_ca_state_taxes = (charge_amount * @ca_state_tax).round(2) + (amount_adj * @ca_state_tax).round(2)
+      expected_ca_state_taxes = ((charge_amount * @ca_state_tax).round(2) + (amount_adj * @ca_state_tax).round(2)).round(2)
       check_invoice_item(ca_state_taxes, invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       item_adjustment = invoice.items.select { |item| item.item_type == 'ITEM_ADJ' }
@@ -336,8 +336,8 @@ module KillBillIntegrationTests
 
     def sum_items_amount(items)
       amount = 0
-      items.each { |sp| amount += sp.amount.round(2) }
-      items.first.amount = amount
+      items.each { |sp| amount += sp.amount }
+      items.first.amount = amount.round(2)
 
       items.first
     end
