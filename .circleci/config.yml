@@ -30,7 +30,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.7.0
-      - image: killbill/killbill:0.22.0
+      - image: killbill/killbill:0.22.10
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -97,14 +97,13 @@ jobs:
       - store_test_results:
           path: test/reports/
       - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+          path: test/reports/
 
   test-postgresql-ruby-2.4.2:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.7.0
-      - image: killbill/killbill:0.22.0
+      - image: killbill/killbill:0.22.10
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -172,8 +171,7 @@ jobs:
       - store_test_results:
           path: test/reports/
       - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+          path: test/reports/
 
 workflows:
   version: 2
