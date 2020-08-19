@@ -39,8 +39,9 @@ Gem::Specification.new do |s|
 
   s.rdoc_options << '--exclude' << '.'
 
-  s.add_development_dependency 'rake', '>= 10.0.0'
-  s.add_development_dependency 'thread', '>= 0.1.4'
+  s.add_development_dependency 'test-unit', '~> 3.3.6'
+  s.add_development_dependency 'rake', '~> 13.0'
+  s.add_development_dependency 'thread', '0.2.2'
   s.add_development_dependency 'midi-smtp-server', '~> 2.1.1'
   s.add_development_dependency 'toxiproxy', '~> 0.1.2'
   s.add_development_dependency 'faker', '~> 1.5'
