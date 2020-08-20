@@ -394,6 +394,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bp
     end
