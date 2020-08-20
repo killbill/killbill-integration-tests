@@ -570,6 +570,12 @@ module KillBillIntegrationTests
 
 
     def get_and_check_account_invoice(account, invoice_cnt, amount, currency, invoice_date, verify_count=true)
+      wait_for_expected_clause(amount, account, @options) do |an_account|
+        all_account_invoices = an_account.invoices(@options)
+        sort_invoices!(all_account_invoices)
+        all_account_invoices[invoice_cnt - 1].amount
+      end
+
       all_account_invoices = account.invoices(@options)
       assert_equal(invoice_cnt, all_account_invoices.size) if verify_count
       sort_invoices!(all_account_invoices)
