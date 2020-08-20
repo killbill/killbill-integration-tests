@@ -1,8 +1,10 @@
 AllCops:
   NewCops: enable
-  # Old stuff
   Exclude:
+    # Old stuff
     - 'killbill-integration-tests/load/**/**'
+    # https://github.com/rubocop-hq/rubocop/issues/6398
+    - 'vendor/bundle/**/*'
 
 Layout/LineLength:
   Enabled: false
