@@ -157,6 +157,7 @@ module KillBillIntegrationTests
 
       # Re-issue the call with force_past_effective_date = true
       bp.update_bcd(@user, nil, nil, effective_from_date, true, @options)
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Check past invoice has been repaired and subscription reinvoiced with correct date
       all_invoices = @account.invoices(@options)
