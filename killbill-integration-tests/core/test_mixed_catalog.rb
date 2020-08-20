@@ -68,6 +68,8 @@ module KillBillIntegrationTests
       changed_bp = get_subscription(bp.subscription_id, @options)
       assert_equal('basic-monthly-in-arrear', changed_bp.plan_name)
 
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
+
       all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
       sort_invoices!(all_invoices)
