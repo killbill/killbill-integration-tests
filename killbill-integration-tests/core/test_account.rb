@@ -139,6 +139,10 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
+      wait_for_expected_clause(31, @account, @options) do |an_account|
+        get_account(an_account.account_id, false, false, @options).bill_cycle_day_local
+      end
+
       new_account = get_account(@account.account_id, true, true, @options)
       assert_equal(new_account.name, 'KillBillClient')
       assert_equal(new_account.notes, 'My notes')
