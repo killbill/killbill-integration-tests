@@ -1,0 +1,58 @@
+AllCops:
+  NewCops: enable
+  # Old stuff
+  Exclude:
+    - 'killbill-integration-tests/load/**/**'
+
+Layout/LineLength:
+  Enabled: false
+
+# Expected exceptions in some tests
+Lint/SuppressedException:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/MethodName:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassVars:
+  Exclude:
+    # Old stuff
+    - 'killbill-integration-tests/plugins/payment/errors-handling/**'
+
+Style/GuardClause:
+  Exclude:
+    # Old stuff
+    - 'killbill-integration-tests/plugins/payment/errors-handling/proxy.rb'

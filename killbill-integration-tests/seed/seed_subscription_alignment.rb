@@ -1,12 +1,12 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'seed_base'
 
 module KillBillIntegrationSeed
-
   class TestSubscriptionAlignment < TestSeedBase
-
     def setup
       setup_seed_base
     end
@@ -15,9 +15,7 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-
     def test_seed_subscriptions_alignment
-
       data = {}
       data[:name] = 'Mathew Brown'
       data[:external_key] = 'mathewbrown'
@@ -39,19 +37,16 @@ module KillBillIntegrationSeed
       base = create_entitlement_base(@mathewbrown.account_id, 'reserved-vm', 'MONTHLY', 'TRIAL', @user, @options)
       wait_for_expected_clause(1, @mathewbrown, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(5, nil, @options)  # 2015-08-06
-      ao1 = create_entitlement_ao(@mathewbrown.account_id, base.bundle_id, 'backup-daily', 'MONTHLY', 'TRIAL', @user, @options)
+      kb_clock_add_days(5, nil, @options) # 2015-08-06
+      create_entitlement_ao(@mathewbrown.account_id, base.bundle_id, 'backup-daily', 'MONTHLY', 'TRIAL', @user, @options)
       wait_for_expected_clause(2, @mathewbrown, @options, &@proc_account_invoices_nb)
 
       # Generate first non invoice
-      kb_clock_add_days(9, nil, @options)  # 2015-08-15
+      kb_clock_add_days(9, nil, @options) # 2015-08-15
       wait_for_expected_clause(3, @mathewbrown, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(31, nil, @options)  # 2015-09-15
+      kb_clock_add_days(31, nil, @options) # 2015-09-15
       wait_for_expected_clause(4, @mathewbrown, @options, &@proc_account_invoices_nb)
-
-
     end
-
   end
 end

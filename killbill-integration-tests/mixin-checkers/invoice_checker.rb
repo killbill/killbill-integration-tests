@@ -1,15 +1,16 @@
+# frozen_string_literal: true
+
 require 'checker_base'
 
 module KillBillIntegrationTests
   module InvoiceChecker
-
     include CheckerBase
 
     def check_invoice_no_balance(i, amount, currency, invoice_date)
       msg = "invoice #{i.invoice_id}"
 
       assert_not_nil(i.invoice_number)
-      assert_equal(amount, i.amount,  msg)
+      assert_equal(amount, i.amount, msg)
       assert_equal(currency, i.currency, msg)
       assert_equal(invoice_date, i.invoice_date, msg)
     end
@@ -35,11 +36,10 @@ module KillBillIntegrationTests
       assert_equal(quantity, ii.quantity, msg)
     end
 
-    
     def check_invoice_capacity_item_detail(ii, usage_input, amount)
       msg = "invoice_item #{ii.invoice_item_id}"
       assert_not_nil(ii.item_details, msg)
-      details = JSON.parse(ii.item_details, :symbolize_names => true)
+      details = JSON.parse(ii.item_details, symbolize_names: true)
       detail_amount = details[:amount]
       item_details = details[:tierDetails]
       item_details.each_with_index do |item_detail, index|
@@ -55,7 +55,7 @@ module KillBillIntegrationTests
     def check_invoice_consumable_item_detail(ii, usage_input, amount)
       msg = "invoice_item #{ii.invoice_item_id}"
       assert_not_nil(ii.item_details, msg)
-      details = JSON.parse(ii.item_details, :symbolize_names => true)
+      details = JSON.parse(ii.item_details, symbolize_names: true)
       detail_amount = details[:amount]
       item_details = details[:tierDetails]
       item_details.each_with_index do |item_detail, index|
@@ -73,6 +73,5 @@ module KillBillIntegrationTests
       check_invoice_item(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, start_date, end_date)
       assert_equal(usage_name, ii.usage_name, msg)
     end
-
   end
 end

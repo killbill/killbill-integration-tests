@@ -1,20 +1,20 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestCloud < Base
-
     def setup
       setup_base
-      catalog_file_xml = get_resource_as_string("usage/Cloud.xml")
+      catalog_file_xml = get_resource_as_string('usage/Cloud.xml')
       KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, 'New Catalog Version', 'Upload catalog for tenant', @options)
     end
 
     def teardown
       teardown_base
-      end
+    end
 
     NB_USAGE_TYPES = 3
     MAX_SERVERS_PER_TYPE = 10
@@ -24,9 +24,7 @@ module KillBillIntegrationTests
     NB_ACCOUNTS_PER_DAY = 3
     NB_SUBSCRIPTIONS_PER_ACCOUNT = 3
 
-
     def test_with_accounts_subscriptions_units
-
       nb_account_per_day = NB_ACCOUNTS_PER_DAY
       nb_subscriptions_per_account = NB_SUBSCRIPTIONS_PER_ACCOUNT
 
@@ -43,13 +41,11 @@ module KillBillIntegrationTests
       #
       prev_nb_day_in_month = 31
       gen_month_year_entries(9, 2013, 12).each_with_index do |month_year, idx|
-
         month = month_year[0]
         year = month_year[1]
 
         cur_nb_day_in_month = days_in_month(month, year)
         cur_nb_day_in_month.times do |zero_based_day|
-
           kb_clock_add_days(1, nil, @options)
 
           day = zero_based_day + 1
@@ -63,40 +59,33 @@ module KillBillIntegrationTests
           # in months with 30 days and their counter will be reset to 0 , so next month, the invoice check still works!
           #
           if prev_nb_day_in_month && cur_nb_day_in_month == zero_based_day + 1 && cur_nb_day_in_month < prev_nb_day_in_month
-            (prev_nb_day_in_month-cur_nb_day_in_month).times do |catch_up_idx|
+            (prev_nb_day_in_month - cur_nb_day_in_month).times do |catch_up_idx|
               verify_invoices_for_account_range_and_reset_usage(all_accounts, zero_based_day, (catch_up_idx + 1), month, year, nb_account_per_day, nb_subscriptions_per_account, idx)
             end
           end
 
           add_usage_to_existing_subscriptions(all_accounts, year, month, zero_based_day + 1)
-
         end
 
         prev_nb_day_in_month = cur_nb_day_in_month
       end
     end
 
-
-
     def add_usage_to_existing_subscriptions(all_accounts, year, month, day)
-
       all_accounts.each do |account_entry|
-
         additional_per_account_usage = 0
 
         # For each subscription record some rabndom usage data
         account_entry[:bps].each do |bp|
-
           usage_input = []
           NB_USAGE_TYPES.times do |i|
-
             # Generate random amount of usage data
             raw_usage_amount = rand(USAGE_MIN...USAGE_MAX)
             # To compute the price we know that unit 1 => $1, unit 2 => $2, unit 3 => $3, hence the multiplication with (i + 1)
             additional_per_account_usage += raw_usage_amount * (i + 1)
             usage_input << {
-                :unit_type => "server-hourly-type-#{i + 1}",
-                :usage_records => [{:record_date => format_date(day, month, year), :amount => raw_usage_amount}]
+              unit_type: "server-hourly-type-#{i + 1}",
+              usage_records: [{ record_date: format_date(day, month, year), amount: raw_usage_amount }]
             }
           end
           # Record usage on that day for that subscription (all 3 units in one call)
@@ -107,13 +96,10 @@ module KillBillIntegrationTests
       end
     end
 
-
-
     def create_new_account_with_subscriptions(nb_accounts, nb_subscriptions_per_account)
-
       accounts = []
       # Create all he accounts for that day
-      nb_accounts.times do |nb|
+      nb_accounts.times do |_nb|
         account = create_account(@user, @options)
         bps = []
         # For each account create the subscriptions
@@ -124,13 +110,12 @@ module KillBillIntegrationTests
           bps << bp
         end
         # Keep track of the created accounts along with its subscriptions
-        accounts << { :account => account, :bps => bps}
+        accounts << { account: account, bps: bps }
       end
       accounts
     end
 
     def initialize_all_account_with_usage_data(nb_account_per_day, nb_subscriptions_per_account)
-
       # Clock has been initialized at 2013-08-01
       year = 2013
       month = 8
@@ -138,7 +123,6 @@ module KillBillIntegrationTests
       all_accounts = []
       # For each day of the month we create the accounts/subscriptions and start inserting usage data
       days_in_month(month, year).times do |zero_based_day|
-
         day = zero_based_day + 1
         date = format_date(day, month, year)
         puts "*** [#{date}]: CREATE #{nb_account_per_day} ACCOUNT(S) WITH #{nb_subscriptions_per_account} SUBSCRIPTION(S)"
@@ -155,7 +139,6 @@ module KillBillIntegrationTests
     end
 
     def verify_invoices_for_account_range_and_reset_usage(all_accounts, zero_based_day, catch_up_end_of_month_idx, month, year, nb_account_per_day, nb_subscriptions_per_account, month_idx)
-
       day = zero_based_day + 1
       date = format_date(day, month, year)
 
@@ -164,7 +147,7 @@ module KillBillIntegrationTests
       # For each day, we should have as many new invoices as we created accounts on that day, so we extract the range of accounts that match that day
       # (along with catch up days that don't exist in that specific months as indicated by catch_up_end_of_month_idx)
       #
-      all_accounts[account_idx*nb_account_per_day..((account_idx+1)*nb_account_per_day)-1].each do |account_entry|
+      all_accounts[account_idx * nb_account_per_day..((account_idx + 1) * nb_account_per_day) - 1].each do |account_entry|
         puts "*** [#{date}]: WAITING FOR INVOICES FOR ACCOUNT #{account_entry[:account].account_id}"
 
         # Verify new invoice got created
@@ -178,40 +161,37 @@ module KillBillIntegrationTests
 
         # Verify balance in that invoice based on what we computed internally
         check_invoice_no_balance(last_invoice, account_entry[:usage], 'USD', format_date(day, month, year))
-          # Reset entry to prepare for accrual in the next rolling month
+        # Reset entry to prepare for accrual in the next rolling month
         account_entry[:usage] = 0
       end
-
     end
-
 
     private
 
-    COMMON_YEAR_DAYS_IN_MONTH = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    COMMON_YEAR_DAYS_IN_MONTH = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31].freeze
 
     def days_in_month(month, year)
       return 29 if month == 2 && Date.gregorian_leap?(year)
+
       COMMON_YEAR_DAYS_IN_MONTH[month]
     end
 
     def format_date(day, month, year)
-      day_str = day < 10 ? "0#{day}" : "#{day}"
-      month_str = month < 10 ? "0#{month}" : "#{month}"
-      "#{year.to_s}-#{month_str}-#{day_str}"
+      day_str = day < 10 ? "0#{day}" : day.to_s
+      month_str = month < 10 ? "0#{month}" : month.to_s
+      "#{year}-#{month_str}-#{day_str}"
     end
-
 
     def gen_month_year_entries(init_month, init_year, nb_months)
       result = []
       cur_month = init_month
       cur_year = init_year
-      nb_months.times do |idx|
+      nb_months.times do |_idx|
         result << [cur_month, cur_year]
         cur_month = cur_month < 12 ? cur_month + 1 : 1
         cur_year = cur_month == 1 ? cur_year + 1 : cur_year
       end
       result
     end
-
   end
 end

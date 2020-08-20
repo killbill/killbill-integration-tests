@@ -1,13 +1,11 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestAccountTest < Base
-
     def setup
       setup_base
       @account = create_account(@user, @options)
@@ -197,7 +195,7 @@ module KillBillIntegrationTests
       account = create_account(@user, @options)
 
       # Verify if response is success
-      assert(account.cba_rebalancing(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+      assert(account.cba_rebalancing(@user, nil, nil, @options).response.is_a?(Net::HTTPSuccess))
     end
 
     def test_custom_fields

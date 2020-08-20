@@ -1,7 +1,8 @@
-$LOAD_PATH.unshift File.expand_path('../../mixin-utils', __FILE__)
-$LOAD_PATH.unshift File.expand_path('../', __FILE__)
+# frozen_string_literal: true
 
-require 'thread'
+$LOAD_PATH.unshift File.expand_path('../mixin-utils', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
+
 require 'thread/pool'
 
 require 'concurrent/array'
@@ -13,9 +14,7 @@ require 'load_base'
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestHA < Base
-
     NB_THREADS = 5
 
     # Number of parents
@@ -29,12 +28,12 @@ module KillBillIntegrationTests
 
     def setup
       @options = {
-          :username => ENV['USERNAME'] || 'admin',
-          :password => ENV['PASSWORD'] || 'password',
-          :api_key => ENV['API_KEY'] || 'bob',
-          :api_secret => ENV['API_SECRET'] || 'lazar',
-          :timeout_sec => 90,
-          :read_timeout => 90000
+        username: ENV['USERNAME'] || 'admin',
+        password: ENV['PASSWORD'] || 'password',
+        api_key: ENV['API_KEY'] || 'bob',
+        api_secret: ENV['API_SECRET'] || 'lazar',
+        timeout_sec: 90,
+        read_timeout: 90_000
       }
 
       @user = 'ha_load'
@@ -48,7 +47,7 @@ module KillBillIntegrationTests
 
       create_parent_children_task = LoadTask.new(load_pool.pool,
                                                  :CreateParentChildren,
-                                                 Proc.new do |iteration|
+                                                 proc do |iteration|
                                                    create_parent_children_task.with_rescue_and_timing(iteration) do |raw_options|
                                                      options = raw_options.merge(@options)
 
@@ -57,9 +56,9 @@ module KillBillIntegrationTests
                                                      1.upto(NB_CHILDREN_PER_PARENT) do |_|
                                                        child = create_parent_children_task.op_create_account_with_data(@user,
                                                                                                                        {
-                                                                                                                           :parent_account_id => parent.account_id,
-                                                                                                                           :is_payment_delegated_to_parent => true,
-                                                                                                                           :bill_cycle_day_local => 14
+                                                                                                                         parent_account_id: parent.account_id,
+                                                                                                                         is_payment_delegated_to_parent: true,
+                                                                                                                         bill_cycle_day_local: 14
                                                                                                                        },
                                                                                                                        options)
                                                        @children << child
@@ -114,7 +113,7 @@ module KillBillIntegrationTests
       @children.sample(SAMPLE_SIZE_TO_VERIFY).each do |child|
         verify_child_invoices_task = LoadTask.new(load_pool.pool,
                                                   "VerifyChildInvoices_#{child.account_id}",
-                                                  Proc.new do |iteration|
+                                                  proc do |iteration|
                                                     verify_child_invoices_task.with_rescue_and_timing(iteration) do |_|
                                                       all_invoices = child.invoices(false, @options)
                                                       nb_committed_invoices, nb_draft_invoices = count_invoices_by_status(all_invoices)
@@ -131,7 +130,7 @@ module KillBillIntegrationTests
       @parents.sample(SAMPLE_SIZE_TO_VERIFY).each do |parent|
         verify_parent_invoices_task = LoadTask.new(load_pool.pool,
                                                    "VerifyParentInvoices_#{parent.account_id}",
-                                                   Proc.new do |iteration|
+                                                   proc do |iteration|
                                                      verify_parent_invoices_task.with_rescue_and_timing(iteration) do |_|
                                                        all_invoices = parent.invoices(false, @options)
                                                        nb_committed_invoices, nb_draft_invoices = count_invoices_by_status(all_invoices)
@@ -147,7 +146,7 @@ module KillBillIntegrationTests
 
       load_pool.run_tasks
 
-      load_pool.payment_tasks.values.each { |t| assert_equal(0, t.exceptions.size) }
+      load_pool.payment_tasks.each_value { |t| assert_equal(0, t.exceptions.size) }
     end
 
     def count_invoices_by_status(all_invoices)

@@ -1,26 +1,24 @@
-$LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../..', __dir__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'plugin_base'
 
 module KillBillIntegrationTests
-
   class TestAvaTax < KillBillIntegrationTests::PluginBase
-
-    PLUGIN_KEY = "avatax"
-    PLUGIN_NAME = "killbill-avatax"
+    PLUGIN_KEY = 'avatax'
+    PLUGIN_NAME = 'killbill-avatax'
     # Default to latest
     PLUGIN_VERSION = nil
 
+    PLUGIN_PROPS = [{ key: 'pluginArtifactId', value: 'avatax-plugin' },
+                    { key: 'pluginGroupId', value: 'org.kill-bill.billing.plugin.java' },
+                    { key: 'pluginType', value: 'java' }].freeze
 
-    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'avatax-plugin'},
-                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.java'},
-                    {:key => 'pluginType', :value => 'java'},
-    ]
-
-    PLUGIN_CONFIGURATION = 'org.killbill.billing.plugin.avatax.url=https://sandbox-rest.avatax.com/api/v2' + "\n" +
-                           "org.killbill.billing.plugin.avatax.accountId=#{ENV['AVATAX_ACCOUNT_ID']}" + "\n" +
-                           "org.killbill.billing.plugin.avatax.licenseKey=#{ENV['AVATAX_LICENSE_KEY']}" + "\n" +
+    PLUGIN_CONFIGURATION = 'org.killbill.billing.plugin.avatax.url=https://sandbox-rest.avatax.com/api/v2' + "\n" \
+                           "org.killbill.billing.plugin.avatax.accountId=#{ENV['AVATAX_ACCOUNT_ID']}" + "\n" \
+                           "org.killbill.billing.plugin.avatax.licenseKey=#{ENV['AVATAX_LICENSE_KEY']}" + "\n" \
                            'org.killbill.billing.plugin.avatax.commitDocuments=false'
 
     # California Nexus must be enabled as of 05/2020 in your account for the test to pass
@@ -37,7 +35,7 @@ module KillBillIntegrationTests
       # Create account
       data = {}
       data[:name] = 'Mathew Gallager'
-      data[:external_key] = Time.now.to_i.to_s + "-" + rand(1000000).to_s
+      data[:external_key] = Time.now.to_i.to_s + '-' + rand(1_000_000).to_s
       data[:email] = 'mathewgallager@kb.com'
       data[:currency] = 'USD'
       data[:time_zone] = 'UTC'
@@ -53,11 +51,11 @@ module KillBillIntegrationTests
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
 
-      body = {:productName => 'Sports', :taxCode => 'D9999999'}.to_json
-      KillBillClient::API.post("/plugins/killbill-avatax/taxCodes", body, {}, @options)
+      body = { productName: 'Sports', taxCode: 'D9999999' }.to_json
+      KillBillClient::API.post('/plugins/killbill-avatax/taxCodes', body, {}, @options)
 
-      body = {:productName => 'Super', :taxCode => 'D9999999'}.to_json
-      KillBillClient::API.post("/plugins/killbill-avatax/taxCodes", body, {}, @options)
+      body = { productName: 'Super', taxCode: 'D9999999' }.to_json
+      KillBillClient::API.post('/plugins/killbill-avatax/taxCodes', body, {}, @options)
 
       # Assumed tax rates
       @sf_county_tax = 0.0025
@@ -89,7 +87,7 @@ module KillBillIntegrationTests
 
       # Verify the second invoice, amount should be $500 * 1.085 = $542.5
       total_amount_after_taxes_second = second_invoice_charges * (1 + @cs_sf_total_tax)
-      all_invoices   = check_next_invoice_amount(2, total_amount_after_taxes_second, '2020-06-01', @account, @options, &@proc_account_invoices_nb)
+      all_invoices = check_next_invoice_amount(2, total_amount_after_taxes_second, '2020-06-01', @account, @options, &@proc_account_invoices_nb)
       second_invoice = all_invoices[1]
 
       assert_equal(5, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
@@ -116,7 +114,7 @@ module KillBillIntegrationTests
       kb_clock_add_days(1, nil, @options)
 
       # Change immediately
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
+      bp = bp.change_plan({ productName: 'Super', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_entitlement(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', '2020-05-01', nil)
 
       # Verify the second and third invoices, latest invoice amount is -$466.67 - $4.67 - $30.33 + $9.03 + $58.71 + $903.23 = $469.30
@@ -145,10 +143,10 @@ module KillBillIntegrationTests
       adj_ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       adj_ca_special_taxes.first.amount = ca_special_tax_amount
       check_invoice_item(adj_ca_special_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
-      adj_ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'sports-monthly'}
+      adj_ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'sports-monthly' }
       assert_not_empty(adj_ca_state_taxes)
       check_invoice_item(adj_ca_state_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
-      adj_ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'sports-monthly'}
+      adj_ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'sports-monthly' }
       assert_not_empty(adj_ca_county_taxes)
       check_invoice_item(adj_ca_county_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
       # charges
@@ -158,10 +156,10 @@ module KillBillIntegrationTests
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
       check_invoice_item(ca_special_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
-      ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly'}
+      ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_county_taxes)
       check_invoice_item(ca_county_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
-      ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'super-monthly'}
+      ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_state_taxes)
       check_invoice_item(ca_state_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
       super_monthly = third_invoice.items.select { |item| item.description == 'super-monthly-evergreen' }
@@ -185,7 +183,7 @@ module KillBillIntegrationTests
       fourth_invoice_adj = -945.01
       invoice_adjustment = -870.97
       # Verify the second, third and fourth invoices
-      all_invoices   = check_next_invoice_amount(4, fourth_invoice_adj, '2020-06-03', @account, @options, &@proc_account_invoices_nb)
+      all_invoices = check_next_invoice_amount(4, fourth_invoice_adj, '2020-06-03', @account, @options, &@proc_account_invoices_nb)
       # Second invoice should be untouched
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, total_amount_after_taxes_second, 'USD', '2020-06-01')
@@ -209,7 +207,7 @@ module KillBillIntegrationTests
       adj_ca_state_taxes = fourth_invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(adj_ca_state_taxes)
       check_invoice_item(adj_ca_state_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
-      adj_ca_county_taxes = fourth_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly'}
+      adj_ca_county_taxes = fourth_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(adj_ca_county_taxes)
       check_invoice_item(adj_ca_county_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
       cba_adjustment = fourth_invoice.items.select { |item| item.item_type == 'CBA_ADJ' }
@@ -230,11 +228,11 @@ module KillBillIntegrationTests
       amount_adj_after_taxes = amount_adj * (1 + @cs_sf_total_tax)
       total_invoice_after_adjustment = total_charge_after_taxes + amount_adj_after_taxes
 
-      invoice    = setup_test_adjust_tax_after_item_adjustment(charge_amount, total_charge_after_taxes)
+      invoice = setup_test_adjust_tax_after_item_adjustment(charge_amount, total_charge_after_taxes)
 
       # Refund partially the payment and item adjust the charge
       payment_id = @account.payments(@options).first.payment_id
-      refund(payment_id, amount_adj.abs, [{:invoice_item_id => (invoice.items.find { |ii| ii.item_type == 'EXTERNAL_CHARGE' }).invoice_item_id, :amount => amount_adj.abs}], @user, @options)
+      refund(payment_id, amount_adj.abs, [{ invoice_item_id: (invoice.items.find { |ii| ii.item_type == 'EXTERNAL_CHARGE' }).invoice_item_id, amount: amount_adj.abs }], @user, @options)
 
       # Verify the invoice
       invoice = get_invoice_by_id(invoice.invoice_id, @options)
@@ -329,9 +327,9 @@ module KillBillIntegrationTests
       invoice
     end
 
-    def truncate(amount, places=2)
+    def truncate(amount, places = 2)
       result = (amount.abs * ('1' + '0' * places).to_i).floor / (('1' + '0' * places) + '.0').to_f
-      amount < 0 ? result * -1 : result
+      amount.negative? ? result * -1 : result
     end
 
     def sum_items_amount(items)
@@ -341,6 +339,5 @@ module KillBillIntegrationTests
 
       items.first
     end
-
   end
 end

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module KillBillIntegrationTests
   module RefundHelper
-
     def refund(payment_id, amount, adjustments, user, options)
       item_adjustments = nil
       unless adjustments.nil?

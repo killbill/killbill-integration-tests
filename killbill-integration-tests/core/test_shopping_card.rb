@@ -1,20 +1,18 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 require 'bigdecimal'
 
 module KillBillIntegrationTests
-
   class TestShoppingCardTest < Base
-
     def setup
       setup_base
       upload_catalog('SpyCarAdvanced.xml', false, @user, @options)
       @account = create_account(@user, @options)
-      @ext_key_prefix = "#{@account.account_id}-" + rand(1000000).to_s
+      @ext_key_prefix = "#{@account.account_id}-" + rand(1_000_000).to_s
       # Used for sorting
       @ext_key_postfix = 0
     end
@@ -29,7 +27,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson body should be specified", e)
+      check_error_message('SubscriptionJson body should be specified', e)
     end
 
     def test_invalid_spec_missing_account
@@ -52,7 +50,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson productName should not be set when planName is specified", e)
+      check_error_message('SubscriptionJson productName should not be set when planName is specified', e)
     end
 
     def test_invalid_spec_productCategory_specified_with_planName
@@ -65,7 +63,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson productCategory should not be set when planName is specified", e)
+      check_error_message('SubscriptionJson productCategory should not be set when planName is specified', e)
     end
 
     def test_invalid_spec_billingPeriod_specified_with_planName
@@ -78,7 +76,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson billingPeriod should not be set when planName is specified", e)
+      check_error_message('SubscriptionJson billingPeriod should not be set when planName is specified', e)
     end
 
     def test_invalid_spec_priceList_specified_with_planName
@@ -91,7 +89,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson priceList should not be set when planName is specified", e)
+      check_error_message('SubscriptionJson priceList should not be set when planName is specified', e)
     end
 
     def test_invalid_spec_missing_productName
@@ -102,7 +100,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson productName needs to be set when no planName is specified", e)
+      check_error_message('SubscriptionJson productName needs to be set when no planName is specified', e)
     end
 
     def test_invalid_spec_missing_productCategory
@@ -114,7 +112,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson productCategory needs to be set when no planName is specified", e)
+      check_error_message('SubscriptionJson productCategory needs to be set when no planName is specified', e)
     end
 
     def test_invalid_spec_missing_billingPeriod
@@ -127,7 +125,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson billingPeriod needs to be set when no planName is specified", e)
+      check_error_message('SubscriptionJson billingPeriod needs to be set when no planName is specified', e)
     end
 
     def test_invalid_spec_missing_priceList
@@ -141,7 +139,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson priceList needs to be set when no planName is specified", e)
+      check_error_message('SubscriptionJson priceList needs to be set when no planName is specified', e)
     end
 
     def test_invalid_spec_accountIds_mismatch_in_same_bundle
@@ -158,7 +156,7 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson accountId should be the same for each element", e)
+      check_error_message('SubscriptionJson accountId should be the same for each element', e)
     end
 
     def test_invalid_spec_accountIds_mismatch_across_bundles
@@ -175,27 +173,27 @@ module KillBillIntegrationTests
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2), @user, nil, nil, nil, nil, nil, @options)
       assert(false, "Invalid specifier - shouldn't be able to create a subscription")
     rescue KillBillClient::API::BadRequest => e
-      check_error_message("SubscriptionJson accountId should be the same for each element", e)
+      check_error_message('SubscriptionJson accountId should be the same for each element', e)
     end
 
     def test_multiple_standalones
       bundle1 = []
-      bundle1 << to_standalone_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'knife-monthly-notrial', nil, nil)
+      bundle1 << to_standalone_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'knife-monthly-notrial', nil, nil)
       bundle1 << to_standalone_subscription_input(@account.account_id, nil, 'knife-monthly-notrial', nil, nil)
 
       bundle2 = []
-      bundle2 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle2 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle2 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
 
       bundle3 = []
-      bundle3 << to_standalone_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'knife-monthly-notrial', nil, nil)
+      bundle3 << to_standalone_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'knife-monthly-notrial', nil, nil)
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2, bundle3), @user, nil, nil, nil, nil, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bundles = @account.bundles(@options)
       assert_equal(3, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key }
 
       check_bundle(bundle1, bundles[0])
       check_bundle(bundle2, bundles[1])
@@ -217,14 +215,14 @@ module KillBillIntegrationTests
 
     def test_multiple_bundles_with_default
       bundle1 = []
-      bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle1 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
 
       bundle2 = []
-      bundle2 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'standard-monthly', nil, nil)
+      bundle2 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'standard-monthly', nil, nil)
 
       bundle3 = []
-      bundle3 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'super-monthly', nil, nil)
+      bundle3 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'super-monthly', nil, nil)
       bundle3 << to_ao_subscription_input(@account.account_id, nil, 'gas-monthly', nil, nil)
 
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(bundle1, bundle2, bundle3), @user, nil, nil, nil, nil, nil, @options)
@@ -232,7 +230,7 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(3, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key }
 
       check_bundle(bundle1, bundles[0])
       check_bundle(bundle2, bundles[1])
@@ -252,7 +250,7 @@ module KillBillIntegrationTests
 
     def test_multiple_bundles_with_future_dates
       bundle1 = []
-      bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle1 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
 
       entitlement_date = '2013-08-15'
@@ -262,7 +260,7 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key }
       check_bundle(bundle1, bundles[0])
 
       kb_clock_add_days(14, nil, @options) # "2013-08-15"
@@ -280,7 +278,7 @@ module KillBillIntegrationTests
 
     def test_multiple_bundles_with_billing_date_in_past
       bundle1 = []
-      bundle1 << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+      bundle1 << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
       bundle1 << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
 
       entitlement_date = nil
@@ -291,9 +289,8 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(1, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key }
       check_bundle(bundle1, bundles[0])
-
 
       all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
@@ -312,11 +309,10 @@ module KillBillIntegrationTests
 
       (1..nb_bundles).each do
         new_bundle = []
-        new_bundle << to_base_subscription_input(@account.account_id, get_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
+        new_bundle << to_base_subscription_input(@account.account_id, build_monotic_inc_bundle_ext_key, 'sports-monthly', nil, nil)
         new_bundle << to_ao_subscription_input(@account.account_id, nil, 'oilslick-monthly', nil, nil)
         all_bundles << new_bundle
       end
-
 
       # Set call completion timeout to 10 sec
       KillBillClient::Model::BulkSubscription.create_bulk_subscriptions(to_input(*all_bundles), @user, nil, nil, nil, nil, 10, @options)
@@ -324,7 +320,7 @@ module KillBillIntegrationTests
 
       bundles = @account.bundles(@options)
       assert_equal(nb_bundles, bundles.size)
-      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key}
+      bundles.sort! { |b1, b2| b1.external_key <=> b2.external_key }
 
       all_bundles.each_with_index do |b, i|
         check_bundle(b, bundles[i])
@@ -336,7 +332,7 @@ module KillBillIntegrationTests
       first_invoice = all_invoices[0]
 
       # Need to use BigDecimal otherwise floating multiplication does not match result
-      expected_invoice_mount = (BigDecimal.new("3.87") * BigDecimal(nb_bundles.to_s)).to_f
+      expected_invoice_mount = (BigDecimal('3.87') * BigDecimal(nb_bundles.to_s)).to_f
 
       check_invoice_no_balance(first_invoice, expected_invoice_mount, 'USD', DEFAULT_KB_INIT_DATE)
     end
@@ -454,8 +450,8 @@ module KillBillIntegrationTests
       subscription.price_overrides = price_overrides
       subscription
     end
-    alias_method :to_standalone_subscription_input, :to_subscription_input
-    alias_method :to_base_subscription_input, :to_subscription_input
+    alias to_standalone_subscription_input to_subscription_input
+    alias to_base_subscription_input to_subscription_input
 
     def to_input(*bundles)
       bundles.map do |b|
@@ -465,13 +461,13 @@ module KillBillIntegrationTests
       end
     end
 
-    def get_monotic_inc_bundle_ext_key
-      @ext_key_prefix = "#{@account.account_id}-" + rand(1000000).to_s
+    def build_monotic_inc_bundle_ext_key
+      @ext_key_prefix = "#{@account.account_id}-" + rand(1_000_000).to_s
       @ext_key_postfix += 1
       "#{@ext_key_postfix}-#{@ext_key_prefix}"
     end
 
-    def find_invoice_item(items, plan_name, expected_nb=1)
+    def find_invoice_item(items, plan_name, expected_nb = 1)
       res = items.select { |e| e.plan_name == plan_name }
       assert_equal(expected_nb, res.size)
       expected_nb == 1 ? res[0] : res

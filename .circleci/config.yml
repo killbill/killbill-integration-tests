@@ -179,11 +179,34 @@ jobs:
       - store_artifacts:
           path: test/reports/
 
+  test-rubocop:
+    <<: *defaults
+    docker:
+      - image: killbill/kbbuild:0.7.0
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-dependencies-{{ .Revision }}
+      - run:
+          name: Run RuboCop
+          command: |
+            mkdir /tmp/test-results
+            source /usr/share/rvm/scripts/rvm
+            rvm use ruby-2.4.2
+            bundle exec rubocop --format tap | tee /tmp/test-results/rubocop.txt 2>&1
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build-ruby-2.4.2
+      - test-rubocop:
+          requires:
+            - build-ruby-2.4.2
       - test-mysql-ruby-2.4.2:
           requires:
             - build-ruby-2.4.2

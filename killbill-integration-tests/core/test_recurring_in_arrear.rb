@@ -1,11 +1,11 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestRecurringInArrear < Base
-
     def setup
       setup_base
       upload_catalog('newspaper.xml', false, @user, @options)
@@ -19,7 +19,6 @@ module KillBillIntegrationTests
     end
 
     def test_basic_recurring
-
       bp = create_entitlement_base(@account.account_id, 'WeekDays', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'WeekDays', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
@@ -46,7 +45,6 @@ module KillBillIntegrationTests
       check_invoice_no_balance(second_invoice, 10.0, 'USD', '2013-10-01')
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 10.0, 'USD', 'RECURRING', 'weekdays-monthly', 'weekdays-monthly-evergreen', '2013-09-01', '2013-10-01')
 
-
       kb_clock_add_months(1, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
@@ -72,10 +70,6 @@ module KillBillIntegrationTests
 
       check_invoice_no_balance(fourth_invoice, 5.0, 'USD', '2013-11-16')
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 5.0, 'USD', 'RECURRING', 'weekdays-monthly', 'weekdays-monthly-evergreen', '2013-11-01', '2013-11-16')
-
     end
-
-
-
   end
 end

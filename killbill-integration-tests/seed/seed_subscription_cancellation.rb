@@ -1,12 +1,12 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'seed_base'
 
 module KillBillIntegrationSeed
-
   class TestSubscriptionCancellation < TestSeedBase
-
     def setup
       setup_seed_base
     end
@@ -15,9 +15,7 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-
     def test_seed_subscriptions_cancellation_imm_eot
-
       data = {}
       data[:name] = 'Allison Greenwich'
       data[:external_key] = 'allisongreenwich'
@@ -46,19 +44,16 @@ module KillBillIntegrationSeed
       # Move clock to end up with partial repair.
       kb_clock_add_days(10, nil, @options)
 
-
       # Cancel BP  in trial with no arguments
       requested_date = nil
-      entitlement_policy = "IMMEDIATE"
-      billing_policy = "END_OF_TERM"
+      entitlement_policy = 'IMMEDIATE'
+      billing_policy = 'END_OF_TERM'
       use_requested_date_for_billing = nil
 
       base.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
     end
 
-
     def test_seed_subscriptions_cancellation_imm_imm
-
       data = {}
       data[:name] = 'Christian Lolipop'
       data[:external_key] = 'christianlolipop'
@@ -89,12 +84,11 @@ module KillBillIntegrationSeed
 
       # Cancel BP  in trial with no arguments
       requested_date = nil
-      entitlement_policy = "IMMEDIATE"
-      billing_policy = "IMMEDIATE"
+      entitlement_policy = 'IMMEDIATE'
+      billing_policy = 'IMMEDIATE'
       use_requested_date_for_billing = nil
 
       base.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
     end
-
   end
 end

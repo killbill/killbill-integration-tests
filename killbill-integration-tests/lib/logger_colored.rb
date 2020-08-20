@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Colorizes the output of the standard library logger, depending on the logger level:
 # To adjust the colors, look at Logger::Colors::SCHEMA and Logger::Colors::constants
 
@@ -26,9 +28,9 @@ class Logger
     WHITE = '1;37'
 
     SCHEMA = {
-        STDOUT => %w[nothing green brown red purple cyan],
-        STDERR => %w[nothing green yellow light_red light_purple light_cyan],
-    }
+      STDOUT => %w[nothing green brown red purple cyan],
+      STDERR => %w[nothing green yellow light_red light_purple light_cyan]
+    }.freeze
   end
 end
 
@@ -38,11 +40,11 @@ class Logger
   def format_message(level, *args)
     if Logger::Colors::SCHEMA[@logdev.dev]
       color = begin
-        Logger::Colors.const_get Logger::Colors::SCHEMA[@logdev.dev][Logger.const_get(level.sub 'ANY', 'UNKNOWN')].to_s.upcase
-      rescue NameError
-        '0;0'
+        Logger::Colors.const_get Logger::Colors::SCHEMA[@logdev.dev][Logger.const_get(level.sub('ANY', 'UNKNOWN'))].to_s.upcase
+              rescue NameError
+                '0;0'
       end
-      "\e[#{ color }m#{ format_message_colorless(level, *args) }\e[0;0m"
+      "\e[#{color}m#{format_message_colorless(level, *args)}\e[0;0m"
     else
       format_message_colorless(level, *args)
     end

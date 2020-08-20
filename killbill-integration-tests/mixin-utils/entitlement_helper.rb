@@ -1,13 +1,12 @@
+# frozen_string_literal: true
+
 module KillBillIntegrationTests
   module EntitlementHelper
-
-
     def transfer_bundle(new_account_id, bundle_id, requested_date, billing_policy, user, options)
       bundle = KillBillClient::Model::Bundle.new
       bundle.account_id = new_account_id
       bundle.bundle_id = bundle_id
-      res = bundle.transfer(requested_date, billing_policy, user, nil, nil, options)
-      res
+      bundle.transfer(requested_date, billing_policy, user, nil, nil, options)
     end
 
     def pause_bundle(bundle_id, requested_date, user, options)
@@ -53,7 +52,6 @@ module KillBillIntegrationTests
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, nil, requested_date, user, options)
     end
 
-
     def create_entitlement_base(account_id, product_name, billing_period, price_list, user, options)
       create_entitlement('BASE', account_id, nil, product_name, billing_period, price_list, nil, nil, nil, user, options)
     end
@@ -86,19 +84,16 @@ module KillBillIntegrationTests
       KillBillClient::Model::Bundle.find_by_external_key(external_key, false, options)
     end
 
-
     def get_subscriptions(bundle_id, options)
       (KillBillClient::Model::Bundle.find_by_id(bundle_id, options).subscriptions || [])
     end
 
     private
 
-
-    def create_entitlement(category, account_id,  bundle_id, product_name, billing_period, price_list, phase_type, overrides, requested_date, user, options)
-
+    def create_entitlement(category, account_id, bundle_id, product_name, billing_period, price_list, phase_type, overrides, requested_date, user, options)
       result = KillBillClient::Model::Subscription.new
       result.account_id = account_id
-      result.bundle_external_key = "#{account_id}-" + rand(1000000).to_s if category == 'BASE'
+      result.bundle_external_key = "#{account_id}-" + rand(1_000_000).to_s if category == 'BASE'
       result.bundle_id = bundle_id if category == 'ADD_ON'
       result.product_name = product_name
       result.product_category = category
@@ -112,6 +107,5 @@ module KillBillIntegrationTests
 
       result
     end
-
   end
 end

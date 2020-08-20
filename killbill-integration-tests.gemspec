@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright 2010-2013 Ning, Inc.
 #
@@ -14,7 +16,7 @@
 # under the License.
 #
 
-$LOAD_PATH.unshift('./');
+$LOAD_PATH.unshift('./')
 require 'killbill-integration-tests/version'
 
 Gem::Specification.new do |s|
@@ -23,7 +25,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Kill Bill test suite.'
   s.description = 'A test suite against a running instance of Kill Bill.'
 
-  s.required_ruby_version = '>= 1.8.6'
+  s.required_ruby_version = '>= 2.4'
 
   s.license = 'Apache License (2.0)'
 
@@ -34,17 +36,18 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.bindir        = 'bin'
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib", "killbill-integration-tests"]
+  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  s.require_paths = %w[lib killbill-integration-tests]
 
   s.rdoc_options << '--exclude' << '.'
 
-  s.add_development_dependency 'test-unit', '~> 3.3.6'
-  s.add_development_dependency 'rake', '~> 13.0'
-  s.add_development_dependency 'thread', '0.2.2'
-  s.add_development_dependency 'midi-smtp-server', '~> 2.1.1'
-  s.add_development_dependency 'toxiproxy', '~> 0.1.2'
-  s.add_development_dependency 'faker', '~> 1.5'
-  s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
   s.add_development_dependency 'ci_reporter_test_unit', '~> 1.0.1'
+  s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
+  s.add_development_dependency 'faker', '~> 1.5'
+  s.add_development_dependency 'midi-smtp-server', '~> 2.1.1'
+  s.add_development_dependency 'rake', '~> 13.0'
+  s.add_development_dependency 'rubocop', '~> 0.88.0'
+  s.add_development_dependency 'test-unit', '~> 3.3.6'
+  s.add_development_dependency 'thread', '0.2.2'
+  s.add_development_dependency 'toxiproxy', '~> 0.1.2'
 end

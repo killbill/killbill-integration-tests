@@ -1,12 +1,12 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'seed_base'
 
 module KillBillIntegrationSeed
-
   class TestSubscriptionWithUsage < TestSeedBase
-
     def setup
       setup_seed_base
     end
@@ -35,26 +35,20 @@ module KillBillIntegrationSeed
       @jamesbond = create_account_with_data(@user, data, @options)
       add_payment_method(@jamesbond.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
-
-
-
       bp = create_entitlement_base(@jamesbond.account_id, 'on-demand-metal', 'NO_BILLING_PERIOD', 'DEFAULT', @user, @options)
 
       # 20015-08-05
       kb_clock_add_days(4, nil, @options)
-      usage_input = [{:unit_type => 'cpu-hour',
-                      :usage_records => [{:record_date => '2015-08-05', :amount => 10}]
-                     }]
+      usage_input = [{ unit_type: 'cpu-hour',
+                       usage_records: [{ record_date: '2015-08-05', amount: 10 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 20015-09-01
       kb_clock_add_days(27, nil, @options)
       wait_for_expected_clause(1, @jamesbond, @options, &@proc_account_invoices_nb)
-
     end
 
     def test_recurring_subscription_with_usage
-
       data = {}
       data[:name] = 'Sean Connery'
       data[:external_key] = 'seanconnery'
@@ -72,24 +66,18 @@ module KillBillIntegrationSeed
       @seanconnery = create_account_with_data(@user, data, @options)
       add_payment_method(@seanconnery.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
-
       bp = create_entitlement_base(@seanconnery.account_id, 'reserved-metal', 'ANNUAL', 'DEFAULT', @user, @options)
       wait_for_expected_clause(1, @seanconnery, @options, &@proc_account_invoices_nb)
 
       # 20015-08-05
       kb_clock_add_days(4, nil, @options)
-      usage_input = [{:unit_type => 'cpu-hour',
-                      :usage_records => [{:record_date => '2015-08-05', :amount => 100}]
-                     }]
+      usage_input = [{ unit_type: 'cpu-hour',
+                       usage_records: [{ record_date: '2015-08-05', amount: 100 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 20015-09-01
       kb_clock_add_days(27, nil, @options)
       wait_for_expected_clause(2, @seanconnery, @options, &@proc_account_invoices_nb)
-
-
     end
-
-
   end
 end

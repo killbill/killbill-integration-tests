@@ -1,21 +1,19 @@
-$LOAD_PATH.unshift File.expand_path('../../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../..', __dir__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'plugin_base'
 
 module KillBillIntegrationTests
-
   class TestPaymentWithControl < KillBillIntegrationTests::PluginBase
-
-    PLUGIN_KEY = "payment-test"
+    PLUGIN_KEY = 'payment-test'
     # Default to latest
     PLUGIN_VERSION = nil
 
-
-    PLUGIN_PROPS = [{:key => 'pluginArtifactId', :value => 'payment-test-plugin'},
-                    {:key => 'pluginGroupId', :value => 'org.kill-bill.billing.plugin.ruby'},
-                    {:key => 'pluginType', :value => 'ruby'},
-    ]
+    PLUGIN_PROPS = [{ key: 'pluginArtifactId', value: 'payment-test-plugin' },
+                    { key: 'pluginGroupId', value: 'org.kill-bill.billing.plugin.ruby' },
+                    { key: 'pluginType', value: 'ruby' }].freeze
 
     def setup
       @user = 'PaymentWithControl'
@@ -36,7 +34,7 @@ module KillBillIntegrationTests
     def test_authorize_success
       authorize = 'AUTHORIZE'
       success   = 'SUCCESS'
-      payment_key      = 'payment-' + rand(1000000).to_s
+      payment_key = 'payment-' + rand(1_000_000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -48,7 +46,7 @@ module KillBillIntegrationTests
     end
 
     def test_authorize_plugin_exception
-      payment_key = 'payment1-' + rand(1000000).to_s
+      payment_key = 'payment1-' + rand(1_000_000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -59,17 +57,17 @@ module KillBillIntegrationTests
       got_exception = false
       begin
         create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-        assert(false, "Called was supposed to fail")
-      rescue KillBillClient::API::BadRequest => e
-        got_exception= true
+        assert(false, 'Called was supposed to fail')
+      rescue KillBillClient::API::BadRequest
+        got_exception = true
       end
-      assert(got_exception, "Failed to get exception")
+      assert(got_exception, 'Failed to get exception')
     end
 
     unless ENV['CIRCLECI']
       # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
       def test_authorize_plugin_timedout
-        payment_key = 'payment2-' + rand(1000000).to_s
+        payment_key = 'payment2-' + rand(1_000_000).to_s
         payment_currency = 'USD'
 
         add_property('TEST_MODE', 'CONTROL')
@@ -77,19 +75,18 @@ module KillBillIntegrationTests
 
         auth1_key = payment_key + '-auth'
         auth1_amount = '123.5'
-        got_exception = false
 
         begin
-        auth = create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-        flunk("Call should have timedout")
-        rescue KillBillClient::API::GatewayTimeout => e
+          create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
+          flunk('Call should have timedout')
+        rescue KillBillClient::API::GatewayTimeout
           # 504 in case of timeout
         end
       end
     end
 
     def test_authorize_with_nil_result
-      payment_key      = 'payment3-' + rand(1000000).to_s
+      payment_key      = 'payment3-' + rand(1_000_000).to_s
       payment_currency = 'USD'
 
       add_property('TEST_MODE', 'CONTROL')
@@ -97,13 +94,13 @@ module KillBillIntegrationTests
 
       auth1_key         = payment_key + '-auth1'
       auth1_amount      = '13.23'
-      got_exception= false
+      got_exception = false
       begin
         create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-      rescue KillBillClient::API::InternalServerError => e
-        got_exception= true
+      rescue KillBillClient::API::InternalServerError
+        got_exception = true
       end
-      assert(got_exception, "Failed to get exception")
+      assert(got_exception, 'Failed to get exception')
     end
 
     private
@@ -114,6 +111,5 @@ module KillBillIntegrationTests
       prop_test_mode.value = value
       @options[:pluginProperty] << prop_test_mode
     end
-
   end
 end

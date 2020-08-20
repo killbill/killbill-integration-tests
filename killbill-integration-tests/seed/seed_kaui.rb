@@ -1,5 +1,7 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'concurrent'
 require 'date'
@@ -15,7 +17,7 @@ module Faker
       def fetch(key, options = {})
         fetched = translate("faker.#{key}", options)
         fetched = fetched.sample if fetched.respond_to?(:sample)
-        if fetched.match(/^\//) and fetched.match(/\/$/) # A regex
+        if fetched.match(%r{^/}) && fetched.match(%r{/$}) # A regex
           regexify(fetched)
         else
           fetched
@@ -25,10 +27,8 @@ module Faker
   end
 end
 
-
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
-
     def setup
       log_dir = '/var/tmp/'
       now = Time.now.strftime('%Y-%m-%d-%H:%M')
@@ -46,9 +46,9 @@ module KillBillIntegrationSeed
       @subs_mutex = Mutex.new
 
       tenant_info = {
-          :use_multi_tenant => true,
-          :api_key => ENV['api_key'] || 'bob',
-          :api_secret => ENV['api_secret'] || 'lazar'
+        use_multi_tenant: true,
+        api_key: ENV['api_key'] || 'bob',
+        api_secret: ENV['api_secret'] || 'lazar'
       }
 
       @start_date = ENV['start_date'] || Date.today.to_s
@@ -74,25 +74,25 @@ module KillBillIntegrationSeed
       # Notes:
       # * The config is global, so set it before creating accounts in parallel
       # * Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
-      Faker::Config.locale = [:de, :en, :es, :fa, :fr, :it, :ja, :ko, :ru].sample
+      Faker::Config.locale = %i[de en es fa fr it ja ko ru].sample
 
-      task = lambda { create_account_with_subscription }
+      task = -> { create_account_with_subscription }
       nb_accounts = case date.wday
-                      when 0 then # Sunday
-                        rand(0..2)
-                      when 1..5 then
-                        rand(3..8)
-                      else # Saturday
-                        rand(2..5)
+                    when 0 # Sunday
+                      rand(0..2)
+                    when 1..5
+                      rand(3..8)
+                    else # Saturday
+                      rand(2..5)
                     end
 
-      @logger.info "Creating #{nb_accounts} accounts on #{date.to_s} (locale #{Faker::Config.locale})"
+      @logger.info "Creating #{nb_accounts} accounts on #{date} (locale #{Faker::Config.locale})"
       run_in_parallel(nb_accounts, task)
 
       # Trigger a few cancellations
-      task = lambda { cancel_random_subscription }
+      task = -> { cancel_random_subscription }
       nb_cancellations = (nb_accounts * 20 / 100.0).to_i
-      run_in_parallel(nb_cancellations == 0 ? 2 : nb_cancellations, task)
+      run_in_parallel(nb_cancellations.zero ? 2 : nb_cancellations, task)
     end
 
     def create_account_with_subscription(nb_retries = 3)
@@ -101,7 +101,7 @@ module KillBillIntegrationSeed
 
       base = create_base_subscription(account)
       create_add_on(account, base)
-    rescue => e
+    rescue StandardError => e
       raise e if nb_retries <= 0
 
       # Maybe we generated random data which a plugin didn't support, or we got an exception with Faker and obscure locales
@@ -113,23 +113,23 @@ module KillBillIntegrationSeed
       first_name = Faker::Name.first_name
       last_name = Faker::Name.last_name
       data = {
-          :name => "#{first_name} #{last_name}",
-          :first_name_length => first_name.length,
-          :external_key => Faker::Code.npi,
-          :email => Faker::Internet.email,
-          :locale => Faker::Config.locale,
-          # Limited by the catalog
-          :currency => %w(USD GBP EUR).sample,
-          :phone => Faker::PhoneNumber.phone_number,
-          # We don't want the timezone to be translated
-          :time_zone => Faker::Address.fetch('address.time_zone', {:locale => :en}),
-          :address1 => Faker::Address.street_address,
-          :address2 => Faker::Address.secondary_address,
-          :postal_code => Faker::Address.postcode,
-          :city => Faker::Address.city,
-          :state => Faker::Address.state,
-          :country => Faker::Address.country_code,
-          :company => "#{Faker::Company.name}: #{Faker::Company.catch_phrase}"[0..49]
+        name: "#{first_name} #{last_name}",
+        first_name_length: first_name.length,
+        external_key: Faker::Code.npi,
+        email: Faker::Internet.email,
+        locale: Faker::Config.locale,
+        # Limited by the catalog
+        currency: %w[USD GBP EUR].sample,
+        phone: Faker::PhoneNumber.phone_number,
+        # We don't want the timezone to be translated
+        time_zone: Faker::Address.fetch('address.time_zone', { locale: :en }),
+        address1: Faker::Address.street_address,
+        address2: Faker::Address.secondary_address,
+        postal_code: Faker::Address.postcode,
+        city: Faker::Address.city,
+        state: Faker::Address.state,
+        country: Faker::Address.country_code,
+        company: "#{Faker::Company.name}: #{Faker::Company.catch_phrase}"[0..49]
       }
       account = create_account_with_data(@user, data, @options)
       @logger.info "Created account #{account.account_id}: #{account.name}"
@@ -140,29 +140,29 @@ module KillBillIntegrationSeed
     def create_payment_method(account)
       # Faker::Finance.credit_card doesn't seem to produce only valid ones
       cc_nums = {
-          'visa' => 4111111111111111,
-          'master' => 5555555555554444,
-          'american_express' => 378282246310005
+        'visa' => 4_111_111_111_111_111,
+        'master' => 5_555_555_555_554_444,
+        'american_express' => 378_282_246_310_005
       }
       cc_type = cc_nums.keys.sample
 
       expiry_date = Faker::Business.credit_card_expiry_date
 
       plugin_info = {
-          'ccNumber' => cc_nums[cc_type],
-          'ccExpirationMonth' => expiry_date.month,
-          'ccExpirationYear' => expiry_date.year,
-          'ccVerificationValue' => '723',
-          'ccFirstName' => Faker::Name.first_name,
-          'ccLastName' => Faker::Name.last_name,
-          'ccType' => cc_type,
-          # CyberSource is really picky about emails
-          'email' => Faker::Internet.free_email('john'),
-          'address1' => Faker::Address.street_address,
-          'city' => Faker::Address.city,
-          'state' => Faker::Address.state,
-          'zip' => Faker::Address.postcode,
-          'country' => Faker::Address.country_code
+        'ccNumber' => cc_nums[cc_type],
+        'ccExpirationMonth' => expiry_date.month,
+        'ccExpirationYear' => expiry_date.year,
+        'ccVerificationValue' => '723',
+        'ccFirstName' => Faker::Name.first_name,
+        'ccLastName' => Faker::Name.last_name,
+        'ccType' => cc_type,
+        # CyberSource is really picky about emails
+        'email' => Faker::Internet.free_email('john'),
+        'address1' => Faker::Address.street_address,
+        'city' => Faker::Address.city,
+        'state' => Faker::Address.state,
+        'zip' => Faker::Address.postcode,
+        'country' => Faker::Address.country_code
       }
 
       @logger.debug "Plugin info: #{plugin_info}"
@@ -171,17 +171,16 @@ module KillBillIntegrationSeed
     end
 
     def create_base_subscription(account)
-
       product, billing_period, price_list = case rand(10)
-                                             when 0..4 then
-                                               ['reserved-metal', 'MONTHLY', 'TRIAL']
-                                             when 5 then
-                                               ['reserved-metal', 'ANNUAL', 'DEFAULT']
-                                             when 6..8 then
-                                               ['reserved-vm', 'MONTHLY', 'TRIAL']
-                                             else
-                                               ['on-demand-metal', 'NO_BILLING_PERIOD', 'DEFAULT']
-                                           end
+                                            when 0..4 then
+                                              %w[reserved-metal MONTHLY TRIAL]
+                                            when 5 then
+                                              %w[reserved-metal ANNUAL DEFAULT]
+                                            when 6..8 then
+                                              %w[reserved-vm MONTHLY TRIAL]
+                                            else
+                                              %w[on-demand-metal NO_BILLING_PERIOD DEFAULT]
+                                            end
 
       base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
       @logger.info "Created #{product.downcase}-#{billing_period.downcase}-#{price_list} subscription for account id #{account.account_id}"
@@ -191,26 +190,25 @@ module KillBillIntegrationSeed
       base
     end
 
-    def create_add_on(account, base)
+    def create_add_on(_account, base)
       # Not available
 
       @logger.info "create_add_on: base = #{base.inspect}"
 
       return if base.product_name != 'reserved-vm' || base.price_list != 'TRIAL'
 
-      ao_product = 'backup-daily'
-      return ao_product
+      'backup-daily'
 
-      # Only monthly add-ons are supported
-      billing_period = 'MONTHLY'
-
-      ao = create_entitlement_ao(account.account_id, base.bundle_id, ao_product, billing_period, 'DEFAULT', @user, @options)
-      @logger.info "Created #{ao_product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
-
-      @ao_subscriptions[base.bundle_id] ||= []
-      @ao_subscriptions[base.bundle_id] << ao
-
-      ao
+      #       # Only monthly add-ons are supported
+      #       billing_period = 'MONTHLY'
+      #
+      #       ao = create_entitlement_ao(account.account_id, base.bundle_id, ao_product, billing_period, 'DEFAULT', @user, @options)
+      #       @logger.info "Created #{ao_product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
+      #
+      #       @ao_subscriptions[base.bundle_id] ||= []
+      #       @ao_subscriptions[base.bundle_id] << ao
+      #
+      #       ao
     end
 
     def cancel_random_subscription
@@ -220,7 +218,7 @@ module KillBillIntegrationSeed
       sub = @subs_mutex.synchronize do
         # Assume most of the cancellations are for add-ons
         if rand(10) > 3
-          if  ! @ao_subscriptions.empty?
+          unless @ao_subscriptions.empty?
             bundle_id = @ao_subscriptions.keys.sample
             sub = @ao_subscriptions[bundle_id].shuffle.pop
           end
@@ -237,14 +235,15 @@ module KillBillIntegrationSeed
     end
 
     def run_in_parallel(nb_times, task)
-      return if nb_times == 0
+      return if nb_times.zero?
+
       latch = Concurrent::CountDownLatch.new(nb_times)
 
       nb_times.times do
         @pool.post do
           begin
             task.call
-          rescue => e
+          rescue StandardError => e
             @logger.warn "Exception in task: #{e.message}\n#{e.backtrace.join("\n")}"
           ensure
             latch.count_down
@@ -253,17 +252,29 @@ module KillBillIntegrationSeed
       end
 
       latch.wait
-      wait_for_killbill(@options) rescue nil
+      begin
+        wait_for_killbill(@options)
+      rescue StandardError
+        nil
+      end
     end
 
     # We ignore timeouts here, to make sure we always advance the clock
     def run_with_clock(initial_date, last_date)
       date = initial_date.prev_day
-      kb_clock_set("#{date.to_s}T08:00:00.000Z", nil, @options) rescue nil
+      begin
+        kb_clock_set("#{date}T08:00:00.000Z", nil, @options)
+      rescue StandardError
+        nil
+      end
 
-      while date <= last_date do
+      while date <= last_date
         @logger.info "Moving clock to #{date.next_day}"
-        kb_clock_add_days(1, nil, @options) rescue nil
+        begin
+          kb_clock_add_days(1, nil, @options)
+        rescue StandardError
+          nil
+        end
 
         yield date if block_given?
 
@@ -272,7 +283,7 @@ module KillBillIntegrationSeed
     end
 
     def wait_for_killbill(options)
-      super(options, {:timeoutSec => 30})
+      super(options, { timeoutSec: 30 })
     end
   end
 end

@@ -1,16 +1,16 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestRefundCredit < Base
-
     def setup
       setup_base
       load_default_catalog
 
-      @account          = create_account(@user, @options)
+      @account = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
     end
@@ -24,7 +24,6 @@ module KillBillIntegrationTests
     # Later we refund the payment (NO ADJUSTMENT) and check that the available credit previously applied disappears.
     #
     def test_early_cancellation_and_refund
-
       #
       # Create a subscription
       #
@@ -83,16 +82,13 @@ module KillBillIntegrationTests
       refreshed_account = get_account(@account.account_id, true, true, @options)
       assert_equal(refreshed_account.account_balance, 0.0)
       assert_equal(refreshed_account.account_cba, 0.0)
-
     end
-
 
     #
     # In the second scenario, we first issue the refund and then cancel the subscription (before EOT). We end up with the exact same invoice
     # as we got in the first scenario (we just reverted the order of operations but the end result is the same)
     #
     def test_refund_and_cancel
-
       #
       # Create a subscription
       #
@@ -145,7 +141,6 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -333.33, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-10', '2013-09-30')
       check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 333.33, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
-
       # Verify the account balance is 0 and there is NO credit available on the account
       refreshed_account = get_account(@account.account_id, true, true, @options)
       assert_equal(refreshed_account.account_balance, 0.0)
@@ -158,7 +153,6 @@ module KillBillIntegrationTests
     # We end up with an account credit
     #
     def test_early_cancellation_and_refund_with_item_adjustments
-
       #
       # Create a subscription
       #
@@ -201,14 +195,14 @@ module KillBillIntegrationTests
       # The refund will fail because the subscription has already been repaired and there is only (500 - 333.222 = 166.67) left
       #
       begin
-        adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
+        adjustments = [{ invoice_item_id: second_invoice.items[0].invoice_item_id, amount: 333.33 }]
         refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
-        raise MiniTest::Assertion, "Unexpected success on refund"
+        raise MiniTest::Assertion, 'Unexpected success on refund'
       rescue KillBillClient::API::BadRequest
       end
 
       # However if we do a 333.33 refund with a 166.67 adjustment that should pass
-      adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 166.67}]
+      adjustments = [{ invoice_item_id: second_invoice.items[0].invoice_item_id, amount: 166.67 }]
       refund = refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
       assert_equal(refund.transactions.size, 2)
       assert_equal(refund.transactions[1].amount, 333.33)
@@ -243,7 +237,6 @@ module KillBillIntegrationTests
     #
     #
     def test_refund_and_cancel_with_item_adjustments
-
       #
       # Create a subscription
       #
@@ -275,7 +268,7 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       assert_equal(2, all_invoices.size)
       second_invoice = all_invoices[1]
-      adjustments = [ {:invoice_item_id => second_invoice.items[0].invoice_item_id, :amount => 333.33}]
+      adjustments = [{ invoice_item_id: second_invoice.items[0].invoice_item_id, amount: 333.33 }]
       refund = refund(payment_for_second_invoice.payment_id, 333.33, adjustments, @user, @options)
       assert_equal(refund.transactions.size, 2)
       assert_equal(refund.transactions[1].amount, 333.33)
@@ -297,7 +290,6 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -333.33, 'USD', 'ITEM_ADJ', nil, nil, '2013-09-10', '2013-09-10')
 
-
       third_invoice = all_invoices[2]
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, -166.67, 'USD', 'REPAIR_ADJ', nil, nil, '2013-09-10', '2013-09-30')
       check_invoice_item(third_invoice.items[1], third_invoice.invoice_id, 166.67, 'USD', 'CBA_ADJ', nil, nil, '2013-09-10', '2013-09-10')
@@ -308,9 +300,7 @@ module KillBillIntegrationTests
       assert_equal(refreshed_account.account_cba, 166.67)
     end
 
-
     def test_find_credit_by_id
-
       @child_account = create_child_account(@account)
 
       # Create new credit
@@ -322,22 +312,20 @@ module KillBillIntegrationTests
       assert_equal('Child credit', credits[0].description)
 
       # Verify if the returned list has now one element
-      get_credit = KillBillClient::Model::Credit.find_by_id(credits[0].invoice_item_id , @options)
+      get_credit = KillBillClient::Model::Credit.find_by_id(credits[0].invoice_item_id, @options)
 
       # Verify credit fields
       assert_equal(@child_account.account_id, get_credit.account_id)
       assert_equal(12.0, get_credit.amount)
       assert_equal('USD', get_credit.currency)
       assert_equal('Child credit', get_credit.description)
-
     end
 
     private
 
-
-    def create_child_account(parent_account, name_key=nil, is_delegated=true)
+    def create_child_account(parent_account, name_key = nil, is_delegated = true)
       data = {}
-      data[:name] = name_key.nil? ? "#{Time.now.to_i.to_s}-#{rand(1000000).to_s}" : name_key
+      data[:name] = name_key.nil? ? "#{Time.now.to_i}-#{rand(1_000_000)}" : name_key
       data[:external_key] = data[:name]
       data[:email] = "#{data[:name]}@hotbot.com"
       data[:currency] = parent_account.currency
@@ -348,6 +336,5 @@ module KillBillIntegrationTests
 
       create_account_with_data(@user, data, @options)
     end
-
   end
 end

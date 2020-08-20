@@ -1,19 +1,18 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestPauseResume < Base
-
     def setup
       setup_base
       load_default_catalog
 
-      @account          = create_account(@user, @options)
+      @account = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
-
     end
 
     def teardown
@@ -81,14 +80,13 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-09-05'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-09-05'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-09-10'},
-                    {:type => 'RESUME_BILLING', :date => '2013-09-10'}], bp.events)
-
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-09-05' },
+                    { type: 'PAUSE_BILLING', date: '2013-09-05' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-09-10' },
+                    { type: 'RESUME_BILLING', date: '2013-09-10' }], bp.events)
     end
 
     # https://github.com/killbill/killbill/issues/258
@@ -107,11 +105,11 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Resume bundle today
       resume_bundle(bp.bundle_id, nil, @user, @options)
@@ -119,13 +117,13 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Pause bundle again
       pause_bundle(bp.bundle_id, nil, @user, @options)
@@ -133,15 +131,15 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Resume bundle again
       resume_bundle(bp.bundle_id, nil, @user, @options)
@@ -149,17 +147,17 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Pause bundle again
       pause_bundle(bp.bundle_id, nil, @user, @options)
@@ -167,19 +165,19 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Resume bundle again
       resume_bundle(bp.bundle_id, nil, @user, @options)
@@ -187,21 +185,21 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' }], bp.events)
 
       # Move clock (BP out of trial)
       kb_clock_add_days(29, nil, @options) # 31/08/2013
@@ -221,23 +219,23 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-31'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-31' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-31' }], bp.events)
 
       # Verify invoices
       all_invoices  = check_next_invoice_amount(3, -500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
@@ -258,25 +256,26 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
       bp = subscriptions.first
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-02'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-02'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-02'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-08-31'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-08-31'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-08-31'},
-                    {:type => 'RESUME_BILLING', :date => '2013-08-31'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-02' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-02' },
+                    { type: 'RESUME_BILLING', date: '2013-08-02' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-08-31' },
+                    { type: 'PAUSE_BILLING', date: '2013-08-31' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-08-31' },
+                    { type: 'RESUME_BILLING', date: '2013-08-31' }], bp.events)
+      wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock 1 day to check nothing happens (2013-09-01)
       kb_clock_add_days(1, nil, @options)
@@ -431,24 +430,23 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-09-05'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-09-05'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-09-10'},
-                    {:type => 'RESUME_BILLING', :date => '2013-09-10'}], bp.events)
-
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-09-05' },
+                    { type: 'PAUSE_BILLING', date: '2013-09-05' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-09-10' },
+                    { type: 'RESUME_BILLING', date: '2013-09-10' }], bp.events)
 
       # No DISCOUNT phase as we started he subscription more than a month after BP and this is bundle aligned.
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
       check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-09-02', nil, '2013-09-02', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-09-02'},
-                    {:type => 'START_BILLING', :date => '2013-09-02'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-09-05'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-09-05'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-09-10'},
-                    {:type => 'RESUME_BILLING', :date => '2013-09-10'}], ao1.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-09-02' },
+                    { type: 'START_BILLING', date: '2013-09-02' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-09-05' },
+                    { type: 'PAUSE_BILLING', date: '2013-09-05' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-09-10' },
+                    { type: 'RESUME_BILLING', date: '2013-09-10' }], ao1.events)
     end
 
     def test_future_pause
@@ -487,7 +485,7 @@ module KillBillIntegrationTests
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
 
       # BUG : future pause events are not returned
-      #check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
+      # check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
       #              {:type => "START_BILLING", :date => "2013-08-01"},
       #              {:type => "PHASE", :date => "2013-08-31"},
       #              {:type => "PAUSE_ENTITLEMENT", :date => "2013-09-05"},
@@ -535,14 +533,13 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'PAUSE_ENTITLEMENT', :date => '2013-09-05'},
-                    {:type => 'PAUSE_BILLING', :date => '2013-09-05'},
-                    {:type => 'RESUME_ENTITLEMENT', :date => '2013-09-10'},
-                    {:type => 'RESUME_BILLING', :date => '2013-09-10'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'PAUSE_ENTITLEMENT', date: '2013-09-05' },
+                    { type: 'PAUSE_BILLING', date: '2013-09-05' },
+                    { type: 'RESUME_ENTITLEMENT', date: '2013-09-10' },
+                    { type: 'RESUME_BILLING', date: '2013-09-10' }], bp.events)
     end
   end
 end
-

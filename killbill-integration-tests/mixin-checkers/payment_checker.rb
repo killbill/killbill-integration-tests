@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'checker_base'
 
 module KillBillIntegrationTests
   module PaymentChecker
-
     include CheckerBase
 
     def check_payment(p, account_id, payment_external_key, auth_amount, captured_amount, purchased_amount, refunded_amount, credited_amount, transactions)

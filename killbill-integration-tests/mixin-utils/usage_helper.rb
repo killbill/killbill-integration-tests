@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module KillBillIntegrationTests
   module UsageHelper
-
     #
     # usage_input = [{:unit_type, :usage_records}], and usage_records = [:record_date, :amount]
     #
@@ -30,7 +31,5 @@ module KillBillIntegrationTests
     def get_usage_for_subscription_and_type(subscription_id, start_date, end_date, unit_type, options)
       KillBillClient::Model::RolledUpUsage.find_by_subscription_id_and_type(subscription_id, start_date, end_date, unit_type, options)
     end
-
-
   end
 end

@@ -1,12 +1,12 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 require 'pp'
 
 module KillBillIntegrationTests
-
   class TestTag < Base
-
     def setup
       setup_base
       load_default_catalog
@@ -33,9 +33,9 @@ module KillBillIntegrationTests
       assert_false @account.control_tag?(KillBillClient::Model::TagHelper::AUTO_PAY_OFF_ID, @options)
       assert_false @account.control_tag?(KillBillClient::Model::TagHelper::AUTO_INVOICING_OFF_ID, @options)
       @account.set_tags([
-        KillBillClient::Model::TagHelper::AUTO_PAY_OFF_ID,
-        KillBillClient::Model::TagHelper::AUTO_INVOICING_OFF_ID
-      ], @user, nil, nil, @options)
+                          KillBillClient::Model::TagHelper::AUTO_PAY_OFF_ID,
+                          KillBillClient::Model::TagHelper::AUTO_INVOICING_OFF_ID
+                        ], @user, nil, nil, @options)
       assert_false @account.test?(@options)
       assert_true @account.auto_pay_off?(@options)
       assert_true @account.auto_invoicing_off?(@options)

@@ -1,13 +1,13 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'date'
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestMixedCatalogWithUsage < Base
-
     def setup
       setup_base
       upload_catalog('Catalog-Mixed-With-Usage.xml', false, @user, @options)
@@ -84,9 +84,8 @@ module KillBillIntegrationTests
       # 2013-08-01 -> 2013-08-31, record a total of 15 minutes
       (0..30).each do |day|
         today = Date.parse('2013-08-01') + day
-        usage_input = [{:unit_type => 'minutes',
-                        :usage_records => [{:record_date => today.to_s, :amount => day % 2}]
-                       }]
+        usage_input = [{ unit_type: 'minutes',
+                         usage_records: [{ record_date: today.to_s, amount: day % 2 }] }]
         record_usage(bp.subscription_id, usage_input, @user, @options)
 
         # Check recorded usage (note that endDate is exclusive in the API)
@@ -116,7 +115,7 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 14.85, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-09-01')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(first_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 15, :tier_price => 0.99 }], 14.85)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 15, tier_price: 0.99 }], 14.85)
 
       # 2013-10-01
       kb_clock_add_months(1, nil, @options)
@@ -130,20 +129,19 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-10-01')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(second_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 0, :tier_price => 0.99 }], 0)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 0, tier_price: 0.99 }], 0)
 
       # 2013-10-15
       kb_clock_add_days(14, nil, @options)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-10-01', :amount => 1},
-                                         {:record_date => '2013-10-02', :amount => 1},
-                                         {:record_date => '2013-10-03', :amount => 1},
-                                         {:record_date => '2013-10-04', :amount => 1},
-                                         {:record_date => '2013-10-05', :amount => 1},
-                                         {:record_date => '2013-10-07', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-10-01', amount: 1 },
+                                       { record_date: '2013-10-02', amount: 1 },
+                                       { record_date: '2013-10-03', amount: 1 },
+                                       { record_date: '2013-10-04', amount: 1 },
+                                       { record_date: '2013-10-05', amount: 1 },
+                                       { record_date: '2013-10-07', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # Verify IMMEDIATE cancellation
@@ -168,7 +166,7 @@ module KillBillIntegrationTests
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-10-01', '2013-10-15')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(third_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 6, tier_price: 0.99 }], 5.94)
 
       # 2013-12-15
       kb_clock_add_months(2, nil, @options)
@@ -251,13 +249,12 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
-                                         {:record_date => '2013-08-02', :amount => 1},
-                                         {:record_date => '2013-08-03', :amount => 1},
-                                         {:record_date => '2013-08-04', :amount => 1},
-                                         {:record_date => '2013-08-05', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-08-01', amount: 1 },
+                                       { record_date: '2013-08-02', amount: 1 },
+                                       { record_date: '2013-08-03', amount: 1 },
+                                       { record_date: '2013-08-04', amount: 1 },
+                                       { record_date: '2013-08-05', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 2013-08-05: pause entitlement now, billing at BCD
@@ -281,16 +278,14 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-09-01')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(first_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 5, tier_price: 0.99 }], 4.95)
 
       # Add a few usage points during the disabled period and verify they have not been taken into account
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-09-01', :amount => 1},
-                                         {:record_date => '2013-09-02', :amount => 1},
-                                         {:record_date => '2013-09-04', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-09-01', amount: 1 },
+                                       { record_date: '2013-09-02', amount: 1 },
+                                       { record_date: '2013-09-04', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
-
 
       # 2013-09-05: resume both entitlement and billing now
       kb_clock_add_days(4, nil, @options)
@@ -298,8 +293,8 @@ module KillBillIntegrationTests
       set_bundle_blocking_state(bp.bundle_id, 'UNSUSPENDED', 'BillingAdmin', false, false, false, nil, @user, @options)
 
       # Reset the BCD
-      bp.bill_cycle_day_local = 5;
-      effective_from_date  = nil
+      bp.bill_cycle_day_local = 5
+      effective_from_date = nil
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
 
       # System will generate a null invoice - as there is nothing to build
@@ -308,13 +303,12 @@ module KillBillIntegrationTests
       assert_equal(1, all_invoices.size)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-09-05', :amount => 1},
-                                         {:record_date => '2013-09-06', :amount => 1},
-                                         {:record_date => '2013-09-07', :amount => 1},
-                                         {:record_date => '2013-10-01', :amount => 1},
-                                         {:record_date => '2013-10-02', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-09-05', amount: 1 },
+                                       { record_date: '2013-09-06', amount: 1 },
+                                       { record_date: '2013-09-07', amount: 1 },
+                                       { record_date: '2013-10-01', amount: 1 },
+                                       { record_date: '2013-10-02', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 2013-10-05
@@ -331,7 +325,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 4.95, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-05', '2013-10-05')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(second_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 5, :tier_price => 0.99 }], 4.95)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 5, tier_price: 0.99 }], 4.95)
     end
 
     # Upgrade to the unlimited plan
@@ -347,14 +341,13 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
-                                         {:record_date => '2013-08-02', :amount => 1},
-                                         {:record_date => '2013-08-03', :amount => 1},
-                                         {:record_date => '2013-08-04', :amount => 1},
-                                         {:record_date => '2013-08-05', :amount => 1},
-                                         {:record_date => '2013-08-07', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-08-01', amount: 1 },
+                                       { record_date: '2013-08-02', amount: 1 },
+                                       { record_date: '2013-08-03', amount: 1 },
+                                       { record_date: '2013-08-04', amount: 1 },
+                                       { record_date: '2013-08-05', amount: 1 },
+                                       { record_date: '2013-08-07', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 2013-08-15
@@ -362,8 +355,8 @@ module KillBillIntegrationTests
       assert_equal(0, @account.invoices(@options).size)
 
       # Reset the BCD: we want both outstanding usage and new recurring charged right away
-      bp.bill_cycle_day_local = 15;
-      effective_from_date  = nil
+      bp.bill_cycle_day_local = 15
+      effective_from_date = nil
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
@@ -379,12 +372,12 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-08-15')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(first_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 6, tier_price: 0.99 }], 5.94)
 
       # Upgrade
       requested_date = nil
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      bp = bp.change_plan({ productName: 'Voip', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       check_entitlement(bp, 'Voip', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -424,14 +417,13 @@ module KillBillIntegrationTests
       assert_account_bcd(0)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-08-01', :amount => 1},
-                                         {:record_date => '2013-08-02', :amount => 1},
-                                         {:record_date => '2013-08-03', :amount => 1},
-                                         {:record_date => '2013-08-04', :amount => 1},
-                                         {:record_date => '2013-08-05', :amount => 1},
-                                         {:record_date => '2013-08-07', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-08-01', amount: 1 },
+                                       { record_date: '2013-08-02', amount: 1 },
+                                       { record_date: '2013-08-03', amount: 1 },
+                                       { record_date: '2013-08-04', amount: 1 },
+                                       { record_date: '2013-08-05', amount: 1 },
+                                       { record_date: '2013-08-07', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 2013-09-01
@@ -447,15 +439,15 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-08-01', '2013-09-01')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(first_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 6, tier_price: 0.99 }], 5.94)
 
       # 2013-09-15
       kb_clock_add_days(14, nil, @options)
       assert_equal(1, @account.invoices(@options).size)
 
       # Reset the BCD: we want both outstanding usage (nothing in this case) and new recurring charged right away
-      bp.bill_cycle_day_local = 15;
-      effective_from_date  = nil
+      bp.bill_cycle_day_local = 15
+      effective_from_date = nil
       bp.update_bcd(@user, nil, nil, effective_from_date, nil, @options)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
@@ -468,7 +460,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-09-15')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(second_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 0, :tier_price => 0.99 }], 0)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 0, tier_price: 0.99 }], 0)
 
       # Verify account BCD (SUBSCRIPTION alignment)
       assert_account_bcd(0)
@@ -476,7 +468,7 @@ module KillBillIntegrationTests
       # Upgrade
       requested_date = nil
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      bp = bp.change_plan({ productName: 'Voip', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
 
       check_entitlement(bp, 'Voip', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -530,7 +522,7 @@ module KillBillIntegrationTests
       # Downgrade
       requested_date = nil
       billing_policy = nil
-      bp = bp.change_plan({:productName => 'Voip', :billingPeriod => 'NO_BILLING_PERIOD', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      bp = bp.change_plan({ productName: 'Voip', billingPeriod: 'NO_BILLING_PERIOD', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       # Change is END_OF_TERM
@@ -547,14 +539,13 @@ module KillBillIntegrationTests
       assert_equal('voip-monthly-by-usage', bp.plan_name)
 
       # Add usage for the month
-      usage_input = [{:unit_type => 'minutes',
-                      :usage_records => [{:record_date => '2013-09-01', :amount => 1},
-                                         {:record_date => '2013-09-02', :amount => 1},
-                                         {:record_date => '2013-09-03', :amount => 1},
-                                         {:record_date => '2013-09-04', :amount => 1},
-                                         {:record_date => '2013-09-05', :amount => 1},
-                                         {:record_date => '2013-09-07', :amount => 1}]
-                     }]
+      usage_input = [{ unit_type: 'minutes',
+                       usage_records: [{ record_date: '2013-09-01', amount: 1 },
+                                       { record_date: '2013-09-02', amount: 1 },
+                                       { record_date: '2013-09-03', amount: 1 },
+                                       { record_date: '2013-09-04', amount: 1 },
+                                       { record_date: '2013-09-05', amount: 1 },
+                                       { record_date: '2013-09-07', amount: 1 }] }]
       record_usage(bp.subscription_id, usage_input, @user, @options)
 
       # 2013-10-01
@@ -570,7 +561,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 5.94, 'USD', 'USAGE', 'voip-monthly-by-usage', 'voip-monthly-by-usage-evergreen', '2013-09-01', '2013-10-01')
       # AGGREGATE mode by default
       check_invoice_consumable_item_detail(second_invoice.items[0],
-                                           [{:tier => 1, :unit_type => 'minutes', :unit_qty => 6, :tier_price => 0.99 }], 5.94)
+                                           [{ tier: 1, unit_type: 'minutes', unit_qty: 6, tier_price: 0.99 }], 5.94)
     end
 
     private
@@ -579,5 +570,4 @@ module KillBillIntegrationTests
       assert_equal(expected_bcd, get_account(@account.account_id, true, true, @options).bill_cycle_day_local)
     end
   end
-
 end

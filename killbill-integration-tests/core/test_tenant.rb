@@ -1,16 +1,16 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestTenant < Base
-
     def setup
       setup_base
 
       # Create a second tenant
-      @options2              = {:username => 'admin', :password => 'password'}
+      @options2              = { username: 'admin', password: 'password' }
       tenant                 = setup_create_tenant(@user, @options2)
       @options2[:api_key]    = tenant.api_key
       @options2[:api_secret] = tenant.api_secret
@@ -26,7 +26,6 @@ module KillBillIntegrationTests
       teardown_base
     end
 
-
     def test_plugin_config
       plugin_name = 'PLUGIN_XXX'
       result = upload_plugin_config(plugin_name, 'plugin.yml', @user, @options2)
@@ -41,7 +40,6 @@ module KillBillIntegrationTests
       result = get_plugin_config(plugin_name, @options2)
       assert_equal('PLUGIN_CONFIG_PLUGIN_XXX', result.key)
       assert_equal(0, result.values.size)
-
     end
 
     def test_cross_tenants_operations
@@ -90,5 +88,4 @@ module KillBillIntegrationTests
       assert_equal(0, account.payments(options).size)
     end
   end
-
 end

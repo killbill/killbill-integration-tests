@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'base'
 
 LOGS_PREFIX = "#{LOGS_DIR}/payment_combo_#{START_TIME}"
@@ -9,10 +11,10 @@ scenario = test do
   header COMMON_HEADERS
 
   threads count: NB_THREADS.to_i, rampup: 30, duration: DURATION.to_i, on_sample_error: 'startnextloop' do
-
     counter = '${__counter(false)}'
 
-    first, last = "John #{counter}", "Bill"
+    first = "John #{counter}"
+    last = 'Bill'
 
     combo_transaction = {
       account: {
@@ -25,23 +27,23 @@ scenario = test do
         pluginName: PLUGIN,
         pluginInfo: {
           properties: [
-            {key: 'email', value: 'tom@killbill.io'},
-            {key: 'description', value: START_TIME},
-            {key: 'ccFirstName', value: first},
-            {key: 'ccLastName', value: last},
-            {key: 'address1', value: '5th street'},
-            {key: 'city', value: 'San Francisco'},
-            {key: 'zip', value: '94111'},
-            {key: 'state', value: 'CA'},
-            {key: 'country', value: 'US'},
-            {key: 'ccNumber', value: '4242424242424242'},
-            {key: 'ccExpirationYear', value: '2020'},
-            {key: 'ccExpirationMonth', value: '10'},
+            { key: 'email', value: 'tom@killbill.io' },
+            { key: 'description', value: START_TIME },
+            { key: 'ccFirstName', value: first },
+            { key: 'ccLastName', value: last },
+            { key: 'address1', value: '5th street' },
+            { key: 'city', value: 'San Francisco' },
+            { key: 'zip', value: '94111' },
+            { key: 'state', value: 'CA' },
+            { key: 'country', value: 'US' },
+            { key: 'ccNumber', value: '4242424242424242' },
+            { key: 'ccExpirationYear', value: '2020' },
+            { key: 'ccExpirationMonth', value: '10' }
           ]
         }
       },
       paymentMethodPluginProperties: [
-        {key: 'skip_gw', value: ENV['SKIP_GW'] == 'true' ? 'true' : 'false'}
+        { key: 'skip_gw', value: ENV['SKIP_GW'] == 'true' ? 'true' : 'false' }
       ],
       transaction: {
         transactionType: 'PURCHASE',
@@ -49,7 +51,7 @@ scenario = test do
         currency: 'USD'
       },
       transactionPluginProperties: [
-        {key: 'skip_gw', value: ENV['SKIP_GW'] == 'true' ? 'true' : 'false'}
+        { key: 'skip_gw', value: ENV['SKIP_GW'] == 'true' ? 'true' : 'false' }
       ]
     }
 
@@ -64,8 +66,8 @@ scenario = test do
     end
   end
 
-  set_up_thread_group &DEFAULT_SETUP
-  tear_down_thread_group &DEFAULT_TEARDOWN
+  set_up_thread_group(&DEFAULT_SETUP)
+  tear_down_thread_group(&DEFAULT_TEARDOWN)
 end
 
 run!(scenario, LOGS_PREFIX)

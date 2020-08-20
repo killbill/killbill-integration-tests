@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'logger'
 require 'socket'
 
 class Gateway
-
   attr_reader :host, :port
   attr_accessor :next_response_code, :next_response, :trigger_eof_error
 
@@ -16,9 +17,9 @@ class Gateway
   def start
     @server = TCPServer.new(@host, @port)
     Thread.new do
-      while (client = @server.accept) do
+      while (client = @server.accept)
         headers = get_headers(client)
-        request = get_request(client, headers['Content-Length'])
+        get_request(client, headers['Content-Length'])
         write_response(client) unless @trigger_eof_error
         client.close
       end
@@ -46,12 +47,12 @@ class Gateway
     return unless request_line.include?('HTTP/')
 
     stream.each_line("\r\n") do |header|
-      unless (header.include?(': ') || header.include?(":\t"))
-        # End of the request
-        break if header == "\r\n"
-      else
+      if header.include?(': ') || header.include?(":\t")
         keys_and_values = header.split(':')
         request[keys_and_values.shift] = keys_and_values.join(':').strip
+      elsif header == "\r\n"
+        # End of the request
+        break
       end
     end
 
