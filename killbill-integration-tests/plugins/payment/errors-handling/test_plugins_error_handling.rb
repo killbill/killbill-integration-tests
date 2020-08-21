@@ -1,4 +1,6 @@
-$LOAD_PATH.unshift File.expand_path('../../../../', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../../..', __dir__)
 
 require 'logger'
 require 'toxiproxy'
@@ -7,9 +9,7 @@ require 'plugins_error_handling_base'
 require 'gateway'
 
 module KillBillIntegrationTests
-
   class TestPluginsErrorHandling < PluginsErrorHandlingBase
-
     class << self
       def startup
         logger = Logger.new(STDOUT)
@@ -21,11 +21,11 @@ module KillBillIntegrationTests
 
         # Setup Toxiproxy
         Toxiproxy.populate([
-                               {
-                                   :name => PluginsErrorHandlingBase::PROXY_NAME,
-                                   :listen => "#{PluginsErrorHandlingBase::PROXY_HOST}:#{PluginsErrorHandlingBase::PROXY_PORT}",
-                                   :upstream => "#{@@gateway.host}:#{@@gateway.port}"
-                               }
+                             {
+                               name: PluginsErrorHandlingBase::PROXY_NAME,
+                               listen: "#{PluginsErrorHandlingBase::PROXY_HOST}:#{PluginsErrorHandlingBase::PROXY_PORT}",
+                               upstream: "#{@@gateway.host}:#{@@gateway.port}"
+                             }
                            ])
       end
 
@@ -81,7 +81,7 @@ module KillBillIntegrationTests
       setup_plugin(build_proxy_config)
 
       transaction = nil
-      toxiproxy.upstream(:latency, :latency => 1500).downstream(:latency, :latency => 3000).apply do
+      toxiproxy.upstream(:latency, latency: 1500).downstream(:latency, latency: 3000).apply do
         transaction = trigger_purchase
       end
 
@@ -93,7 +93,7 @@ module KillBillIntegrationTests
       setup_plugin(build_proxy_config)
 
       transaction = nil
-      toxiproxy.upstream(:slow_close, :delay => 1000).downstream(:slow_close, :delay => 2000).apply do
+      toxiproxy.upstream(:slow_close, delay: 1000).downstream(:slow_close, delay: 2000).apply do
         transaction = trigger_purchase
       end
 
@@ -105,7 +105,7 @@ module KillBillIntegrationTests
       setup_plugin(build_proxy_config)
 
       transaction = nil
-      toxiproxy.upstream(:timeout, :timeout => 2000).downstream(:latency, :timeout => 5000).apply do
+      toxiproxy.upstream(:timeout, timeout: 2000).downstream(:latency, timeout: 5000).apply do
         transaction = trigger_purchase('UNKNOWN', 'End of file reached', 'EOFError')
       end
 

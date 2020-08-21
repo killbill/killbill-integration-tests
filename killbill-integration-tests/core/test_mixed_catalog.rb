@@ -1,15 +1,15 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestMixedCatalog < Base
-
     def setup
       setup_base
       upload_catalog('Catalog-Mixed.xml', false, @user, @options)
-      @account  = create_account(@user, @options)
+      @account = create_account(@user, @options)
     end
 
     def teardown
@@ -44,7 +44,6 @@ module KillBillIntegrationTests
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'basic-monthly-in-arrear', 'basic-monthly-in-arrear-evergreen', '2013-08-01', '2013-09-01')
     end
 
-
     def test_mixed_mode
       bp = create_entitlement_from_plan(@account.account_id, nil, 'basic-monthly-in-advance', @user, @options)
       assert_equal('basic-monthly-in-advance', bp.plan_name)
@@ -60,13 +59,14 @@ module KillBillIntegrationTests
       # 2013-08-16
       kb_clock_add_days(15, nil, @options)
       requested_date = nil
-      billing_policy = "IMMEDIATE"
+      billing_policy = 'IMMEDIATE'
 
-
-        # Move from a plan that was billed in advance to a plan that is now billed in arrear
-      bp = bp.change_plan({:planName => 'basic-monthly-in-arrear'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      # Move from a plan that was billed in advance to a plan that is now billed in arrear
+      bp = bp.change_plan({ planName: 'basic-monthly-in-arrear' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
       changed_bp = get_subscription(bp.subscription_id, @options)
       assert_equal('basic-monthly-in-arrear', changed_bp.plan_name)
+
+      wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       all_invoices = @account.invoices(@options)
       assert_equal(2, all_invoices.size)
@@ -83,7 +83,6 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 516.13, 'USD', 'CBA_ADJ', nil, nil, '2013-08-16', '2013-08-16')
       check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, -516.13, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-16', '2013-09-01')
 
-
       # 2013-09-01
       kb_clock_add_days(16, nil, @options)
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
@@ -94,11 +93,6 @@ module KillBillIntegrationTests
       third_invoice = all_invoices[2]
       check_invoice_no_balance(third_invoice, 258.06, 'USD', '2013-09-01')
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 258.06, 'USD', 'RECURRING', 'basic-monthly-in-arrear', 'basic-monthly-in-arrear-evergreen', '2013-08-16', '2013-09-01')
-
-
     end
-
-
   end
-
 end

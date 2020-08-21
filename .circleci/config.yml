@@ -11,8 +11,6 @@ jobs:
       - image: killbill/kbbuild:0.7.0
     steps:
       - checkout
-      - restore_cache:
-          key: v6-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
       - run:
           name: Install gem dependencies
           command: |
@@ -24,13 +22,13 @@ jobs:
             - Gemfile.lock
             - .bundle
             - vendor/bundle
-          key: v6-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v1-dependencies-{{ .Revision }}
 
   test-mysql-ruby-2.4.2:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.7.0
-      - image: killbill/killbill:0.22.10
+      - image: killbill/killbill:0.22.11
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -40,13 +38,18 @@ jobs:
         - KILLBILL_SERVER_TEST_MODE=true
         - KILLBILL_INVOICE_SANITY_SAFETY_BOUND_ENABLED=false
         - KILLBILL_INVOICE_MAX_DAILY_NUMBER_OF_ITEMS_SAFETY_BOUND=-1
+        - KILLBILL_MAIN_QUEUE_MODE=POLLING
+        - KILLBILL_NOTIFICATIONQ_MAIN_SLEEP=500
+        - KILLBILL_BUS_MAIN_SLEEP=500
+        - KILLBILL_BUS_EXTERNAL_SLEEP=500
+        - KILLBILL_SECURITY_SHIRO_NB_HASH_ITERATIONS=1
       - image: killbill/mariadb:0.22
         environment:
         - MYSQL_ROOT_PASSWORD=root
     steps:
       - checkout
       - restore_cache:
-          key: v6-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v1-dependencies-{{ .Revision }}
       - run:
           name: Setup DDL
           command: |
@@ -88,12 +91,11 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mkdir /tmp/test-results
             source /usr/share/rvm/scripts/rvm
             rvm use ruby-2.4.2
             # Until plugins are released
-            #bundle exec rake ci:all | tee /tmp/test-results/test.txt 2>&1
-            bundle exec rake ci:core | tee /tmp/test-results/test.txt 2>&1
+            #bundle exec rake ci:all TESTOPTS="--stop-on-failure"
+            bundle exec rake ci:core TESTOPTS="--stop-on-failure"
       - store_test_results:
           path: test/reports/
       - store_artifacts:
@@ -103,7 +105,7 @@ jobs:
     <<: *defaults
     docker:
       - image: killbill/kbbuild:0.7.0
-      - image: killbill/killbill:0.22.10
+      - image: killbill/killbill:0.22.11
         environment:
         - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
         - KILLBILL_PAYMENT_PLUGIN_TIMEOUT=5s
@@ -113,19 +115,24 @@ jobs:
         - KILLBILL_SERVER_TEST_MODE=true
         - KILLBILL_INVOICE_SANITY_SAFETY_BOUND_ENABLED=false
         - KILLBILL_INVOICE_MAX_DAILY_NUMBER_OF_ITEMS_SAFETY_BOUND=-1
+        - KILLBILL_MAIN_QUEUE_MODE=POLLING
+        - KILLBILL_NOTIFICATIONQ_MAIN_SLEEP=500
+        - KILLBILL_BUS_MAIN_SLEEP=500
+        - KILLBILL_BUS_EXTERNAL_SLEEP=500
+        - KILLBILL_SECURITY_SHIRO_NB_HASH_ITERATIONS=1
       - image: killbill/postgresql:0.22
         environment:
         - POSTGRES_PASSWORD=postgres
     steps:
       - checkout
       - restore_cache:
-          key: v6-dependencies-ruby-2.4.2-{{ .Branch }}-{{ checksum "killbill-integration-tests.gemspec" }}
+          key: v1-dependencies-{{ .Revision }}
       - run:
           name: Setup DDL
           command: |
             set +e
             count=0
-            until $(psql -h 127.0.0.1 -U postgres -p 5432 -l > /dev/null); do
+            until $(psql -h 127.0.0.1 -U postgres -p 5432 killbill -c 'select 1' > /dev/null); do
               if [[ "$count" == "25" ]]; then
                 exit 1
               fi
@@ -162,22 +169,44 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mkdir /tmp/test-results
             source /usr/share/rvm/scripts/rvm
             rvm use ruby-2.4.2
             # Until plugins are released
-            #bundle exec rake ci:all | tee /tmp/test-results/test.txt 2>&1
-            bundle exec rake ci:core | tee /tmp/test-results/test.txt 2>&1
+            #bundle exec rake ci:all TESTOPTS="--stop-on-failure"
+            bundle exec rake ci:core TESTOPTS="--stop-on-failure"
       - store_test_results:
           path: test/reports/
       - store_artifacts:
           path: test/reports/
+
+  test-rubocop:
+    <<: *defaults
+    docker:
+      - image: killbill/kbbuild:0.7.0
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-dependencies-{{ .Revision }}
+      - run:
+          name: Run RuboCop
+          command: |
+            mkdir /tmp/test-results
+            source /usr/share/rvm/scripts/rvm
+            rvm use ruby-2.4.2
+            bundle exec rubocop --format tap | tee /tmp/test-results/rubocop.txt 2>&1
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
 
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build-ruby-2.4.2
+      - test-rubocop:
+          requires:
+            - build-ruby-2.4.2
       - test-mysql-ruby-2.4.2:
           requires:
             - build-ruby-2.4.2

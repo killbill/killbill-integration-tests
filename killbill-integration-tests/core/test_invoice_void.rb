@@ -1,11 +1,11 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestInvoiceVoid < Base
-
     def setup
       setup_base
       load_default_catalog
@@ -20,7 +20,6 @@ module KillBillIntegrationTests
     end
 
     def test_void_invoice
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
@@ -43,7 +42,7 @@ module KillBillIntegrationTests
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500.0, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
 
       # try to void invoice, it should rise an exemption since the invoice is paid
-      assert_raises(KillBillClient::API::BadRequest){ second_invoice.void(@user, nil, nil, @options) }
+      assert_raises(KillBillClient::API::BadRequest) { second_invoice.void(@user, nil, nil, @options) }
 
       # validate that the invoices did not change
       all_invoices = @account.invoices(@options)
@@ -78,7 +77,5 @@ module KillBillIntegrationTests
       assert_equal(0, refreshed_account.account_balance)
       assert_equal(0, refreshed_account.account_cba)
     end
-
   end
-
 end

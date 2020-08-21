@@ -1,27 +1,23 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'seed_base'
 
 module KillBillIntegrationSeed
-
   class TestRefund < TestSeedBase
-
     def setup
       setup_seed_base
     end
-
 
     def teardown
       teardown_base
     end
 
-=begin
-  Show the refund and also the fact that account has a balance since there were no adjustment.
-=end
+    #   Show the refund and also the fact that account has a balance since there were no adjustment.
 
     def test_seed_refund_no_adj
-
       data = {}
       data[:name] = 'Jean-Baptiste Poquelin'
       data[:external_key] = 'jeanpoquelin'
@@ -44,25 +40,21 @@ module KillBillIntegrationSeed
       wait_for_expected_clause(1, @jeanpoquelin, @options, &@proc_account_invoices_nb)
 
       # Second invoice
-      kb_clock_add_days(31, nil, @options)  # 2015-09-01
+      kb_clock_add_days(31, nil, @options) # 2015-09-01
       wait_for_expected_clause(2, @jeanpoquelin, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(1, nil, @options)  # 2015-09-02
+      kb_clock_add_days(1, nil, @options) # 2015-09-02
 
       base1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
 
       payments = get_payments_for_account(@jeanpoquelin.account_id, @options)
 
       refund(payments[1].payment_id, payments[1].purchased_amount, nil, @user, @options)
-
     end
 
-=begin
-      Show the refund and also the fact that account has no balance since we iia adjusted the invoice
-=end
+    #       Show the refund and also the fact that account has no balance since we iia adjusted the invoice
 
     def test_seed_refund_iia
-
       data = {}
       data[:name] = 'Agostino Giordano'
       data[:external_key] = 'agostinogiordano8'
@@ -85,12 +77,11 @@ module KillBillIntegrationSeed
       base1 = create_entitlement_base(@agostinogiordano.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
       wait_for_expected_clause(1, @agostinogiordano, @options, &@proc_account_invoices_nb)
 
-
       # Second invoice
-      kb_clock_add_days(31, nil, @options)  # 2015-09-01
+      kb_clock_add_days(31, nil, @options) # 2015-09-01
       wait_for_expected_clause(2, @agostinogiordano, @options, &@proc_account_invoices_nb)
 
-      kb_clock_add_days(1, nil, @options)  # 2015-09-02
+      kb_clock_add_days(1, nil, @options) # 2015-09-02
 
       base1.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
 
@@ -101,13 +92,11 @@ module KillBillIntegrationSeed
       invoice = get_invoice_by_id(invoice_payment.target_invoice_id, @options)
 
       adjustments = []
-      adjustments << {:invoice_item_id => invoice.items[0].invoice_item_id,
-                      :currency => 'EUR',
-                      :amount => invoice.items[0].amount}
+      adjustments << { invoice_item_id: invoice.items[0].invoice_item_id,
+                       currency: 'EUR',
+                       amount: invoice.items[0].amount }
 
       refund(payments[1].payment_id, payments[1].purchased_amount, adjustments, @user, @options)
-
     end
-
   end
 end

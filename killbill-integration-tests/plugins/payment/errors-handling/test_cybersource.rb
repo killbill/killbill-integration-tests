@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'logger'
 
 require 'plugins_error_handling_base'
 require 'proxy'
 
 module KillBillIntegrationTests
-
   # This test expects the following cybersource.yml:
   #   :cybersource:
   #     - :account_id: default
@@ -12,7 +13,6 @@ module KillBillIntegrationTests
   #       :proxy_port: 2500
   #       :test: true
   class TestCybersource < PluginsErrorHandlingBase
-
     class << self
       def startup
         logger = Logger.new(STDOUT)

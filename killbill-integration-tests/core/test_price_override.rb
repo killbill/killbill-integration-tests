@@ -1,11 +1,11 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestPriceOverride < Base
-
     def setup
       setup_base
       load_default_catalog
@@ -92,8 +92,8 @@ module KillBillIntegrationTests
       overrides2 << override2
 
       requested_date = nil
-      billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Standard', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT', :priceOverrides => overrides2}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      billing_policy = 'END_OF_TERM'
+      bp.change_plan({ productName: 'Standard', billingPeriod: 'MONTHLY', priceList: 'DEFAULT', priceOverrides: overrides2 }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       kb_clock_add_months(1, nil, @options)
       check_next_invoice_amount(3, 1000.0, '2013-09-30', @account, @options, &@proc_account_invoices_nb)

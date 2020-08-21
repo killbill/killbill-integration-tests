@@ -1,22 +1,22 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 require 'yaml'
 
 module KillBillIntegrationTests
-
   class PluginBase < KillBillIntegrationTests::Base
-
     def setup_plugin_base(init_clock, plugin_key, plugin_version, plugin_props)
-      setup_base(self.method_name, DEFAULT_MULTI_TENANT_INFO, init_clock)
+      setup_base(method_name, DEFAULT_MULTI_TENANT_INFO, init_clock)
       prepare_setup_sequence(plugin_key, plugin_version) do |seq|
-        run_plugin_sequence("start", plugin_key, plugin_version, plugin_props, seq)
+        run_plugin_sequence('start', plugin_key, plugin_version, plugin_props, seq)
       end
     end
 
     def teardown_plugin_base(plugin_key)
       prepare_teardown_sequence(plugin_key) do |seq|
-        run_plugin_sequence("stop", plugin_key, nil, [], seq)
+        run_plugin_sequence('stop', plugin_key, nil, [], seq)
       end
       teardown_base
     end
@@ -71,6 +71,7 @@ module KillBillIntegrationTests
       puts "\e[36m#{plugin_key} is already installed\e[0m" if is_installed && !is_installed_and_running
       puts "\e[36m#{plugin_key} is already installed and running\e[0m" if is_installed_and_running
       return plugins_info.first if is_installed_and_running
+
       yield seq
 
       plugins_info = get_plugin_information(plugin_key, plugin_version) unless is_installed
@@ -80,6 +81,7 @@ module KillBillIntegrationTests
     def get_plugin_information(plugin_key, plugin_version)
       nodes_info = KillBillClient::Model::NodesInfo.nodes_info(@options)
       return [] if nodes_info.nil?
+
       latest_version = Gem::Version.new('0.0.0')
       has_running_plugin = false
 
@@ -121,6 +123,5 @@ module KillBillIntegrationTests
       # make sure to settle
       sleep 5
     end
-
   end
 end

@@ -1,15 +1,15 @@
+# frozen_string_literal: true
+
 require 'toxiproxy'
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class PluginsErrorHandlingBase < Base
-
     # A few tests require Toxiproxy, see https://github.com/Shopify/toxiproxy
     PROXY_NAME = 'gateway'
     PROXY_HOST = 'localhost'
-    PROXY_PORT= 2500
+    PROXY_PORT = 2500
 
     def teardown
       teardown_base
@@ -29,9 +29,9 @@ module KillBillIntegrationTests
     end
 
     def check_purchase(payment_id, status = 'PAYMENT_FAILURE', gateway_error = nil, gateway_error_code = nil)
-      # TODO Implement this in the client library
+      # TODO: Implement this in the client library
       payment = KillBillClient::Model::Payment.get("#{KillBillClient::Model::Payment::KILLBILL_API_PAYMENTS_PREFIX}/#{payment_id}",
-                                                   {:withPluginInfo => true},
+                                                   { withPluginInfo: true },
                                                    @options)
       assert_equal(1, payment.transactions.size)
       transaction = payment.transactions.first
@@ -66,18 +66,18 @@ module KillBillIntegrationTests
 
     def build_default_pm_details
       {
-          'email' => 'tom@killbill.io',
-          'description' => Time.now.to_i.to_s,
-          'ccFirstName' => 'Tom',
-          'ccLastName' => 'Mot',
-          'address1' => '5th street',
-          'city' => 'San Francisco',
-          'zip' => '94111',
-          'state' => 'CA',
-          'country' => 'US',
-          'ccNumber' => '4242424242424242',
-          'ccExpirationYear' => '2020',
-          'ccExpirationMonth' => '10'
+        'email' => 'tom@killbill.io',
+        'description' => Time.now.to_i.to_s,
+        'ccFirstName' => 'Tom',
+        'ccLastName' => 'Mot',
+        'address1' => '5th street',
+        'city' => 'San Francisco',
+        'zip' => '94111',
+        'state' => 'CA',
+        'country' => 'US',
+        'ccNumber' => '4242424242424242',
+        'ccExpirationYear' => '2020',
+        'ccExpirationMonth' => '10'
       }
     end
 

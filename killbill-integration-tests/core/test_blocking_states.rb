@@ -1,11 +1,11 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestBlockingStates < Base
-
     def setup
       setup_base
 
@@ -21,7 +21,7 @@ module KillBillIntegrationTests
       # Start one year earlier than any other test (because we end up moving the clock by 11 months so we don't want all kinds of parasite account to start kicking it and impacting the timing of our test)
       kb_clock_set('2012-08-01T06:00:00.000Z', nil, @options)
 
-      catalog_file_xml = get_resource_as_string("Catalog-Simple.xml")
+      catalog_file_xml = get_resource_as_string('Catalog-Simple.xml')
       KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, @user, 'New Catalog Version', 'Upload catalog for tenant', @options)
 
       # Disable invoice processing for account
@@ -38,39 +38,39 @@ module KillBillIntegrationTests
       bp1_subscriptions = get_subscriptions(bp1.bundle_id, @options)
       bp1 = bp1_subscriptions.find { |s| s.subscription_id == bp1.subscription_id }
 
-      events = [{:type                    => 'START_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'entitlement-service',
-                 :service_state_name     => 'ENT_STARTED'},
-                {:type                   => 'START_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'billing-service',
-                 :service_state_name     => 'START_BILLING'},
-                {:type                   => 'SERVICE_STATE_CHANGE',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE1'}]
+      events = [{ type: 'START_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'entitlement-service',
+                  service_state_name: 'ENT_STARTED' },
+                { type: 'START_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'billing-service',
+                  service_state_name: 'START_BILLING' },
+                { type: 'SERVICE_STATE_CHANGE',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE1' }]
 
       check_events(events, bp1.events)
 
@@ -82,43 +82,42 @@ module KillBillIntegrationTests
 
       set_bundle_blocking_state(bp2.bundle_id, 'STATE2', 'ServiceStateService', false, true, false, nil, @user, @options)
 
-
       bp2_subscriptions = get_subscriptions(bp2.bundle_id, @options)
       bp2 = bp2_subscriptions.find { |s| s.subscription_id == bp2.subscription_id }
 
-      events = [{:type                    => 'START_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'entitlement-service',
-                 :service_state_name     => 'ENT_STARTED'},
-                {:type                   => 'START_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'billing-service',
-                 :service_state_name     => 'START_BILLING'},
-                {:type                   => 'PAUSE_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => true,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE2'}]
+      events = [{ type: 'START_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'entitlement-service',
+                  service_state_name: 'ENT_STARTED' },
+                { type: 'START_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'billing-service',
+                  service_state_name: 'START_BILLING' },
+                { type: 'PAUSE_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: true,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE2' }]
 
       check_events(events, bp2.events)
 
@@ -130,43 +129,42 @@ module KillBillIntegrationTests
 
       set_bundle_blocking_state(bp3.bundle_id, 'STATE3', 'ServiceStateService', false, false, true, nil, @user, @options)
 
-
       bp3_subscriptions = get_subscriptions(bp3.bundle_id, @options)
       bp3 = bp3_subscriptions.find { |s| s.subscription_id == bp3.subscription_id }
 
-      events = [{:type                    => 'START_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'entitlement-service',
-                 :service_state_name     => 'ENT_STARTED'},
-                {:type                   => 'START_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'billing-service',
-                 :service_state_name     => 'START_BILLING'},
-                {:type                   => 'PAUSE_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => true,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE3'}]
+      events = [{ type: 'START_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'entitlement-service',
+                  service_state_name: 'ENT_STARTED' },
+                { type: 'START_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'billing-service',
+                  service_state_name: 'START_BILLING' },
+                { type: 'PAUSE_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: true,
+                  is_blocked_entitlement: false,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE3' }]
 
       check_events(events, bp3.events)
 
@@ -180,65 +178,64 @@ module KillBillIntegrationTests
       # Add another one with same flags
       set_bundle_blocking_state(bp4.bundle_id, 'STATE4b', 'ServiceStateService', false, true, true, nil, @user, @options)
 
-
       bp4_subscriptions = get_subscriptions(bp4.bundle_id, @options)
       bp4 = bp4_subscriptions.find { |s| s.subscription_id == bp4.subscription_id }
 
-      events = [{:type                    => 'START_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'entitlement-service',
-                 :service_state_name     => 'ENT_STARTED'},
-                {:type                   => 'START_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => false,
-                 :is_blocked_entitlement => false,
-                 :service_name           => 'billing-service',
-                 :service_state_name     => 'START_BILLING'},
-                {:type                   => 'PAUSE_ENTITLEMENT',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => true,
-                 :is_blocked_entitlement => true,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE4a'},
-                {:type                   => 'PAUSE_BILLING',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => true,
-                 :is_blocked_entitlement => true,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE4a'},
-                {:type                   => 'SERVICE_STATE_CHANGE',
-                 :date                   => '2012-08-01',
-                 :billing_period         => 'MONTHLY',
-                 :product                => 'Basic',
-                 :plan                   => 'basic-monthly',
-                 :phase                  => 'basic-monthly-evergreen',
-                 :price_list             => 'DEFAULT',
-                 :is_blocked_billing     => true,
-                 :is_blocked_entitlement => true,
-                 :service_name           => 'ServiceStateService',
-                 :service_state_name     => 'STATE4b'}]
+      events = [{ type: 'START_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'entitlement-service',
+                  service_state_name: 'ENT_STARTED' },
+                { type: 'START_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: false,
+                  is_blocked_entitlement: false,
+                  service_name: 'billing-service',
+                  service_state_name: 'START_BILLING' },
+                { type: 'PAUSE_ENTITLEMENT',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: true,
+                  is_blocked_entitlement: true,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE4a' },
+                { type: 'PAUSE_BILLING',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: true,
+                  is_blocked_entitlement: true,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE4a' },
+                { type: 'SERVICE_STATE_CHANGE',
+                  date: '2012-08-01',
+                  billing_period: 'MONTHLY',
+                  product: 'Basic',
+                  plan: 'basic-monthly',
+                  phase: 'basic-monthly-evergreen',
+                  price_list: 'DEFAULT',
+                  is_blocked_billing: true,
+                  is_blocked_entitlement: true,
+                  service_name: 'ServiceStateService',
+                  service_state_name: 'STATE4b' }]
 
       check_events(events, bp4.events)
     end
@@ -394,6 +391,7 @@ module KillBillIntegrationTests
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil)
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
 
       bp
     end
@@ -404,7 +402,7 @@ module KillBillIntegrationTests
       assert_equal(1, subscriptions.size)
     end
 
-    def check_bp_with_ao(bp, ao1_entitlement, ao2_entitlement=nil)
+    def check_bp_with_ao(bp, ao1_entitlement, ao2_entitlement = nil)
       expected_nb_subscriptions = ao2_entitlement.nil? ? 2 : 3
 
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -428,4 +426,3 @@ module KillBillIntegrationTests
     end
   end
 end
-

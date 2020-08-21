@@ -1,12 +1,12 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 
 require 'seed_base'
 
 module KillBillIntegrationSeed
-
   class TestAccountTimezone < TestSeedBase
-
     def setup
       setup_seed_base
     end
@@ -15,17 +15,14 @@ module KillBillIntegrationSeed
       teardown_base
     end
 
-=begin
-Create a few accounts with different currencies, locale, timezone:
-- Check BCD is 10 for all except John Silver for which this is 9   (explain why 9 and 10)
-- Check currency is correctly represented
-- Check invoice template works for various locale -> TODO  (missing invoice template and catalog translation)
-- Explain failed payments
-- Explain why subscription start at different dates (similar to BCD)
-=end
+    # Create a few accounts with different currencies, locale, timezone:
+    # - Check BCD is 10 for all except John Silver for which this is 9   (explain why 9 and 10)
+    # - Check currency is correctly represented
+    # - Check invoice template works for various locale -> TODO  (missing invoice template and catalog translation)
+    # - Explain failed payments
+    # - Explain why subscription start at different dates (similar to BCD)
 
     def test_seed_timezone
-
       data = {}
       data[:name] = 'Brian King'
       data[:external_key] = 'brianking'
@@ -59,7 +56,6 @@ Create a few accounts with different currencies, locale, timezone:
       data[:locale] = 'en_US'
       @johnsilver = create_account_with_data(@user, data, @options)
       add_payment_method(@johnsilver.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
-
 
       data = {}
       data[:name] = 'Paul Dupond'
@@ -95,7 +91,6 @@ Create a few accounts with different currencies, locale, timezone:
       @yokurimatsumoto = create_account_with_data(@user, data, @options)
       add_payment_method(@yokurimatsumoto.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
 
-
       pbs = []
       pbs << create_entitlement_base(@brianking.account_id, 'reserved-metal', 'MONTHLY', 'DEFAULT', @user, @options)
 
@@ -112,6 +107,5 @@ Create a few accounts with different currencies, locale, timezone:
         bp.cancel(@user, nil, nil, nil, 'IMMEDIATE', 'END_OF_TERM', nil, @options)
       end
     end
-
   end
 end

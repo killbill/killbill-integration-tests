@@ -1,4 +1,5 @@
 #!/usr/bin/env rake
+# frozen_string_literal: true
 
 # Install tasks to build and release the plugin
 require 'bundler/setup'
@@ -106,11 +107,11 @@ end
 
 namespace :ci do
   require 'ci/reporter/rake/test_unit'
-  task :core => ['ci:setup:testunit', 'test:core']
-  task :all => ['ci:setup:testunit', 'test:all']
+  task core: ['ci:setup:testunit', 'test:core']
+  task all: ['ci:setup:testunit', 'test:all']
   # Used by the killbill-avatax-plugin .circleci/config.yml
-  task :avatax => ['ci:setup:testunit', 'test:plugins:avatax']
+  task avatax: ['ci:setup:testunit', 'test:plugins:avatax']
 end
 
 # Run tests by default
-task :default => 'test:all'
+task default: 'test:all'

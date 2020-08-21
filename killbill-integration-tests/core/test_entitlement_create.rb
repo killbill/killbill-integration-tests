@@ -1,13 +1,11 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestEntitlementCreateTest < Base
-
     def setup
       setup_base
       #
@@ -22,7 +20,6 @@ module KillBillIntegrationTests
     end
 
     def test_create_bp_skip_trial
-
       bp = create_entitlement_base_skip_phase(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', 'EVERGREEN', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       assert_equal('EVERGREEN', bp.phase_type)
@@ -37,7 +34,6 @@ module KillBillIntegrationTests
     end
 
     def test_create_ao_bundle_aligned_skip_trial
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -47,10 +43,9 @@ module KillBillIntegrationTests
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao_skip_phase(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', 'DISCOUNT', @user, @options)
-      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
+      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
       assert_equal('DISCOUNT', ao_entitlement.phase_type)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
-
 
       all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
@@ -80,12 +75,9 @@ module KillBillIntegrationTests
       assert_equal(4, all_invoices.size)
       fourth_invoice = all_invoices[3]
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 7.44, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-evergreen', '2013-09-01', '2013-09-30')
-
     end
 
     def test_create_ao_subscription_aligned_skip_trial
-
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -95,10 +87,9 @@ module KillBillIntegrationTests
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao_skip_phase(@account.account_id, bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', 'DISCOUNT', @user, @options)
-      check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
+      check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
       assert_equal('DISCOUNT', ao_entitlement.phase_type)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
-
 
       all_invoices = @account.invoices(@options)
       sort_invoices!(all_invoices)
@@ -109,7 +100,6 @@ module KillBillIntegrationTests
 
       kb_clock_add_days(15, nil, @options) # "2013-08-31"
       wait_for_expected_clause(3, @account, @options, &@proc_account_invoices_nb)
-
 
       #
       # Because we are SUBSCRIPTION aligned the discount period that starts on the 2013-08-16 and because it lasts a month we see a first pro-ration until 2013-09-01 and then
@@ -133,9 +123,8 @@ module KillBillIntegrationTests
       sort_items_by_descending_price!(fourth_invoice.items)
       check_invoice_item(fourth_invoice.items[0], fourth_invoice.invoice_id, 8.11, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-evergreen', '2013-09-16', '2013-09-30')
 
-
       # Change plan EOT
-      ao_entitlement = ao_entitlement.change_plan({:productName => 'RemoteControlAdvanced', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, nil, nil, nil, false, @options)
+      ao_entitlement = ao_entitlement.change_plan({ productName: 'RemoteControlAdvanced', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, nil, nil, nil, false, @options)
       check_entitlement(ao_entitlement, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
 
       # Change plan becomes effective: We verify that the changePlan correctly skips the initial TRIAL for the new plan
@@ -152,7 +141,6 @@ module KillBillIntegrationTests
       sort_items_by_descending_price!(fifth_invoice.items)
       check_invoice_item(fifth_invoice.items[0], fifth_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-09-30', '2013-10-31')
       check_invoice_item(fifth_invoice.items[1], fifth_invoice.invoice_id, 37.95, 'USD', 'RECURRING', 'remotecontroladvanced-monthly', 'remotecontroladvanced-monthly-evergreen', '2013-09-30', '2013-10-31')
-
     end
 
     private
@@ -161,7 +149,6 @@ module KillBillIntegrationTests
       items.sort! do |a, b|
         b.amount <=> a.amount
       end
-
     end
   end
 end

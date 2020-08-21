@@ -1,11 +1,11 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestEntitlementAddOn < Base
-
     def setup
       setup_base
       load_default_catalog
@@ -18,7 +18,6 @@ module KillBillIntegrationTests
     end
 
     def test_simple
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -44,7 +43,6 @@ module KillBillIntegrationTests
     end
 
     def test_cancel_bp_default_policy_in_trial
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -54,7 +52,7 @@ module KillBillIntegrationTests
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
+      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock before cancellation (BP still in trial)
@@ -75,25 +73,24 @@ module KillBillIntegrationTests
       bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
       assert_not_nil(bps)
       assert_equal(1, bps.size)
-      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-08-21", DEFAULT_KB_INIT_DATE, "2013-08-21")
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
-                    {:type => "START_BILLING", :date => "2013-08-01"},
-                    {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
-                    {:type => "STOP_BILLING", :date => "2013-08-21"}], bps[0].events)
+      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-08-21', DEFAULT_KB_INIT_DATE, '2013-08-21')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-08-21' },
+                    { type: 'STOP_BILLING', date: '2013-08-21' }], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
       assert_equal(1, aos.size)
       assert_equal(ao_entitlement.subscription_id, aos[0].subscription_id)
-      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", "2013-08-21", "2013-08-16", "2013-08-21")
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
-                                   {:type => "START_BILLING", :date => "2013-08-16"},
-                                   {:type => "STOP_ENTITLEMENT", :date => "2013-08-21"},
-                                   {:type => "STOP_BILLING", :date => "2013-08-21"}], aos[0].events)
+      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', '2013-08-21', '2013-08-16', '2013-08-21')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-16' },
+                    { type: 'START_BILLING', date: '2013-08-16' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-08-21' },
+                    { type: 'STOP_BILLING', date: '2013-08-21' }], aos[0].events)
     end
 
     def test_cancel_bp_default_policy_after_trial
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -103,7 +100,7 @@ module KillBillIntegrationTests
 
       # Create Add-on
       ao_entitlement = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", nil)
+      check_entitlement(ao_entitlement, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock after trial before cancellation
@@ -125,26 +122,25 @@ module KillBillIntegrationTests
       assert_not_nil(bps)
       assert_equal(1, bps.size)
 
-      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-01", DEFAULT_KB_INIT_DATE, "2013-09-30")
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-01"},
-                                   {:type => "START_BILLING", :date => "2013-08-01"},
-                                   {:type => "PHASE", :date => "2013-08-31"},
-                                   {:type => "STOP_ENTITLEMENT", :date => "2013-09-01"},
-                                   {:type => "STOP_BILLING", :date => "2013-09-30"}], bps[0].events)
+      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-01', DEFAULT_KB_INIT_DATE, '2013-09-30')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-09-01' },
+                    { type: 'STOP_BILLING', date: '2013-09-30' }], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
 
-      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-16", "2013-09-01", "2013-08-16", "2013-09-30")
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-16"},
-                                   {:type => "START_BILLING", :date => "2013-08-16"},
-                                   {:type => "PHASE", :date => "2013-09-01"},
-                                   {:type => "STOP_ENTITLEMENT", :date => "2013-09-01"},
-                                   {:type => "STOP_BILLING", :date => "2013-09-30"}], aos[0].events)
+      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', '2013-09-01', '2013-08-16', '2013-09-30')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-16' },
+                    { type: 'START_BILLING', date: '2013-08-16' },
+                    { type: 'PHASE', date: '2013-09-01' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-09-01' },
+                    { type: 'STOP_BILLING', date: '2013-09-30' }], aos[0].events)
     end
 
     def test_cancel_bp_with_cancel_date_and_uncancel
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -169,30 +165,30 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-06', '2013-08-01', '2013-08-06')
       assert_equal(4, bp.events.size)
-      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
-      assert_equal("sports-monthly", bp.events[0].plan)
-      assert_equal("sports-monthly-trial", bp.events[0].phase)
-      assert_equal("2013-08-01", bp.events[0].effective_date)
+      assert_equal('START_ENTITLEMENT', bp.events[0].event_type)
+      assert_equal('sports-monthly', bp.events[0].plan)
+      assert_equal('sports-monthly-trial', bp.events[0].phase)
+      assert_equal('2013-08-01', bp.events[0].effective_date)
 
-      assert_equal("START_BILLING", bp.events[1].event_type)
-      assert_equal("sports-monthly", bp.events[1].plan)
-      assert_equal("sports-monthly-trial", bp.events[1].phase)
-      assert_equal("2013-08-01", bp.events[1].effective_date)
+      assert_equal('START_BILLING', bp.events[1].event_type)
+      assert_equal('sports-monthly', bp.events[1].plan)
+      assert_equal('sports-monthly-trial', bp.events[1].phase)
+      assert_equal('2013-08-01', bp.events[1].effective_date)
 
-      assert_equal("STOP_ENTITLEMENT", bp.events[2].event_type)
-      assert_equal("sports-monthly", bp.events[2].plan)
-      assert_equal("sports-monthly-trial", bp.events[2].phase)
-      assert_equal("2013-08-06", bp.events[2].effective_date)
+      assert_equal('STOP_ENTITLEMENT', bp.events[2].event_type)
+      assert_equal('sports-monthly', bp.events[2].plan)
+      assert_equal('sports-monthly-trial', bp.events[2].phase)
+      assert_equal('2013-08-06', bp.events[2].effective_date)
 
-      assert_equal("STOP_BILLING", bp.events[3].event_type)
-      assert_equal("sports-monthly", bp.events[3].plan)
-      assert_equal("sports-monthly-trial", bp.events[3].phase)
-      assert_equal("2013-08-06", bp.events[3].effective_date)
+      assert_equal('STOP_BILLING', bp.events[3].event_type)
+      assert_equal('sports-monthly', bp.events[3].plan)
+      assert_equal('sports-monthly-trial', bp.events[3].phase)
+      assert_equal('2013-08-06', bp.events[3].effective_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-06', '2013-08-01', '2013-08-06')
 
       bp.uncancel(@user, nil, nil, @options)
 
@@ -201,31 +197,29 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
 
       assert_equal(3, bp.events.size)
-      assert_equal("START_ENTITLEMENT", bp.events[0].event_type)
-      assert_equal("sports-monthly", bp.events[0].plan)
-      assert_equal("sports-monthly-trial", bp.events[0].phase)
-      assert_equal("2013-08-01", bp.events[0].effective_date)
+      assert_equal('START_ENTITLEMENT', bp.events[0].event_type)
+      assert_equal('sports-monthly', bp.events[0].plan)
+      assert_equal('sports-monthly-trial', bp.events[0].phase)
+      assert_equal('2013-08-01', bp.events[0].effective_date)
 
-      assert_equal("START_BILLING", bp.events[1].event_type)
-      assert_equal("sports-monthly", bp.events[1].plan)
-      assert_equal("sports-monthly-trial", bp.events[1].phase)
-      assert_equal("2013-08-01", bp.events[1].effective_date)
+      assert_equal('START_BILLING', bp.events[1].event_type)
+      assert_equal('sports-monthly', bp.events[1].plan)
+      assert_equal('sports-monthly-trial', bp.events[1].phase)
+      assert_equal('2013-08-01', bp.events[1].effective_date)
 
-      assert_equal("PHASE", bp.events[2].event_type)
-      assert_equal("sports-monthly", bp.events[2].plan)
-      assert_equal("sports-monthly-evergreen", bp.events[2].phase)
-      assert_equal("2013-08-31", bp.events[2].effective_date)
-
+      assert_equal('PHASE', bp.events[2].event_type)
+      assert_equal('sports-monthly', bp.events[2].plan)
+      assert_equal('sports-monthly-evergreen', bp.events[2].phase)
+      assert_equal('2013-08-31', bp.events[2].effective_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
     end
 
     def test_cancel_bp_with_ent_eot_bill_imm
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -245,10 +239,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       requested_date = nil
       entitlement_policy = 'END_OF_TERM'
@@ -261,15 +255,13 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-09-30", "2013-08-01", "2013-08-31")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-09-30', '2013-08-01', '2013-08-31')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-09-30", "2013-08-01", "2013-08-31")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-09-30', '2013-08-01', '2013-08-31')
     end
 
     def test_cancel_bp_with_ent_imm_bill_eot
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -289,10 +281,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       requested_date = nil
       entitlement_policy = 'IMMEDIATE'
@@ -305,15 +297,13 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-31', '2013-08-01', '2013-09-30')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-09-30")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-31', '2013-08-01', '2013-09-30')
     end
 
     def test_uncancel_ao_ent_eot_bill_eot
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -336,7 +326,7 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-31', '2013-08-01', '2013-08-31')
 
       ao1.uncancel(@user, nil, nil, @options)
 
@@ -345,12 +335,10 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
     end
 
     def test_uncancel_ao_ent_eot_bill_imm
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -375,7 +363,7 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-31", "2013-08-01", "2013-08-05")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-31', '2013-08-01', '2013-08-05')
 
       # Base subscription already reached cancellation, we should not be able to uncancel
       assert_raise do
@@ -384,7 +372,6 @@ module KillBillIntegrationTests
     end
 
     def test_uncancel_ao_ent_imm_bill_eot
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -409,14 +396,13 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-05", "2013-08-01", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-05', '2013-08-01', '2013-08-31')
 
       # We allow to uncancel a subscription as long as the billing cancellation date is in the future.
       ao1.uncancel(@user, nil, nil, @options)
     end
 
     def test_uncancel_ao_with_cancel_date
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -441,7 +427,7 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-06", "2013-08-01", "2013-08-06")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-06', '2013-08-01', '2013-08-06')
 
       ao1.uncancel(@user, nil, nil, @options)
 
@@ -450,11 +436,10 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", nil, "2013-08-01", nil)
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', nil, '2013-08-01', nil)
     end
 
     def test_change_bp_with_included_ao_eot
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -465,7 +450,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -478,16 +463,15 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
-
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       # Change Plan for BP (future cancel date = 30/09/2013)  => AO1 is now included in new plan, so should be cancelled
       requested_date = nil
-      billing_policy = "END_OF_TERM"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      billing_policy = 'END_OF_TERM'
+      bp = bp.change_plan({ productName: 'Super', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -497,11 +481,10 @@ module KillBillIntegrationTests
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
     end
 
     def test_change_bp_with_included_ao_imm
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -512,7 +495,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -520,8 +503,8 @@ module KillBillIntegrationTests
 
       # Change Plan for BP immediately => AO1 is now included in new plan, so should be cancelled immediately
       requested_date = nil
-      billing_policy = "IMMEDIATE"
-      bp = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      billing_policy = 'IMMEDIATE'
+      bp = bp.change_plan({ productName: 'Super', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
       subscriptions = get_subscriptions(bp.bundle_id, @options)
@@ -531,11 +514,10 @@ module KillBillIntegrationTests
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
     end
 
     def test_cancel_ao_prior_future_bp_cancel_date
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -546,7 +528,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -559,10 +541,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       #
       # Will future cancel BP on  2013-09-30 (and AO should reflect that as well)
@@ -577,11 +559,11 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
 
       #
       # Will cancel AO immediatly
@@ -597,10 +579,10 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
 
       # Uncancel BP
       bp.uncancel(@user, nil, nil, @options)
@@ -613,12 +595,10 @@ module KillBillIntegrationTests
 
       # ADD-ON should still be cancelled on 8/31/2013
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
     end
 
     def test_future_cancel_ao_prior_future_bp_cancel_date
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -629,7 +609,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -642,10 +622,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       #
       # Will future cancel BP on  2013-09-30 (and AO should reflect that as well)
@@ -660,11 +640,11 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
 
       #
       # Will future cancel AO on its CTD 2013-09-01
@@ -680,10 +660,10 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-01", "2013-08-05", "2013-09-01")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-01', '2013-08-05', '2013-09-01')
 
       # Uncancel AO
       ao1.uncancel(@user, nil, nil, @options)
@@ -692,16 +672,14 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
     end
 
     def test_future_cancel_ao_after_future_bp_cancel_date_and_uncancel_bp
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -712,7 +690,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -726,10 +704,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       # Move clock to pass AO PHASE
       kb_clock_add_days(1, nil, @options) # 01/09/2013
@@ -749,16 +727,16 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
 
       #
       # Will future cancel AO after BP cancellation date, call should fail as this is already cancelled prior
       # Default ADD_ON cancellation policy is IMMEDIATE hence the "2013-09-01" expected for billing_end_date
-      requested_date = "2013-10-01"
+      requested_date = '2013-10-01'
       entitlement_policy = nil
       billing_policy = nil
       use_requested_date_for_billing = nil
@@ -769,11 +747,11 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-01")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-01')
 
       # Uncancel BP and check AO cancellation is not honored
       bp.uncancel(@user, nil, nil, @options)
@@ -785,12 +763,10 @@ module KillBillIntegrationTests
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-10-01", "2013-08-05", "2013-09-01")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-10-01', '2013-08-05', '2013-09-01')
     end
 
     def test_future_cancel_ao_after_future_bp_cancel_date_and_reach_bp_cancellation
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -801,7 +777,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       # Move clock on BP Phase (BP not in trial)
@@ -814,10 +790,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
 
       # Move clock to pass AO PHASE
       kb_clock_add_days(1, nil, @options) # 01/09/2013
@@ -836,17 +812,17 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
 
       #
       # Will future cancel AO after BP cancellation date
       # Note that default catalog policy for ADD_ON cancellation is IMMEDIATE and not EOT
       #
-      requested_date = "2013-10-01"
+      requested_date = '2013-10-01'
       entitlement_policy = nil
       billing_policy = nil
       use_requested_date_for_billing = nil
@@ -857,11 +833,11 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-01")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-01')
 
       # Move clock right after BP cancellation effective date
       kb_clock_add_days(30, nil, @options) # 30/09/2013
@@ -870,24 +846,21 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-30", DEFAULT_KB_INIT_DATE, "2013-09-30")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-30', DEFAULT_KB_INIT_DATE, '2013-09-30')
 
       # ADD-ON should be reflected as being cancelled on the CTD of the the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-01")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-01')
 
       # Double check we don't have double cancellation, that is the ao is not anymore cancelled at its own cancellation date
-      check_events([{:type => "START_ENTITLEMENT", :date => "2013-08-05"},
-                    {:type => "START_BILLING", :date => "2013-08-05"},
-                    {:type => "PHASE", :date => "2013-09-01"},
-                    {:type => "STOP_BILLING", :date => "2013-09-01"},
-                    {:type => "STOP_ENTITLEMENT", :date => "2013-09-30"}], ao1.events)
-
-
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-05' },
+                    { type: 'START_BILLING', date: '2013-08-05' },
+                    { type: 'PHASE', date: '2013-09-01' },
+                    { type: 'STOP_BILLING', date: '2013-09-01' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-09-30' }], ao1.events)
     end
 
     def test_cancel_bp_prior_future_ao_cancel_date
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -898,7 +871,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
@@ -908,7 +881,7 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-08-31", ao1.charged_through_date)
+      assert_equal('2013-08-31', ao1.charged_through_date)
 
       # Future cancel AO
       requested_date = nil
@@ -921,7 +894,7 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
 
       # Cancel BP Immediately
       requested_date = nil
@@ -934,16 +907,14 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-08-05", DEFAULT_KB_INIT_DATE, "2013-08-05")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-08-05', DEFAULT_KB_INIT_DATE, '2013-08-05')
 
       # ADD-ON should be reflected as being cancelled the same as the BP
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-05", "2013-08-05", "2013-08-05")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-05', '2013-08-05', '2013-08-05')
     end
 
     def test_future_cancel_bp_prior_future_ao_cancel_date
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -954,7 +925,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
@@ -964,7 +935,7 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-08-31", ao1.charged_through_date)
+      assert_equal('2013-08-31', ao1.charged_through_date)
 
       # Future cancel AO
       requested_date = nil
@@ -977,10 +948,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
 
       # Cancel BP slightly in the future
-      requested_date = "2013-08-07"
+      requested_date = '2013-08-07'
       entitlement_policy = nil
       billing_policy = nil
       use_requested_date_for_billing = true
@@ -990,10 +961,10 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-08-07", DEFAULT_KB_INIT_DATE, "2013-08-07")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-08-07', DEFAULT_KB_INIT_DATE, '2013-08-07')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-07", "2013-08-05", "2013-08-07")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-07', '2013-08-05', '2013-08-07')
 
       bp.uncancel(@user, nil, nil, @options)
 
@@ -1001,12 +972,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
     end
 
     def test_future_cancel_bp_after_future_ao_cancel_date
-
       # First invoice  01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -1017,7 +986,7 @@ module KillBillIntegrationTests
 
       # Second invoice  05/08/2013 ->  31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
       wait_for_expected_clause(2, @account, @options, &@proc_account_invoices_nb)
 
       #
@@ -1027,7 +996,7 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-08-31", ao1.charged_through_date)
+      assert_equal('2013-08-31', ao1.charged_through_date)
 
       # Future cancel AO
       requested_date = nil
@@ -1040,10 +1009,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
 
       # Cancel BP after AO cancellation
-      requested_date = "2013-09-02"
+      requested_date = '2013-09-02'
       entitlement_policy = nil
       billing_policy = nil
       use_requested_date_for_billing = true
@@ -1053,10 +1022,10 @@ module KillBillIntegrationTests
       subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-09-02", DEFAULT_KB_INIT_DATE, "2013-09-02")
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-09-02', DEFAULT_KB_INIT_DATE, '2013-09-02')
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
 
       bp.uncancel(@user, nil, nil, @options)
 
@@ -1064,12 +1033,10 @@ module KillBillIntegrationTests
       assert_not_nil(subscriptions)
       assert_equal(2, subscriptions.size)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-08-31", "2013-08-05", "2013-08-31")
-
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-08-31', '2013-08-05', '2013-08-31')
     end
 
     def test_cancel_with_two_similar_ao
-
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
@@ -1096,16 +1063,16 @@ module KillBillIntegrationTests
       assert_equal(2, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-04", "2013-08-01", "2013-08-04")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-04', '2013-08-01', '2013-08-04')
 
       # Create Add-on 2
       ao2 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options)
-      check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", nil)
+      check_entitlement(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-04', nil)
       wait_for_expected_clause(4, @account, @options, &@proc_account_invoices_nb)
 
       requested_date = nil
-      entitlement_policy = "END_OF_TERM"
-      billing_policy = "END_OF_TERM"
+      entitlement_policy = 'END_OF_TERM'
+      billing_policy = 'END_OF_TERM'
       use_requested_date_for_billing = nil
 
       ao2.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
@@ -1115,18 +1082,17 @@ module KillBillIntegrationTests
       assert_equal(3, subscriptions.size)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-01", "2013-08-04", "2013-08-01", "2013-08-04")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-01', '2013-08-04', '2013-08-01', '2013-08-04')
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      check_subscription(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-04", "2013-08-31", "2013-08-04", "2013-08-31")
-
+      check_subscription(ao2, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-04', '2013-08-31', '2013-08-04', '2013-08-31')
     end
 
     def test_complex_ao
       # First invoice 01/08/2013 -> 31/08/2013 ($0) => BCD = 31
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-      all_invoices  = check_next_invoice_amount(1, 0, '2013-08-01', @account, @options, &@proc_account_invoices_nb)
+      all_invoices = check_next_invoice_amount(1, 0, '2013-08-01', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
       check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
@@ -1136,8 +1102,8 @@ module KillBillIntegrationTests
 
       # Second invoice 05/08/2013 -> 31/08/2013
       ao1 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'OilSlick', 'MONTHLY', 'DEFAULT', @user, @options) # (Bundle Aligned)
-      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", nil)
-      all_invoices   = check_next_invoice_amount(2, 3.35, '2013-08-05', @account, @options, &@proc_account_invoices_nb)
+      check_entitlement(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', nil)
+      all_invoices = check_next_invoice_amount(2, 3.35, '2013-08-05', @account, @options, &@proc_account_invoices_nb)
       second_invoice = all_invoices[1]
       assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 3.35, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-05', '2013-08-31')
@@ -1147,8 +1113,8 @@ module KillBillIntegrationTests
 
       # Third invoice 15/08/2013 -> 31/08/2013
       ao2 = create_entitlement_ao(@account.account_id, bp.bundle_id, 'RemoteControl', 'MONTHLY', 'DEFAULT', @user, @options) # (Subscription Aligned)
-      check_entitlement(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil)
-      all_invoices  = check_next_invoice_amount(3, 4.13, '2013-08-15', @account, @options, &@proc_account_invoices_nb)
+      check_entitlement(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-15', nil)
+      all_invoices = check_next_invoice_amount(3, 4.13, '2013-08-15', @account, @options, &@proc_account_invoices_nb)
       third_invoice = all_invoices[2]
       assert_equal(1, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
       check_invoice_item(third_invoice.items[0], third_invoice.invoice_id, 4.13, 'USD', 'RECURRING', 'remotecontrol-monthly', 'remotecontrol-monthly-discount', '2013-08-15', '2013-08-31')
@@ -1169,11 +1135,11 @@ module KillBillIntegrationTests
       # Check on CTD after invoices
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       bp            = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-01", ao1.charged_through_date)
+      assert_equal('2013-09-01', ao1.charged_through_date)
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      assert_equal("2013-09-15", ao2.charged_through_date)
+      assert_equal('2013-09-15', ao2.charged_through_date)
 
       kb_clock_add_days(1, nil, @options) # 01/09/2013
 
@@ -1186,28 +1152,28 @@ module KillBillIntegrationTests
       # Check on CTD after invoices
       subscriptions = get_subscriptions(bp.bundle_id, @options)
       bp            = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      assert_equal("2013-09-30", bp.charged_through_date)
+      assert_equal('2013-09-30', bp.charged_through_date)
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      assert_equal("2013-09-30", ao1.charged_through_date)
+      assert_equal('2013-09-30', ao1.charged_through_date)
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      assert_equal("2013-09-15", ao2.charged_through_date)
+      assert_equal('2013-09-15', ao2.charged_through_date)
 
       # Change Plan for BP (future cancel date = 30/09/2013) => AO1 is now included in new plan
       requested_date = nil
-      billing_policy = "END_OF_TERM"
-      bp             = bp.change_plan({:productName => 'Super', :billingPeriod => 'MONTHLY', :priceList => 'DEFAULT'}, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
+      billing_policy = 'END_OF_TERM'
+      bp             = bp.change_plan({ productName: 'Super', billingPeriod: 'MONTHLY', priceList: 'DEFAULT' }, @user, nil, nil, requested_date, billing_policy, nil, false, @options)
 
       # Retrieves subscription and check cancellation date for AO1 is 30/09/2013
-      subscriptions  = get_subscriptions(bp.bundle_id, @options)
+      subscriptions = get_subscriptions(bp.bundle_id, @options)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil, DEFAULT_KB_INIT_DATE, nil)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil, "2013-08-15", nil)
+      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-15', nil, '2013-08-15', nil)
 
       kb_clock_add_days(14, nil, @options) # 15/09/2013
 
@@ -1235,29 +1201,29 @@ module KillBillIntegrationTests
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
       check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil, DEFAULT_KB_INIT_DATE, nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'CHANGE', :date => '2013-09-30'}], bp.events)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'CHANGE', date: '2013-09-30' }], bp.events)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
-                    {:type => 'START_BILLING', :date => '2013-08-05'},
-                    {:type => 'PHASE', :date => '2013-09-01'},
-                    {:type => 'STOP_ENTITLEMENT', :date => '2013-09-30'},
-                    {:type => 'STOP_BILLING', :date => '2013-09-30'}], ao1.events)
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-05' },
+                    { type: 'START_BILLING', date: '2013-08-05' },
+                    { type: 'PHASE', date: '2013-09-01' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-09-30' },
+                    { type: 'STOP_BILLING', date: '2013-09-30' }], ao1.events)
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", nil, "2013-08-15", nil)
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-15'},
-                    {:type => 'START_BILLING', :date => '2013-08-15'},
-                    {:type => 'PHASE', :date => '2013-09-15'}], ao2.events)
+      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-15', nil, '2013-08-15', nil)
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-15' },
+                    { type: 'START_BILLING', date: '2013-08-15' },
+                    { type: 'PHASE', date: '2013-09-15' }], ao2.events)
 
       # Future cancel BP (and therefore ADD_ON)
 
       requested_date                 = nil
-      entitlement_policy             = "END_OF_TERM"
+      entitlement_policy             = 'END_OF_TERM'
       billing_policy                 = nil
       use_requested_date_for_billing = nil
 
@@ -1267,29 +1233,29 @@ module KillBillIntegrationTests
       assert_equal(3, subscriptions.size)
 
       bp = subscriptions.find { |s| s.subscription_id == bp.subscription_id }
-      check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, "2013-10-31", DEFAULT_KB_INIT_DATE, "2013-10-31")
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-01'},
-                    {:type => 'START_BILLING', :date => '2013-08-01'},
-                    {:type => 'PHASE', :date => '2013-08-31'},
-                    {:type => 'CHANGE', :date => '2013-09-30'},
-                    {:type => 'STOP_ENTITLEMENT', :date => '2013-10-31'},
-                    {:type => 'STOP_BILLING', :date => '2013-10-31'}], bp.events)
+      check_subscription(bp, 'Super', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-10-31', DEFAULT_KB_INIT_DATE, '2013-10-31')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
+                    { type: 'START_BILLING', date: '2013-08-01' },
+                    { type: 'PHASE', date: '2013-08-31' },
+                    { type: 'CHANGE', date: '2013-09-30' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-10-31' },
+                    { type: 'STOP_BILLING', date: '2013-10-31' }], bp.events)
 
       ao1 = subscriptions.find { |s| s.subscription_id == ao1.subscription_id }
-      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-05", "2013-09-30", "2013-08-05", "2013-09-30")
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-05'},
-                    {:type => 'START_BILLING', :date => '2013-08-05'},
-                    {:type => 'PHASE', :date => '2013-09-01'},
-                    {:type => 'STOP_ENTITLEMENT', :date => '2013-09-30'},
-                    {:type => 'STOP_BILLING', :date => '2013-09-30'}], ao1.events)
+      check_subscription(ao1, 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-05', '2013-09-30', '2013-08-05', '2013-09-30')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-05' },
+                    { type: 'START_BILLING', date: '2013-08-05' },
+                    { type: 'PHASE', date: '2013-09-01' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-09-30' },
+                    { type: 'STOP_BILLING', date: '2013-09-30' }], ao1.events)
 
       ao2 = subscriptions.find { |s| s.subscription_id == ao2.subscription_id }
-      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', "2013-08-15", "2013-10-31", "2013-08-15", "2013-10-31")
-      check_events([{:type => 'START_ENTITLEMENT', :date => '2013-08-15'},
-                    {:type => 'START_BILLING', :date => '2013-08-15'},
-                    {:type => 'PHASE', :date => '2013-09-15'},
-                    {:type => 'STOP_ENTITLEMENT', :date => '2013-10-31'},
-                    {:type => 'STOP_BILLING', :date => '2013-10-31'}], ao2.events)
+      check_subscription(ao2, 'RemoteControl', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-15', '2013-10-31', '2013-08-15', '2013-10-31')
+      check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-15' },
+                    { type: 'START_BILLING', date: '2013-08-15' },
+                    { type: 'PHASE', date: '2013-09-15' },
+                    { type: 'STOP_ENTITLEMENT', date: '2013-10-31' },
+                    { type: 'STOP_BILLING', date: '2013-10-31' }], ao2.events)
 
       # Verify no new invoice has been generated
       all_invoices = @account.invoices(@options)
@@ -1330,7 +1296,6 @@ module KillBillIntegrationTests
     end
 
     def test_block_a_subscription
-
       account = create_account(@user, @options)
 
       create_entitlement_base(account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
@@ -1349,8 +1314,6 @@ module KillBillIntegrationTests
       # Verify if the returned list has now two elements
       blocking_states = account.blocking_states('SUBSCRIPTION', nil, 'NONE', @options)
       assert_equal(2, blocking_states.size)
-
     end
   end
 end
-

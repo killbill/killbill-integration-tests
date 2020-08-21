@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module KillBillIntegrationTests
   module InvoiceHelper
-
     def check_next_invoice_amount(invoice_nb, amount, invoice_date, account, options, &proc_account_invoices_nb)
       wait_for_expected_clause(invoice_nb, account, options, &proc_account_invoices_nb)
 
@@ -21,15 +22,15 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_by_id(id, options)
-      KillBillClient::Model::Invoice.find_by_id(id, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_id(id, 'NONE', options)
     end
 
     def get_invoice_by_number(number, options)
-      KillBillClient::Model::Invoice.find_by_number(number, "NONE", options)
+      KillBillClient::Model::Invoice.find_by_number(number, 'NONE', options)
     end
 
     def create_charge(account_id, amount, currency, description, user, options)
-      invoice_item             = KillBillClient::Model::InvoiceItem.new()
+      invoice_item             = KillBillClient::Model::InvoiceItem.new
       invoice_item.account_id  = account_id
       invoice_item.amount      = amount
       invoice_item.currency    = currency
@@ -37,9 +38,8 @@ module KillBillIntegrationTests
       invoice_item.create(true, user, nil, nil, options)
     end
 
-
     def create_account_credit(account_id, amount, currency, description, user, options)
-      credit_item                 = KillBillClient::Model::Credit.new()
+      credit_item                 = KillBillClient::Model::Credit.new
       credit_item.account_id      = account_id
       credit_item.amount          = amount
       credit_item.currency        = currency
@@ -48,7 +48,7 @@ module KillBillIntegrationTests
     end
 
     def adjust_invoice_item(account_id, invoice_id, invoice_item_id, amount, currency, description, user, options)
-      invoice_item                 = KillBillClient::Model::InvoiceItem.new()
+      invoice_item                 = KillBillClient::Model::InvoiceItem.new
       invoice_item.account_id      = account_id
       invoice_item.invoice_id      = invoice_id
       invoice_item.invoice_item_id = invoice_item_id
@@ -58,9 +58,8 @@ module KillBillIntegrationTests
       invoice_item.update(user, nil, nil, options)
     end
 
-
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})
-      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options);
+      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options)
     end
 
     def create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category, billing_period,
@@ -68,7 +67,6 @@ module KillBillIntegrationTests
       KillBillClient::Model::Invoice.create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category,
                                                                  billing_period, price_list_name, options)
     end
-
 
     def change_plan_dry_run(account_id, bundle_id, subscription_id, target_date, product_name, product_category, billing_period, price_list_name,
                             effective_date, billing_policy, options = {})
@@ -98,15 +96,10 @@ module KillBillIntegrationTests
 
     def get_specific_invoice_item(items, type, extra_condition)
       items.each do |i|
-        if type == 'RECURRING' && i.phase_name == extra_condition && i.item_type == type
-          return i
-        elsif type == 'REPAIR_ADJ' && i.amount == extra_condition && i.item_type == type
-          return i
-        elsif type == 'CBA_ADJ' && i.amount == extra_condition && i.item_type == type
-          return i
-        elsif type == 'USAGE' && i.amount == extra_condition && i.item_type == type
-          return i
-        end
+        return i if type == 'RECURRING' && i.phase_name == extra_condition && i.item_type == type
+        return i if type == 'REPAIR_ADJ' && i.amount == extra_condition && i.item_type == type
+        return i if type == 'CBA_ADJ' && i.amount == extra_condition && i.item_type == type
+        return i if type == 'USAGE' && i.amount == extra_condition && i.item_type == type
       end
       assert_not_nil(nil, "Could not find item for type #{type} , condition = #{extra_condition}")
     end

@@ -1,16 +1,16 @@
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestPayment < Base
-
     def setup
       setup_base
       load_default_catalog
 
-      @account          = create_account(@user, @options)
+      @account = create_account(@user, @options)
       add_payment_method(@account.account_id, '__EXTERNAL_PAYMENT__', true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
     end
@@ -26,9 +26,9 @@ module KillBillIntegrationTests
       void      = 'VOID'
       success   = 'SUCCESS'
 
-      payment1_key      = 'payment1-' + rand(1000000).to_s
+      payment1_key      = 'payment1-' + rand(1_000_000).to_s
       payment1_currency = 'BTC'
-      payment2_key      = 'payment2-' + rand(1000000).to_s
+      payment2_key      = 'payment2-' + rand(1_000_000).to_s
       payment2_currency = 'USD'
 
       # Auth the first payment
@@ -56,7 +56,7 @@ module KillBillIntegrationTests
 
       # Try to capture the second auth
       assert_raise 'Invalid transition' do
-        create_capture(auth2.payment_id, rand(1000000).to_s, '12', payment2_currency, @user, @options)
+        create_capture(auth2.payment_id, rand(1_000_000).to_s, '12', payment2_currency, @user, @options)
       end
 
       # Partially capture the first auth
@@ -94,11 +94,11 @@ module KillBillIntegrationTests
                     refund11_amount.to_f + refund12_amount.to_f,
                     0,
                     [
-                        [auth1_key, authorize, auth1_amount, payment1_currency, success], # auth 1
-                        [capture11_key, capture, capture11_amount, payment1_currency, success], # capture 1
-                        [capture12_key, capture, capture12_amount, payment1_currency, success], # capture 2
-                        [refund11_key, refund, refund11_amount, payment1_currency, success], # refund 1
-                        [refund12_key, refund, refund12_amount, payment1_currency, success] # refund 2
+                      [auth1_key, authorize, auth1_amount, payment1_currency, success], # auth 1
+                      [capture11_key, capture, capture11_amount, payment1_currency, success], # capture 1
+                      [capture12_key, capture, capture12_amount, payment1_currency, success], # capture 2
+                      [refund11_key, refund, refund11_amount, payment1_currency, success], # refund 1
+                      [refund12_key, refund, refund12_amount, payment1_currency, success] # refund 2
                     ])
       check_payment(payments[1],
                     @account.account_id,
@@ -109,13 +109,12 @@ module KillBillIntegrationTests
                     0,
                     0,
                     [
-                        [auth2_key, authorize, auth2_amount, payment2_currency, success], # auth 2
-                        [void2_key, void, nil, nil, success] # void
+                      [auth2_key, authorize, auth2_amount, payment2_currency, success], # auth 2
+                      [void2_key, void, nil, nil, success] # void
                     ])
     end
 
     def test_create_chargeback_and_chargeback_reversal
-
       account = create_account(@user, @options)
       account = get_account(account.account_id, true, true, @options)
 
@@ -158,11 +157,9 @@ module KillBillIntegrationTests
       assert_equal('CHARGEBACK', account_transactions[2].transaction_type)
       assert_equal(0, get_account(account.account_id, true, true, @options).account_balance)
       assert_equal('PAYMENT_FAILURE', account_transactions[2].status)
-
     end
 
     def test_payment_refund_by_external_key
-
       account = create_account(@user, @options)
       account = get_account(account.account_id, true, true, @options)
 
@@ -174,7 +171,6 @@ module KillBillIntegrationTests
       account = get_account(account.account_id, true, true, @options)
       payment = account.payments(@options).first
 
-
       # Verify if a new transaction is created and if their type is PURCHASE
       account_transactions = account.payments(@options).first.transactions
       assert_equal(1, account_transactions.size)
@@ -183,7 +179,6 @@ module KillBillIntegrationTests
 
       # Verify if refunded amount is 0
       assert_equal(0, payment.refunded_amount)
-
 
       # Refund 50 payment
       transaction                          = KillBillClient::Model::Transaction.new
@@ -195,7 +190,6 @@ module KillBillIntegrationTests
 
       # Verify if refunded amount is 50
       assert_equal(50, payment.refunded_amount)
-
     end
   end
 end

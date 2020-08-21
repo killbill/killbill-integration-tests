@@ -1,13 +1,11 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'test_base'
 
 module KillBillIntegrationTests
-
   class TestAccountTest < Base
-
     def setup
       setup_base
       @account = create_account(@user, @options)
@@ -139,6 +137,10 @@ module KillBillIntegrationTests
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
 
+      wait_for_expected_clause(31, @account, @options) do |an_account|
+        get_account(an_account.account_id, false, false, @options).bill_cycle_day_local
+      end
+
       new_account = get_account(@account.account_id, true, true, @options)
       assert_equal(new_account.name, 'KillBillClient')
       assert_equal(new_account.notes, 'My notes')
@@ -193,7 +195,7 @@ module KillBillIntegrationTests
       account = create_account(@user, @options)
 
       # Verify if response is success
-      assert(account.cba_rebalancing(@user, nil, nil, @options).response.kind_of? Net::HTTPSuccess)
+      assert(account.cba_rebalancing(@user, nil, nil, @options).response.is_a?(Net::HTTPSuccess))
     end
 
     def test_custom_fields

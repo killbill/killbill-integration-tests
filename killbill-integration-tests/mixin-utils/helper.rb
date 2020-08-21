@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'timeout'
 
 require 'account_helper'
@@ -7,10 +9,8 @@ require 'payment_helper'
 require 'refund_helper'
 require 'usage_helper'
 
-
 module KillBillIntegrationTests
   module Helper
-
     include AccountHelper
     include EntitlementHelper
     include InvoiceHelper
@@ -22,7 +22,7 @@ module KillBillIntegrationTests
 
     DETAIL_MODE = :DETAIL
     AGGREGATE_MODE = :AGGREGATE
-    USAGE_DETAIL_MODE_KEY = 'org.killbill.invoice.item.result.behavior.mode'.freeze
+    USAGE_DETAIL_MODE_KEY = 'org.killbill.invoice.item.result.behavior.mode'
     PER_TENANT_CONFIG = 'PER_TENANT_CONFIG'
 
     def check_error_message(expected, e)
@@ -33,13 +33,10 @@ module KillBillIntegrationTests
 
     def get_resource_as_string(resource_name)
       resource_path_name = File.expand_path("../../resources/#{resource_name}", __FILE__)
-      if !File.exist?(resource_path_name) || !File.file?(resource_path_name)
-        raise ArgumentError.new("Cannot find resource #{resource_name}")
-      end
+      raise ArgumentError, "Cannot find resource #{resource_name}" if !File.exist?(resource_path_name) || !File.file?(resource_path_name)
 
-      resource_file = File.open(resource_path_name, "rb")
-      resource_content = resource_file.read
-      resource_content
+      resource_file = File.open(resource_path_name, 'rb')
+      resource_file.read
     end
 
     def get_tenant_catalog(requested_date, options)
@@ -53,10 +50,10 @@ module KillBillIntegrationTests
         proceed_with_upload = res.values.empty?
       end
 
-      if proceed_with_upload
-        catalog_file_xml = get_resource_as_string(name)
-        KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
-      end
+      return unless proceed_with_upload
+
+      catalog_file_xml = get_resource_as_string(name)
+      KillBillClient::Model::Catalog.upload_tenant_catalog(catalog_file_xml, user, 'New Catalog Version', 'Upload catalog for tenant', options)
     end
 
     def add_catalog_simple_plan(plan_id, product_name, product_category, currency, amount, billing_period, trial_length, trial_time_unit, user, options)
@@ -74,7 +71,7 @@ module KillBillIntegrationTests
     end
 
     def upload_tenant_user_key_value(key, value, user, options)
-      KillBillClient::Model::Tenant.upload_tenant_user_key_value(key,value, user, 'New Config', 'Upload config for tenant', options)
+      KillBillClient::Model::Tenant.upload_tenant_user_key_value(key, value, user, 'New Config', 'Upload config for tenant', options)
     end
 
     def get_tenant_user_key_value(key, options)
@@ -105,7 +102,7 @@ module KillBillIntegrationTests
 
     def setup_create_tenant(user, options)
       tenant = KillBillClient::Model::Tenant.new
-      tenant.external_key = Time.now.to_i.to_s + "-" + rand(1000000).to_s
+      tenant.external_key = Time.now.to_i.to_s + '-' + rand(1_000_000).to_s
       tenant.api_key = 'test-api-key' + tenant.external_key
       secret_key = 'test-api-secret' + tenant.external_key
       tenant.api_secret = secret_key
@@ -125,7 +122,6 @@ module KillBillIntegrationTests
         return
       rescue KillBillClient::API::Unauthorized
       end
-
 
       tenant = KillBillClient::Model::Tenant.new
       tenant.external_key = external_key
@@ -171,7 +167,7 @@ module KillBillIntegrationTests
                                      {},
                                      params,
                                      {
-                                       :read_timeout => (params[:timeoutSec] + 1) * 1000
+                                       read_timeout: (params[:timeoutSec] + 1) * 1000
                                      }.merge(options)
       wait_for_killbill(options)
 
@@ -210,21 +206,20 @@ module KillBillIntegrationTests
     # Pass a block the will be evaluated until either we match expected value or we timeout
     #
     def wait_for_expected_clause(expected, args, options)
-      begin
-        Timeout::timeout(TIMEOUT_SEC) do
-          while true do
-            actual = yield(args)
-            return if actual == expected
-            wait_for_killbill(options)
-          end
-        end
-      rescue Timeout::Error
-        obj_name = args.class.name.split('::').pop.downcase
-        obj_id = args.send "#{obj_name}_id".to_sym
+      Timeout.timeout(TIMEOUT_SEC) do
+        loop do
+          actual = yield(args)
+          return if actual == expected
 
-        actual = yield(args)
-        assert_equal(expected, actual, "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}")
+          wait_for_killbill(options)
+        end
       end
+    rescue Timeout::Error
+      obj_name = args.class.name.split('::').pop.downcase
+      obj_id = args.send "#{obj_name}_id".to_sym
+
+      actual = yield(args)
+      assert_equal(expected, actual, "wait_for_expected_clause : timed out for #{obj_name} #{obj_id} after #{TIMEOUT_SEC}")
     end
 
     private
