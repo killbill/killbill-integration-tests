@@ -101,7 +101,11 @@ module KillBillIntegrationTests
         return i if type == 'CBA_ADJ' && i.amount == extra_condition && i.item_type == type
         return i if type == 'USAGE' && i.amount == extra_condition && i.item_type == type
       end
-      assert_not_nil(nil, "Could not find item for type #{type} , condition = #{extra_condition}")
+      msg = "Could not find item for type #{type} , condition = #{extra_condition}. Found items:\n"
+      items.each do |i|
+        msg += "- type=#{i.item_type}, phase_name=#{i.phase_name}, amount=#{i.amount}, start_dt=#{i.start_date}, end_dt=#{i.end_date}\n"
+      end
+      assert_not_nil(nil, msg)
     end
   end
 end
