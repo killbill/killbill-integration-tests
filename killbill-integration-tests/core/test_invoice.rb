@@ -125,15 +125,6 @@ module KillBillIntegrationTests
       assert_equal(3, all_invoices.size)
       third_invoice = all_invoices[2]
 
-      # Temporary code to debug circleci failure
-      old_sync = $stdout.sync
-      $stdout.sync = true
-      puts "********   INVOICES   ****"
-      all_invoices.each_with_index do |inv, idx|
-        puts "#{idx}: invoice_id=#{inv.invoice_id}, invoice_date=#{inv.invoice_date}, invoice_number=#{inv.invoice_number}, target_date=#{inv.target_date}, amount=#{inv.amount}, items#{inv.items.size}"
-      end
-      $stdout.sync = old_sync
-
       check_invoice_item(get_specific_invoice_item(third_invoice.items, 'RECURRING', 'sports-monthly-evergreen'), third_invoice.invoice_id, 500.00, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(third_invoice.items, 'REPAIR_ADJ', -1000.00), third_invoice.invoice_id, -1000.00, 'USD', 'REPAIR_ADJ', nil, nil, '2013-08-31', '2013-09-30')
       check_invoice_item(get_specific_invoice_item(third_invoice.items, 'CBA_ADJ', 500.00), third_invoice.invoice_id, 500.00, 'USD', 'CBA_ADJ', nil, nil, '2013-08-31', '2013-08-31')
