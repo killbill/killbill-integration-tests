@@ -25,7 +25,9 @@ module KillBillIntegrationTests
 
     def teardown
       close_account(@account2.account_id, @user, @options2)
-
+      # Exp. mode for ci debugging:
+      #   Increment timeout to wait for notification to be completed as some test generate over 500 notifications
+      @options[:timeout_sec] = 360
       teardown_base
     end
 
