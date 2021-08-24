@@ -19,6 +19,7 @@ module KillBillIntegrationTests
     PLUGIN_CONFIGURATION = 'org.killbill.billing.plugin.avatax.url=https://sandbox-rest.avatax.com/api/v2' + "\n" \
                            "org.killbill.billing.plugin.avatax.accountId=#{ENV['AVATAX_ACCOUNT_ID']}" + "\n" \
                            "org.killbill.billing.plugin.avatax.licenseKey=#{ENV['AVATAX_LICENSE_KEY']}" + "\n" \
+                           "org.killbill.billing.plugin.avatax.companyCode=#{ENV['AVATAX_COMPANY_CODE']}" + "\n" \
                            'org.killbill.billing.plugin.avatax.commitDocuments=false'
 
     KILLBILL_AVATAX_PREFIX = '/plugins/killbill-avatax'
