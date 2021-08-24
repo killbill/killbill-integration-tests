@@ -21,6 +21,10 @@ module KillBillIntegrationTests
                            "org.killbill.billing.plugin.avatax.licenseKey=#{ENV['AVATAX_LICENSE_KEY']}" + "\n" \
                            'org.killbill.billing.plugin.avatax.commitDocuments=false'
 
+    KILLBILL_AVATAX_PREFIX = '/plugins/killbill-avatax'
+
+    AUTO_INVOICING_DRAFT = '00000000-0000-0000-0000-000000000008'
+
     # California Nexus must be enabled as of 05/2020 in your account for the test to pass
     def setup
       @user = 'AvaTax test plugin'
@@ -68,6 +72,53 @@ module KillBillIntegrationTests
       teardown_plugin_base(PLUGIN_KEY)
     end
 
+    def test_manual_commit
+      @account.add_tag_from_definition_id(AUTO_INVOICING_DRAFT, @user, 'test_manual_commit', 'Set auto invoicing DRAFT mode', @options)
+
+      # Create entitlement
+      bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
+      check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', '2020-05-01', nil)
+
+      # Verify the first invoice
+      all_invoices  = check_next_invoice_amount(1, 0, '2020-05-01', @account, @options, &@proc_account_invoices_nb)
+      first_invoice = all_invoices[0]
+      assert_equal(first_invoice.status, 'DRAFT')
+      assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2020-05-01', nil)
+
+      # Move clock after trial
+      kb_clock_add_days(31, nil, @options)
+      second_invoice_charges = 500
+
+      # Verify the second invoice, amount should be $500 * 1.085 = $542.5
+      total_amount_after_taxes_second = second_invoice_charges * (1 + @cs_sf_total_tax)
+      all_invoices = check_next_invoice_amount(2, total_amount_after_taxes_second, '2020-06-01', @account, @options, &@proc_account_invoices_nb)
+      second_invoice = all_invoices[1]
+      assert_equal('DRAFT', second_invoice.status)
+      assert_equal(5, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+
+      # Fetch documents
+      docs = get_transactions(second_invoice)
+      assert_equal(1, docs.size)
+      doc_code = docs.first['code']
+      assert_equal((total_amount_after_taxes_second - second_invoice_charges).round(2), docs.first['totalTax'])
+
+      # Verify document is in DRAFT in Avalara
+      assert_equal('Saved', get_transaction_status(doc_code))
+
+      # Commit second invoice
+      second_invoice.commit(@user, 'test_manual_commit', 'Commit non-zero invoice', @options)
+
+      # Verify document is COMMITTED in Avalara
+      assert_equal('Committed', get_transaction_status(doc_code))
+
+      # Void the document
+      KillBillClient::API.post("#{KILLBILL_AVATAX_PREFIX}/transactions/#{doc_code}/void", {}, {}, @options).body
+
+      # Verify document is VOIDED in Avalara
+      assert_equal('Cancelled', get_transaction_status(doc_code))
+    end
+
     def test_adjust_tax_after_repair
       assert_equal(0, @account.invoices(@options).size, 'Account should not have any invoice')
 
@@ -89,20 +140,26 @@ module KillBillIntegrationTests
       total_amount_after_taxes_second = second_invoice_charges * (1 + @cs_sf_total_tax)
       all_invoices = check_next_invoice_amount(2, total_amount_after_taxes_second, '2020-06-01', @account, @options, &@proc_account_invoices_nb)
       second_invoice = all_invoices[1]
-
       assert_equal(5, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+
       ca_special_taxes = second_invoice.items.select { |item| item.description == 'CA SPECIAL TAX' }
       assert_not_empty(ca_special_taxes)
       ca_special_tax_amount = 0
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(ca_special_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+      expected_ca_special_taxes = (second_invoice_charges * @sf_special_tax).round(2)
+      check_invoice_item(ca_special_taxes.first, second_invoice.invoice_id, expected_ca_special_taxes, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+
       ca_county_taxes = second_invoice.items.select { |item| item.description == 'CA COUNTY TAX' }
       assert_not_empty(ca_county_taxes)
-      check_invoice_item(ca_county_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+      expected_ca_county_taxes = (second_invoice_charges * @sf_county_tax).round(2)
+      check_invoice_item(ca_county_taxes.first, second_invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+
       ca_state_taxes = second_invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(ca_state_taxes)
-      check_invoice_item(ca_state_taxes.first, second_invoice.invoice_id, (second_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+      expected_ca_state_taxes = (second_invoice_charges * @ca_state_tax).round(2)
+      check_invoice_item(ca_state_taxes.first, second_invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
+
       sport_monthly = second_invoice.items.select { |item| item.description == 'sports-monthly-evergreen' }
       assert_not_empty(sport_monthly)
       check_invoice_item(sport_monthly.first, second_invoice.invoice_id, second_invoice_charges, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2020-05-31', '2020-06-30')
@@ -110,6 +167,12 @@ module KillBillIntegrationTests
       assert_equal(sport_monthly.first.invoice_item_id, ca_special_taxes.first.linked_invoice_item_id)
       assert_equal(sport_monthly.first.invoice_item_id, ca_county_taxes.first.linked_invoice_item_id)
       assert_equal(sport_monthly.first.invoice_item_id, ca_state_taxes.first.linked_invoice_item_id)
+
+      # Fetch document
+      docs = get_transactions(second_invoice)
+      assert_equal(1, docs.size)
+      assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), docs.first['totalTax'])
+      second_doc_amount_before_adj = docs.first['totalTax']
 
       kb_clock_add_days(1, nil, @options)
 
@@ -130,50 +193,84 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, total_amount_after_taxes_second, 'USD', '2020-06-01')
       assert_equal(5, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
+
       # Verify the new items on the third invoice
       third_invoice = all_invoices[2]
       assert_equal(10, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
-      # adjustments
+
+      # Adjustments
+
       repair_adjustment = third_invoice.items.select { |item| item.item_type == 'REPAIR_ADJ' }
       assert_not_empty(repair_adjustment)
       check_invoice_item(repair_adjustment.first, third_invoice.invoice_id, invoice_adjustment, 'USD', 'REPAIR_ADJ', nil, nil, '2020-06-02', '2020-06-30')
+
       adj_ca_special_taxes = third_invoice.items.select { |item| item.description == 'CA SPECIAL TAX' && item.plan_name == 'sports-monthly' }
       assert_not_empty(adj_ca_special_taxes)
       ca_special_tax_amount = 0
       adj_ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       adj_ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(adj_ca_special_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
+      expected_ca_special_taxes_adj = (invoice_adjustment * @sf_special_tax).round(2)
+      check_invoice_item(adj_ca_special_taxes.first, third_invoice.invoice_id, expected_ca_special_taxes_adj, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       adj_ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'sports-monthly' }
       assert_not_empty(adj_ca_state_taxes)
-      check_invoice_item(adj_ca_state_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
+      expected_ca_state_taxes_adj = (invoice_adjustment * @ca_state_tax).round(2)
+      check_invoice_item(adj_ca_state_taxes.first, third_invoice.invoice_id, expected_ca_state_taxes_adj, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       adj_ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'sports-monthly' }
       assert_not_empty(adj_ca_county_taxes)
-      check_invoice_item(adj_ca_county_taxes.first, third_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
-      # charges
+      expected_ca_county_taxes_adj = (invoice_adjustment * @sf_county_tax).round(2)
+      check_invoice_item(adj_ca_county_taxes.first, third_invoice.invoice_id, expected_ca_county_taxes_adj, 'USD', 'TAX', 'sports-monthly', 'sports-monthly-evergreen', '2020-06-02', '2020-06-30')
+
+      # Charges
+
       ca_special_taxes = third_invoice.items.select { |item| item.description == 'CA SPECIAL TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_special_taxes)
       ca_special_tax_amount = 0
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(ca_special_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+      expected_ca_special_taxes = (third_invoice_charges * @sf_special_tax).round(2)
+      check_invoice_item(ca_special_taxes.first, third_invoice.invoice_id, expected_ca_special_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       ca_county_taxes = third_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_county_taxes)
-      check_invoice_item(ca_county_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+      expected_ca_county_taxes = (third_invoice_charges * @sf_county_tax).round(2)
+      check_invoice_item(ca_county_taxes.first, third_invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       ca_state_taxes = third_invoice.items.select { |item| item.description == 'CA STATE TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(ca_state_taxes)
-      check_invoice_item(ca_state_taxes.first, third_invoice.invoice_id, (third_invoice_charges * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+      expected_ca_state_taxes = (third_invoice_charges * @ca_state_tax).round(2)
+      check_invoice_item(ca_state_taxes.first, third_invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       super_monthly = third_invoice.items.select { |item| item.description == 'super-monthly-evergreen' }
       assert_not_empty(super_monthly)
       check_invoice_item(super_monthly.first, third_invoice.invoice_id, third_invoice_charges, 'USD', 'RECURRING', 'super-monthly', 'super-monthly-evergreen', '2020-06-02', '2020-06-30')
+
       # Verify the return tax items point to the old recurring item
       assert_equal(sport_monthly.first.invoice_item_id, repair_adjustment.first.linked_invoice_item_id)
       assert_equal(sport_monthly.first.invoice_item_id, adj_ca_special_taxes.first.linked_invoice_item_id)
       assert_equal(sport_monthly.first.invoice_item_id, adj_ca_state_taxes.first.linked_invoice_item_id)
       assert_equal(sport_monthly.first.invoice_item_id, adj_ca_county_taxes.first.linked_invoice_item_id)
+
       # Verify the new tax items point to the new recurring item
       assert_equal(super_monthly.first.invoice_item_id, ca_special_taxes.first.linked_invoice_item_id)
       assert_equal(super_monthly.first.invoice_item_id, ca_county_taxes.first.linked_invoice_item_id)
       assert_equal(super_monthly.first.invoice_item_id, ca_state_taxes.first.linked_invoice_item_id)
+
+      # Fetch documents for the second invoice: no change
+      docs = get_transactions(second_invoice)
+      assert_equal(1, docs.size)
+      assert_equal(second_doc_amount_before_adj, docs.first['totalTax'])
+
+      # Fetch document for the third invoice
+      docs = get_transactions(third_invoice)
+      assert_equal(2, docs.size)
+      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice'}
+      assert_not_nil(sales_invoice)
+      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice'}
+      assert_not_nil(return_invoice)
+      assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), sales_invoice['totalTax'])
+      assert_equal((expected_ca_special_taxes_adj + expected_ca_county_taxes_adj + expected_ca_state_taxes_adj).round(2), return_invoice['totalTax'])
 
       kb_clock_add_days(1, nil, @options)
 
@@ -192,32 +289,47 @@ module KillBillIntegrationTests
       third_invoice = all_invoices[2]
       check_invoice_no_balance(third_invoice, total_amount_after_taxes_third, 'USD', '2020-06-02')
       assert_equal(10, third_invoice.items.size, "Invalid number of invoice items: #{third_invoice.items.size}")
+
       # Verify the new items on the fourth invoice
       fourth_invoice = all_invoices[3]
       assert_equal(6, fourth_invoice.items.size, "Invalid number of invoice items: #{fourth_invoice.items.size}")
+
       repair_adjustment = fourth_invoice.items.select { |item| item.item_type == 'REPAIR_ADJ' }
       assert_not_empty(repair_adjustment)
       check_invoice_item(repair_adjustment.first, fourth_invoice.invoice_id, invoice_adjustment, 'USD', 'REPAIR_ADJ', nil, nil, '2020-06-03', '2020-06-30')
+
       adj_ca_special_taxes = fourth_invoice.items.select { |item| item.description == 'CA SPECIAL TAX' }
       assert_not_empty(adj_ca_special_taxes)
       ca_special_tax_amount = 0
       adj_ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       adj_ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(adj_ca_special_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_special_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+      expected_ca_special_taxes = (invoice_adjustment * @sf_special_tax).round(2)
+      check_invoice_item(adj_ca_special_taxes.first, fourth_invoice.invoice_id, expected_ca_special_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+
       adj_ca_state_taxes = fourth_invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(adj_ca_state_taxes)
-      check_invoice_item(adj_ca_state_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @ca_state_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+      expected_ca_state_taxes = (invoice_adjustment * @ca_state_tax).round(2)
+      check_invoice_item(adj_ca_state_taxes.first, fourth_invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+
       adj_ca_county_taxes = fourth_invoice.items.select { |item| item.description == 'CA COUNTY TAX' && item.plan_name == 'super-monthly' }
       assert_not_empty(adj_ca_county_taxes)
-      check_invoice_item(adj_ca_county_taxes.first, fourth_invoice.invoice_id, (invoice_adjustment * @sf_county_tax).round(2), 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+      expected_ca_county_taxes = (invoice_adjustment * @sf_county_tax).round(2)
+      check_invoice_item(adj_ca_county_taxes.first, fourth_invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', 'super-monthly', 'super-monthly-evergreen', '2020-06-03', '2020-06-30')
+
       cba_adjustment = fourth_invoice.items.select { |item| item.item_type == 'CBA_ADJ' }
       assert_not_empty(cba_adjustment)
       check_invoice_item(cba_adjustment.first, fourth_invoice.invoice_id, fourth_invoice_adj.abs, 'USD', 'CBA_ADJ', nil, nil, '2020-06-03', '2020-06-03')
+
       # Verify the return tax items point to the old recurring item
       assert_equal(super_monthly.first.invoice_item_id, repair_adjustment.first.linked_invoice_item_id)
       assert_equal(super_monthly.first.invoice_item_id, adj_ca_special_taxes.first.linked_invoice_item_id)
       assert_equal(super_monthly.first.invoice_item_id, adj_ca_state_taxes.first.linked_invoice_item_id)
       assert_equal(super_monthly.first.invoice_item_id, adj_ca_county_taxes.first.linked_invoice_item_id)
+
+      # Fetch document
+      docs = get_transactions(fourth_invoice)
+      assert_equal(1, docs.size)
+      assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), docs.first['totalTax'])
     end
 
     def test_adjust_tax_after_item_adjustment_with_cba
@@ -228,7 +340,7 @@ module KillBillIntegrationTests
       amount_adj_after_taxes = amount_adj * (1 + @cs_sf_total_tax)
       total_invoice_after_adjustment = total_charge_after_taxes + amount_adj_after_taxes
 
-      invoice = setup_test_adjust_tax_after_item_adjustment(charge_amount, total_charge_after_taxes)
+      invoice = setup_paid_invoice_with_taxes(charge_amount, total_charge_after_taxes)
 
       # Refund partially the payment and item adjust the charge
       payment_id = @account.payments(@options).first.payment_id
@@ -249,20 +361,26 @@ module KillBillIntegrationTests
       ca_special_taxes = invoice.items.select { |item| item.description == 'CA SPECIAL TAX' }
       assert_not_empty(ca_special_taxes)
       ca_special_taxes = sum_items_amount(ca_special_taxes)
-      expected_ca_special_tax_amount = ((charge_amount * @sf_special_tax).round(2) + (amount_adj * @sf_special_tax).round(2)).round(2)
-      check_invoice_item(ca_special_taxes, invoice.invoice_id, expected_ca_special_tax_amount, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_special_taxes_adj = (amount_adj * @sf_special_tax).round(2)
+      expected_ca_special_taxes = (charge_amount * @sf_special_tax).round(2)
+      expected_ca_special_taxes_total = (expected_ca_special_taxes_adj + expected_ca_special_taxes).round(2)
+      check_invoice_item(ca_special_taxes, invoice.invoice_id, expected_ca_special_taxes_total, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       ca_county_taxes = invoice.items.select { |item| item.description == 'CA COUNTY TAX' }
       assert_not_empty(ca_county_taxes)
       ca_county_taxes = sum_items_amount(ca_county_taxes)
-      expected_ca_county_taxes = ((charge_amount * @sf_county_tax).round(2) + (amount_adj * @sf_county_tax).round(2)).round(2)
-      check_invoice_item(ca_county_taxes, invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_county_taxes = (charge_amount * @sf_county_tax).round(2)
+      expected_ca_county_taxes_adj = (amount_adj * @sf_county_tax).round(2)
+      expected_ca_county_taxes_total = (expected_ca_county_taxes + expected_ca_county_taxes_adj).round(2)
+      check_invoice_item(ca_county_taxes, invoice.invoice_id, expected_ca_county_taxes_total, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       ca_state_taxes = invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(ca_state_taxes)
       ca_state_taxes = sum_items_amount(ca_state_taxes)
-      expected_ca_state_taxes = ((charge_amount * @ca_state_tax).round(2) + (amount_adj * @ca_state_tax).round(2)).round(2)
-      check_invoice_item(ca_state_taxes, invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_state_taxes = (charge_amount * @ca_state_tax).round(2)
+      expected_ca_state_taxes_adj = (amount_adj * @ca_state_tax).round(2)
+      expected_ca_state_taxes_total = (expected_ca_state_taxes + expected_ca_state_taxes_adj).round(2)
+      check_invoice_item(ca_state_taxes, invoice.invoice_id, expected_ca_state_taxes_total, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       item_adjustment = invoice.items.select { |item| item.item_type == 'ITEM_ADJ' }
       assert_not_empty(item_adjustment)
@@ -270,11 +388,22 @@ module KillBillIntegrationTests
       cba_adjustment = invoice.items.select { |item| item.item_type == 'CBA_ADJ' }
       assert_not_empty(cba_adjustment)
       check_invoice_item(cba_adjustment.first, invoice.invoice_id, 1.7, 'USD', 'CBA_ADJ', nil, nil, '2020-05-01', '2020-05-01')
+
       # Verify the tax items point to the external charge item
       assert_equal(my_first_charge.first.invoice_item_id, ca_special_taxes.linked_invoice_item_id)
       assert_equal(my_first_charge.first.invoice_item_id, ca_county_taxes.linked_invoice_item_id)
       assert_equal(my_first_charge.first.invoice_item_id, ca_state_taxes.linked_invoice_item_id)
       assert_equal(my_first_charge.first.invoice_item_id, item_adjustment.first.linked_invoice_item_id)
+
+      # Fetch documents
+      docs = get_transactions(invoice)
+      assert_equal(2, docs.size)
+      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice'}
+      assert_not_nil(sales_invoice)
+      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice'}
+      assert_not_nil(return_invoice)
+      assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), sales_invoice['totalTax'])
+      assert_equal((expected_ca_special_taxes_adj + expected_ca_county_taxes_adj + expected_ca_state_taxes_adj).round(2), return_invoice['totalTax'])
 
       @account = get_account(@account.account_id, true, true, @options)
       assert_equal(-1.7, @account.account_balance)
@@ -283,7 +412,7 @@ module KillBillIntegrationTests
 
     private
 
-    def setup_test_adjust_tax_after_item_adjustment(charge_amount, total_charge_after_taxes)
+    def setup_paid_invoice_with_taxes(charge_amount, total_charge_after_taxes)
       assert_equal(0, @account.invoices(@options).size, 'Account should not have any invoice')
 
       # Create external charge
@@ -297,26 +426,38 @@ module KillBillIntegrationTests
       # Amount should be $35 * 1.085 = $37.98
       check_invoice_no_balance(invoice, total_charge_after_taxes.round(2), 'USD', '2020-05-01')
       assert_equal(5, invoice.items.size, "Invalid number of invoice items: #{invoice.items.size}")
+
       my_first_charge = invoice.items.select { |item| item.description == 'My first charge' }
       assert_not_empty(my_first_charge)
       check_invoice_item(my_first_charge.first, invoice.invoice_id, charge_amount, 'USD', 'EXTERNAL_CHARGE', nil, nil, '2020-05-01', nil)
+
       ca_special_taxes = invoice.items.select { |item| item.description == 'CA SPECIAL TAX' }
       assert_not_empty(ca_special_taxes)
       ca_special_tax_amount = 0
       ca_special_taxes.each { |sp| ca_special_tax_amount += sp.amount }
       ca_special_taxes.first.amount = ca_special_tax_amount
-      check_invoice_item(ca_special_taxes.first, invoice.invoice_id, (charge_amount * @sf_special_tax).round(2), 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_special_taxes = (charge_amount * @sf_special_tax).round(2)
+      check_invoice_item(ca_special_taxes.first, invoice.invoice_id, expected_ca_special_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+
       ca_county_taxes = invoice.items.select { |item| item.description == 'CA COUNTY TAX' }
       assert_not_empty(ca_county_taxes)
-      check_invoice_item(ca_county_taxes.first, invoice.invoice_id, (charge_amount * @sf_county_tax).round(2), 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_county_taxes = (charge_amount * @sf_county_tax).round(2)
+      check_invoice_item(ca_county_taxes.first, invoice.invoice_id, expected_ca_county_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+
       ca_state_taxes = invoice.items.select { |item| item.description == 'CA STATE TAX' }
       assert_not_empty(ca_state_taxes)
-      check_invoice_item(ca_state_taxes.first, invoice.invoice_id, (charge_amount * @ca_state_tax).round(2), 'USD', 'TAX', nil, nil, '2020-05-01', nil)
+      expected_ca_state_taxes = (charge_amount * @ca_state_tax).round(2)
+      check_invoice_item(ca_state_taxes.first, invoice.invoice_id, expected_ca_state_taxes, 'USD', 'TAX', nil, nil, '2020-05-01', nil)
 
       # Verify the tax items point to the external charge item
       assert_equal(my_first_charge.first.invoice_item_id, ca_special_taxes.first.linked_invoice_item_id)
       assert_equal(my_first_charge.first.invoice_item_id, ca_county_taxes.first.linked_invoice_item_id)
       assert_equal(my_first_charge.first.invoice_item_id, ca_state_taxes.first.linked_invoice_item_id)
+
+      # Fetch document
+      docs = get_transactions(invoice)
+      assert_equal(1, docs.size)
+      assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), docs.first['totalTax'])
 
       # Pay the invoice
       pay_all_unpaid_invoices(@account.account_id, false, invoice.balance, @user, @options)
@@ -338,6 +479,14 @@ module KillBillIntegrationTests
       items.first.amount = amount.round(2)
 
       items.first
+    end
+
+    def get_transactions(invoice)
+      JSON.parse(KillBillClient::API.get("#{KILLBILL_AVATAX_PREFIX}/transactions", {:kbInvoiceId => invoice.invoice_id}, @options).body)
+    end
+
+    def get_transaction_status(doc_code)
+      JSON.parse(KillBillClient::API.get("#{KILLBILL_AVATAX_PREFIX}/transactions/#{doc_code}", {}, @options).body)['status']
     end
   end
 end
