@@ -266,9 +266,9 @@ module KillBillIntegrationTests
       # Fetch document for the third invoice
       docs = get_transactions(third_invoice)
       assert_equal(2, docs.size)
-      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice'}
+      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice' }
       assert_not_nil(sales_invoice)
-      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice'}
+      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice' }
       assert_not_nil(return_invoice)
       assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), sales_invoice['totalTax'])
       assert_equal((expected_ca_special_taxes_adj + expected_ca_county_taxes_adj + expected_ca_state_taxes_adj).round(2), return_invoice['totalTax'])
@@ -399,9 +399,9 @@ module KillBillIntegrationTests
       # Fetch documents
       docs = get_transactions(invoice)
       assert_equal(2, docs.size)
-      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice'}
+      sales_invoice = docs.find { |doc| doc['type'] == 'SalesInvoice' }
       assert_not_nil(sales_invoice)
-      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice'}
+      return_invoice = docs.find { |doc| doc['type'] == 'ReturnInvoice' }
       assert_not_nil(return_invoice)
       assert_equal((expected_ca_special_taxes + expected_ca_county_taxes + expected_ca_state_taxes).round(2), sales_invoice['totalTax'])
       assert_equal((expected_ca_special_taxes_adj + expected_ca_county_taxes_adj + expected_ca_state_taxes_adj).round(2), return_invoice['totalTax'])
@@ -483,7 +483,7 @@ module KillBillIntegrationTests
     end
 
     def get_transactions(invoice)
-      JSON.parse(KillBillClient::API.get("#{KILLBILL_AVATAX_PREFIX}/transactions", {:kbInvoiceId => invoice.invoice_id}, @options).body)
+      JSON.parse(KillBillClient::API.get("#{KILLBILL_AVATAX_PREFIX}/transactions", { kbInvoiceId: invoice.invoice_id }, @options).body)
     end
 
     def get_transaction_status(doc_code)
