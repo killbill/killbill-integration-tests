@@ -8,6 +8,7 @@ require 'killbill_client'
 require 'helper'
 require 'checker'
 require 'logger'
+require 'set'
 
 module KillBillIntegrationTests
   class Base < Test::Unit::TestCase
