@@ -54,6 +54,8 @@ Run the tests:
 
 By default the tests will point to the local instance of Kill Bill `KillBillClient.url = 'http://127.0.0.1:8080'`, but that can be modified -- see test\_base.rb.
 
+By default, the tests use the `admin/password` credentials. However, you can override these by setting the `KILLBILL_ADMIN_USERNAME` and `KILLBILL_ADMIN_PASSWORD` environment variables.  
+
 From killbill-integration-tests, and after the setup is done, run some tests. for e.g:
 ```
 > rake test:core:entitlement
