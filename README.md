@@ -15,18 +15,19 @@ To run the tests against the KillBill Docker Image, see [the separate guide](doc
 Setup
 -----
 
-First setup correct version of ruby (using rvm, or default installed ruby version) and install the required gems:
+* Setup the correct version of ruby (using rvm, or default installed ruby version). On Windows machines, you can use [RubyInstaller](https://rubyinstaller.org/) to install Ruby. 
+* Open the `<PROJECT_ROOT>/Gemfile` and comment/uncomment the appropriate lines in order to install the `killbill-client` gem. 
+* Install the required gems:
+
 ```
 # From  top of integration-tests repo (https://github.com/killbill/killbill-integration-tests)
-# Note that Gemfile may point to the killbill-client gem instead of the installed version.
-# (gem 'killbill-client', :path => '../killbill-client-ruby').
-# (Comment or uncomment the line as appropriate)
-# 
+    
 > bundle install
 ...
 ```
 
-From there you can check the list of tests:
+* Check the list of tests:
+
 ```
 > rake -T
 rake test:all                            # Run tests for all
@@ -45,24 +46,7 @@ rake test:seed                           # Run tests for seed
 Most tests should be able to run with default kill Bill version except for the test:payment:control, which requires
 the plugin [killbill-payment-test-plugin](https://github.com/killbill/killbill-payment-test-plugin) to be installed.
 
-Start Kill Bill locally either by following the instructions and lanching the executable war (see the [user guide]( http://killbill.io/userguide/subscriptions-userguide/)), or by starting the server from source repo:
-
-```
-# Make sure the database is correctly installed
-# Default properties (profiles/killbill/src/main/resources/killbill-server.properties) points to 
-# jdbc:mysql://127.0.0.1:3306/killbill (root/root)
-# If database does not exists, you need to create it:
-> echo 'create database killbill2;' | mysql -u root -proot
-# Add schema (tables)
-> ./bin/db-helper -a create -d killbill
-
-
-# From main killbill source repo (https://github.com/killbill/killbill)
->  ./bin/start-server -s -d > /tmp/server.out 2>&1 < /dev/null &
-
-# Tail the output and wait for the server to be fully started
-> tail -f /tmp/server.out 
-```
+Start Kill Bill locally either in Tomcat (by following the instructions in the [Getting Started]( https://docs.killbill.io/latest/getting_started.html#_tomcat) guide) or Jetty (by following the instructions in the [Development](https://docs.killbill.io/latest/development.html#_setting_up_kill_bill_in_your_development_environment) document). Open a browser window and verify that \http://localhost:8080/index.html displays the Kill Bill home page.
 
 
 Run the tests:
@@ -81,7 +65,7 @@ All tests should pass.
 About the tests:
 ----------------
 
-The tests use the ruby client library to communicate through HTTP apis with Kill Bill. There are also a few special endpoints that we added for the tests; one of them is `/1.0/kb/test/clock` which is used to move the clock on Kill Bill back and forth. At the begining of each test the clock is reset to its default value (2013-08-01:T06:00:00.000Z), which is abritrary but required for writing the test assertions. During the tests, the endpoint is used to move the clock forward and generate invoices,...
+The tests use the ruby client library to communicate through HTTP apis with Kill Bill. There are also a few special endpoints that we added for the tests; one of them is `/1.0/kb/test/clock` which is used to move the clock on Kill Bill back and forth. At the beginning of each test the clock is reset to its default value (2013-08-01:T06:00:00.000Z), which is arbitrary but required for writing the test assertions. During the tests, the endpoint is used to move the clock forward and generate invoices,...
 
 
 It is advised to start from a clean database prior starting the tests since moving clock back and forth may trigger the system to act on some of the existing data. 
@@ -98,7 +82,7 @@ It is advised to start from a clean database prior starting the tests since movi
 Load/Perf Tests:
 ---------------
 
-The integration tests also offer some support to run performance/load tests. Under 'load' there is a base class `load_base.rb` that relies on the `thread/pool` gem to schedule tasks across mutliple threads. It also offers the ability to profile the calls by using the profiling feature embedded into Kill Bill (https://github.com/killbill/killbill/wiki/Kill-Bill-Profiling).
+The integration tests also offer some support to run performance/load tests. Under 'load' there is a base class `load_base.rb` that relies on the `thread/pool` gem to schedule tasks across multiple threads. It also offers the ability to profile the calls by using the profiling feature embedded into Kill Bill (https://github.com/killbill/killbill/wiki/Kill-Bill-Profiling).
 
 The `payment_load.rb` test relies on `load_base.rb` and defines a set of Tasks. A task is a small scenario that should be run; it can be as simple as doing one call, or could comprise multiple operations. One should adjust the following parameters (currently hardcoded in the test) to suit its needs:
 * KillBillClient.url (defaults to 'http://127.0.0.1:8080') : This is set in `load_base.rb`
