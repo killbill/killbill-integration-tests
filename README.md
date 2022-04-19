@@ -16,7 +16,14 @@ Setup
 -----
 
 * Setup the correct version of ruby (using rvm, or default installed ruby version). On Windows machines, you can use [RubyInstaller](https://rubyinstaller.org/) to install Ruby. 
-* Open the `<PROJECT_ROOT>/Gemfile` and comment/uncomment the appropriate lines in order to install the `killbill-client` gem. 
+* Ensure that the Gemfile points to the killbill-client gem. Open the `<PROJECT_ROOT>/Gemfile` and comment/uncomment the appropriate lines:
+
+```
+# 
+# (gem 'killbill-client', :path => '../killbill-client-ruby').
+# (Comment or uncomment the line as appropriate)
+```
+
 * Install the required gems:
 
 ```
@@ -54,7 +61,7 @@ Run the tests:
 
 By default the tests will point to the local instance of Kill Bill `KillBillClient.url = 'http://127.0.0.1:8080'`, but that can be modified -- see test\_base.rb.
 
-By default, the tests use the `admin/password` credentials. However, you can override these by setting the `KILLBILL_ADMIN_USERNAME` and `KILLBILL_ADMIN_PASSWORD` environment variables.  
+By default, the tests use the `admin/password` admin credentials. However, you can override these by setting the `KILLBILL_ADMIN_USERNAME` and `KILLBILL_ADMIN_PASSWORD` environment variables.  
 
 From killbill-integration-tests, and after the setup is done, run some tests. for e.g:
 ```
