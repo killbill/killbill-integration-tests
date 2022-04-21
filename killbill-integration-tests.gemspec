@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ci_reporter_test_unit', '~> 1.0.1'
   s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
   s.add_development_dependency 'faker', '~> 1.5'
-  s.add_development_dependency 'midi-smtp-server', '~> 2.1.1'
+  s.add_development_dependency 'midi-smtp-server', '~> 2.3.3'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rubocop', '~> 0.88.0'
   s.add_development_dependency 'test-unit', '~> 3.3.6'

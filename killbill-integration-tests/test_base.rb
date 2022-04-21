@@ -8,6 +8,7 @@ require 'killbill_client'
 require 'helper'
 require 'checker'
 require 'logger'
+require 'set'
 
 module KillBillIntegrationTests
   class Base < Test::Unit::TestCase
@@ -37,7 +38,7 @@ module KillBillIntegrationTests
       end
 
       # RBAC default options
-      @options = { username: ENV['USERNAME'] || 'admin', password: ENV['PASSWORD'] || 'password' }
+      @options = { username: ENV['KILLBILL_ADMIN_USERNAME'] || 'admin', password: ENV['KILLBILL_ADMIN_PASSWORD'] || 'password' }
 
       # Create tenant and provide options for multi-tenants headers(X-Killbill-ApiKey/X-Killbill-ApiSecret)
       if tenant_info[:use_multi_tenant]
