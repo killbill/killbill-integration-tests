@@ -35,13 +35,13 @@ module KillBillIntegrationTests
 
       events = get_events(@account.account_id, changed_bp.subscription_id)
       assert_equal(events.size, 4)
-      assert_equal(events[0].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
+      assert_equal(events[0].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
       assert_equal(events[0].event_type, 'START_ENTITLEMENT')
-      assert_equal(events[1].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
+      assert_equal(events[1].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
       assert_equal(events[1].event_type, 'START_BILLING')
-      assert_equal(events[2].effective_date.partition("T")[0], '2013-08-02') if events[2].effective_date
+      assert_equal(events[2].effective_date.partition('T')[0], '2013-08-02') if events[2].effective_date
       assert_equal(events[2].event_type, 'CHANGE')
-      assert_equal(events[3].effective_date.partition("T")[0], '2013-08-31') if events[3].effective_date
+      assert_equal(events[3].effective_date.partition('T')[0], '2013-08-31') if events[3].effective_date
       assert_equal(events[3].event_type, 'PHASE')
     end
 
@@ -68,13 +68,13 @@ module KillBillIntegrationTests
 
       events = get_events(@account.account_id, changed_bp.subscription_id)
       assert_equal(events.size, 4)
-      assert_equal(events[0].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
+      assert_equal(events[0].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
       assert_equal(events[0].event_type, 'START_ENTITLEMENT')
-      assert_equal(events[1].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
+      assert_equal(events[1].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
       assert_equal(events[1].event_type, 'START_BILLING')
-      assert_equal(events[2].effective_date.partition("T")[0], requested_date) if events[2].effective_date
+      assert_equal(events[2].effective_date.partition('T')[0], requested_date) if events[2].effective_date
       assert_equal(events[2].event_type, 'CHANGE')
-      assert_equal(events[3].effective_date.partition("T")[0], '2013-08-31') if events[3].effective_date
+      assert_equal(events[3].effective_date.partition('T')[0], '2013-08-31') if events[3].effective_date
       assert_equal(events[3].event_type, 'PHASE')
     end
 
@@ -98,13 +98,13 @@ module KillBillIntegrationTests
 
       events = get_events(@account.account_id, changed_bp.subscription_id)
       assert_equal(events.size, 4)
-      assert_equal(events[0].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
+      assert_equal(events[0].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[0].effective_date
       assert_equal(events[0].event_type, 'START_ENTITLEMENT')
-      assert_equal(events[1].effective_date.partition("T")[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
+      assert_equal(events[1].effective_date.partition('T')[0], DEFAULT_KB_INIT_DATE) if events[1].effective_date
       assert_equal(events[1].event_type, 'START_BILLING')
-      assert_equal(events[2].effective_date.partition("T")[0], '2013-08-31') if events[2].effective_date
+      assert_equal(events[2].effective_date.partition('T')[0], '2013-08-31') if events[2].effective_date
       assert_equal(events[2].event_type, 'PHASE')
-      assert_equal(events[3].effective_date.partition("T")[0], '2013-09-30') if events[3].effective_date
+      assert_equal(events[3].effective_date.partition('T')[0], '2013-09-30') if events[3].effective_date
       assert_equal(events[3].event_type, 'CHANGE')
     end
 
