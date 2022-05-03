@@ -67,7 +67,7 @@ module KillBillIntegrationTests
         bp = get_subscription(bp.subscription_id, @options)
       end
       wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
-      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', expected_subscription_date, nil, expected_subscription_date, nil)
+      check_subscription(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', expected_subscription_date, nil, expected_subscription_date, nil, account_time_zone)
 
       all_invoices = @account.invoices(@options)
       assert_equal(1, all_invoices.size)
