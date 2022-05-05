@@ -42,8 +42,15 @@ module KillBillIntegrationTests
     end
 
     def assert_equal_dates(expected, actual, account_time_zone = nil)
-      if actual.nil?
-        assert_nil(expected)
+      if expected.nil?
+        assert_nil(actual)
+        return
+      else
+        assert_not_nil(actual)
+      end
+
+      if !(actual.include? 'T') # If time portion is not present, it's a local date
+        assert_equal(expected, actual)
       elsif account_time_zone
         assert_equal(expected, TZInfo::Timezone.get(account_time_zone).utc_to_local(Time.parse(actual)).to_date.to_s)
       else
