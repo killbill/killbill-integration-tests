@@ -126,7 +126,8 @@ jobs:
           DB_PASSWORD: ${{ matrix.database-password }}
           DB_PORT: ${{ matrix.database-port }}
         run: |
-          bundle exec rake test:core TESTOPTS="--stop-on-failure"
+          # Some flakiness unfortunately
+          ./bin/retry bundle exec rake test:core TESTOPTS="--stop-on-failure"
       - name: Run plugins tests
         env:
           DB_ADAPTER: ${{ matrix.database-adapter }}
@@ -135,8 +136,9 @@ jobs:
           DB_PORT: ${{ matrix.database-port }}
         run: |
           # https://github.com/killbill/killbill-integration-tests/issues/43
-          #bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
-          bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
+          #./bin/retry bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
+          # Some flakiness unfortunately
+          ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
       - name: Debugging after failure
         if: failure()
         run: |
