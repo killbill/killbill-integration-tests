@@ -55,6 +55,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:analytics') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/analytics/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
@@ -109,8 +115,8 @@ namespace :ci do
   require 'ci/reporter/rake/test_unit'
   task core: ['ci:setup:testunit', 'test:core']
   task all: ['ci:setup:testunit', 'test:all']
-  # Used by the killbill-avatax-plugin .circleci/config.yml
   task avatax: ['ci:setup:testunit', 'test:plugins:avatax']
+  task analytics: ['ci:setup:testunit', 'test:plugins:analytics']
 end
 
 # Run tests by default
