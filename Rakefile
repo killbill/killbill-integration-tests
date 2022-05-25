@@ -130,8 +130,8 @@ namespace :ci do
   task all: ['ci:setup:testunit', 'test:all']
   task avatax: ['ci:setup:testunit', 'test:plugins:avatax']
   task analytics: ['ci:setup:testunit', 'test:plugins:analytics']
-  task analytics: ['ci:setup:testunit', 'test:plugins:stripe']
-  task analytics: ['ci:setup:testunit', 'test:plugins:braintree']
+  task stripe: ['ci:setup:testunit', 'test:plugins:stripe']
+  task braintree: ['ci:setup:testunit', 'test:plugins:braintree']
 end
 
 # Run tests by default
