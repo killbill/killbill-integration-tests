@@ -36,6 +36,8 @@ module KillBillIntegrationTests
 
     def setup
       super
+      return if Gem::Version.new(@plugins_info.version).segments[0] < 8
+
       set_configuration(PLUGIN_NAME, PLUGIN_CONFIGURATION_WITH_PROXY)
 
       @account = create_account(@user, @options)
