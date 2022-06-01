@@ -129,19 +129,5 @@ namespace :test do
   end
 end
 
-# Namespace used by the plugins ci workflow
-namespace :ci do
-  require 'ci/reporter/rake/test_unit'
-  task core: ['ci:setup:testunit', 'test:core']
-  task all: ['ci:setup:testunit', 'test:all']
-  task avatax: ['ci:setup:testunit', 'test:plugins:avatax']
-  task analytics: ['ci:setup:testunit', 'test:plugins:analytics']
-  task stripe: ['ci:setup:testunit', 'test:plugins:stripe']
-  task braintree: ['ci:setup:testunit', 'test:plugins:braintree']
-  task deposit: ['ci:setup:testunit', 'test:plugins:deposit']
-  task 'payment-test': ['ci:setup:testunit', 'test:plugins:payment-test']
-  task 'email-notifications': ['ci:setup:testunit', 'test:plugins:email-notifications']
-end
-
 # Run tests by default
 task default: 'test:all'

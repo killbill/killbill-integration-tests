@@ -41,7 +41,6 @@ Gem::Specification.new do |s|
 
   s.rdoc_options << '--exclude' << '.'
 
-  s.add_development_dependency 'ci_reporter_test_unit', '~> 1.0.1'
   s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
   s.add_development_dependency 'faker', '~> 1.5'
   s.add_development_dependency 'mail', '~> 2.8.0.rc1'
