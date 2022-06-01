@@ -49,6 +49,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop', '~> 0.88.0'
   s.add_development_dependency 'test-unit', '~> 3.3.6'
   s.add_development_dependency 'thread', '0.2.2'
-  s.add_development_dependency 'toxiproxy', '~> 0.1.2'
+  s.add_development_dependency 'toxiproxy', '~> 2.0.1'
   s.add_development_dependency 'tzinfo-data', '~> 1.2021'
 end

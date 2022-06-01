@@ -8,6 +8,13 @@ module KillBillIntegrationTests
       account.payments(options)
     end
 
+    def get_transaction_by_key(payment_key, transaction_key, options)
+      payment = KillBillClient::Model::Payment.find_by_external_key(payment_key, true, true, options)
+      transaction = payment.transactions.find { |t| t.transaction_external_key == transaction_key.to_s }
+      assert_not_nil(transaction)
+      transaction
+    end
+
     def pay_all_unpaid_invoices(account_id, external_payment, payment_amount, user, options)
       payment                  = KillBillClient::Model::InvoicePayment.new
       payment.account_id       = account_id

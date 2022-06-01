@@ -55,6 +55,30 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:analytics') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/analytics/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins:stripe') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/stripe/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins:braintree') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/braintree/test_*.rb"]
+    t.verbose    = true
+  end
+
+  Rake::TestTask.new('plugins:deposit') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/deposit/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
@@ -105,12 +129,16 @@ namespace :test do
   end
 end
 
+# Namespace used by the plugins ci workflow
 namespace :ci do
   require 'ci/reporter/rake/test_unit'
   task core: ['ci:setup:testunit', 'test:core']
   task all: ['ci:setup:testunit', 'test:all']
-  # Used by the killbill-avatax-plugin .circleci/config.yml
   task avatax: ['ci:setup:testunit', 'test:plugins:avatax']
+  task analytics: ['ci:setup:testunit', 'test:plugins:analytics']
+  task stripe: ['ci:setup:testunit', 'test:plugins:stripe']
+  task braintree: ['ci:setup:testunit', 'test:plugins:braintree']
+  task deposit: ['ci:setup:testunit', 'test:plugins:deposit']
 end
 
 # Run tests by default
