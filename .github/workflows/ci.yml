@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - ruby-version: '2.4.2'
+          - ruby-version: '2.5.0'
             database-adapter: 'mysql2'
             database-user: 'root'
             database-password: 'root'
@@ -35,7 +35,7 @@ jobs:
             docker-compose-file: 'docker-compose.ci.mysql.yml'
             java-version: '8'
             java-distribution: 'adopt'
-          - ruby-version: '2.4.2'
+          - ruby-version: '2.5.0'
             database-adapter: 'postgresql'
             database-user: 'postgres'
             database-password: 'postgres'
@@ -168,6 +168,9 @@ jobs:
           echo "::endgroup::"
           echo "::group::Payment test"
           ./bin/retry bundle exec rake test:plugins:payment-test TESTOPTS="--stop-on-failure"
+          echo "::endgroup::"
+          echo "::group::Email notifications test"
+          ./bin/retry bundle exec rake test:plugins:email-notifications TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
       - name: Debugging after failure
         run: |

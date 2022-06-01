@@ -79,9 +79,9 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('plugins:killbill-email-notifications') do |t|
+  Rake::TestTask.new('plugins:email-notifications') do |t|
     t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-email-notifications/test_*.rb"]
+    t.test_files = FileList["#{BASE_DIR}/plugins/email-notifications/test_*.rb"]
     t.verbose    = true
   end
 
@@ -140,6 +140,7 @@ namespace :ci do
   task braintree: ['ci:setup:testunit', 'test:plugins:braintree']
   task deposit: ['ci:setup:testunit', 'test:plugins:deposit']
   task 'payment-test': ['ci:setup:testunit', 'test:plugins:payment-test']
+  task 'email-notifications': ['ci:setup:testunit', 'test:plugins:email-notifications']
 end
 
 # Run tests by default

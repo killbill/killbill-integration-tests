@@ -5,12 +5,9 @@ $LOAD_PATH.unshift File.expand_path('..', __dir__)
 
 require 'plugin_base'
 require 'midi-smtp-server'
-# require "mail"
+require 'mail'
 
 module KillBillIntegrationTests
-  #
-  # Will require Kill Bill to be started with org.killbill.invoice.dryRunNotificationSchedule=7d
-  #
   class TestEmailNotification < KillBillIntegrationTests::PluginBase
     PLUGIN_KEY = 'email-notifications'
     PLUGIN_NAME = 'killbill-email-notifications'
@@ -60,7 +57,8 @@ module KillBillIntegrationTests
         @handler.call(ctx[:envelope][:to][0], '<mathewgallager@kb.com>')
 
         # Just decode message ones to make sure, that this message ist readable
-        # @mail = Mail.read_from_string(ctx[:message][:data])
+        mail = Mail.read_from_string(ctx[:message][:data])
+        puts mail
       end
     end
 
