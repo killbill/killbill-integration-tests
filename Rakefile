@@ -43,9 +43,9 @@ namespace :test do
     t.verbose    = true
   end
 
-  Rake::TestTask.new('plugins:killbill-payment-test') do |t|
+  Rake::TestTask.new('plugins:payment-test') do |t|
     t.libs << BASE_DIR
-    t.test_files = FileList["#{BASE_DIR}/plugins/killbill-payment-test/test_*.rb"]
+    t.test_files = FileList["#{BASE_DIR}/plugins/payment-test/test_*.rb"]
     t.verbose    = true
   end
 
@@ -139,6 +139,7 @@ namespace :ci do
   task stripe: ['ci:setup:testunit', 'test:plugins:stripe']
   task braintree: ['ci:setup:testunit', 'test:plugins:braintree']
   task deposit: ['ci:setup:testunit', 'test:plugins:deposit']
+  task 'payment-test': ['ci:setup:testunit', 'test:plugins:payment-test']
 end
 
 # Run tests by default

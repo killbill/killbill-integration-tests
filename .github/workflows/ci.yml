@@ -166,6 +166,9 @@ jobs:
           echo "::group::Deposit"
           ./bin/retry bundle exec rake test:plugins:deposit TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
+          echo "::group::Payment test"
+          ./bin/retry bundle exec rake test:plugins:payment-test TESTOPTS="--stop-on-failure"
+          echo "::endgroup::"
       - name: Debugging after failure
         run: |
           echo "::group::killbill healthcheck"

@@ -46,7 +46,7 @@ rake test:core:tag                       # Run tests for core:tag
 rake test:core:usage                     # Run tests for core:usage
 rake test:multi-nodes                    # Run tests for multi-nodes
 rake test:plugins:killbill-invoice-test  # Run tests for plugins:killbill-invoice-test
-rake test:plugins:killbill-payment-test  # Run tests for plugins:killbill-payment-test
+rake test:plugins:payment-test           # Run tests for plugins:payment-test
 rake test:seed                           # Run tests for seed
 ```
 
