@@ -1,34 +1,22 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path('../..', __dir__)
-$LOAD_PATH.unshift File.expand_path('..', __dir__)
+$LOAD_PATH.unshift File.expand_path('.', __dir__)
 
-require 'plugin_base'
+require 'payment_test_base'
 
 module KillBillIntegrationTests
-  class TestPaymentWithControl < KillBillIntegrationTests::PluginBase
-    PLUGIN_KEY = 'payment-test'
-    # Default to latest
-    PLUGIN_VERSION = nil
-
-    PLUGIN_PROPS = [{ key: 'pluginArtifactId', value: 'payment-test-plugin' },
-                    { key: 'pluginGroupId', value: 'org.kill-bill.billing.plugin.ruby' },
-                    { key: 'pluginType', value: 'ruby' }].freeze
-
+  class TestPaymentWithControl < KillBillIntegrationTests::PaymentTestBase
     def setup
+      super
+
       @user = 'PaymentWithControl'
-      setup_plugin_base(DEFAULT_KB_INIT_CLOCK, PLUGIN_KEY, PLUGIN_VERSION, PLUGIN_PROPS)
 
       @account = create_account(@user, @options)
-      add_payment_method(@account.account_id, 'killbill-payment-test', true, nil, @user, @options)
+      add_payment_method(@account.account_id, PLUGIN_NAME, true, nil, @user, @options)
       @account = get_account(@account.account_id, false, false, @options)
 
       # Reset with empty array
       @options[:pluginProperty] = []
-    end
-
-    def teardown
-      teardown_plugin_base(PLUGIN_KEY)
     end
 
     def test_authorize_success
@@ -36,8 +24,6 @@ module KillBillIntegrationTests
       success   = 'SUCCESS'
       payment_key = 'payment-' + rand(1_000_000).to_s
       payment_currency = 'USD'
-
-      add_property('TEST_MODE', 'CONTROL')
 
       auth1_key         = payment_key + '-auth'
       auth1_amount      = '762.99'
@@ -49,8 +35,8 @@ module KillBillIntegrationTests
       payment_key = 'payment1-' + rand(1_000_000).to_s
       payment_currency = 'USD'
 
-      add_property('TEST_MODE', 'CONTROL')
-      add_property('THROW_EXCEPTION', 'unknown')
+      body = { 'CONFIGURE_ACTION': 'ACTION_THROW_EXCEPTION' }.to_json
+      KillBillClient::API.post(KILLBILL_PAYMENT_TEST_PREFIX + '/configure', body, {}, @options)
 
       auth1_key = payment_key + '-auth1'
       auth1_amount = '240922.1504832'
@@ -64,24 +50,22 @@ module KillBillIntegrationTests
       assert(got_exception, 'Failed to get exception')
     end
 
-    unless ENV['CIRCLECI']
-      # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
-      def test_authorize_plugin_timedout
-        payment_key = 'payment2-' + rand(1_000_000).to_s
-        payment_currency = 'USD'
+    # Requires KB to be started with org.killbill.payment.plugin.timeout=5s
+    def test_authorize_plugin_timedout
+      payment_key = 'payment2-' + rand(1_000_000).to_s
+      payment_currency = 'USD'
 
-        add_property('TEST_MODE', 'CONTROL')
-        add_property('SLEEP_TIME_SEC', '6.0')
+      body = { 'CONFIGURE_ACTION': 'ACTION_SLEEP', 'SLEEP_TIME_SEC': 6 }.to_json
+      KillBillClient::API.post(KILLBILL_PAYMENT_TEST_PREFIX + '/configure', body, {}, @options)
 
-        auth1_key = payment_key + '-auth'
-        auth1_amount = '123.5'
+      auth1_key = payment_key + '-auth'
+      auth1_amount = '123.5'
 
-        begin
-          create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
-          flunk('Call should have timedout')
-        rescue KillBillClient::API::GatewayTimeout
-          # 504 in case of timeout
-        end
+      begin
+        create_auth(@account.account_id, payment_key, auth1_key, auth1_amount, payment_currency, @user, @options)
+        flunk('Call should have timedout')
+      rescue KillBillClient::API::GatewayTimeout
+        # 504 in case of timeout
       end
     end
 
@@ -89,8 +73,8 @@ module KillBillIntegrationTests
       payment_key      = 'payment3-' + rand(1_000_000).to_s
       payment_currency = 'USD'
 
-      add_property('TEST_MODE', 'CONTROL')
-      add_property('RETURN_NIL', 'foo')
+      body = { 'CONFIGURE_ACTION': 'RETURN_NIL' }.to_json
+      KillBillClient::API.post(KILLBILL_PAYMENT_TEST_PREFIX + '/configure', body, {}, @options)
 
       auth1_key         = payment_key + '-auth1'
       auth1_amount      = '13.23'
@@ -101,15 +85,6 @@ module KillBillIntegrationTests
         got_exception = true
       end
       assert(got_exception, 'Failed to get exception')
-    end
-
-    private
-
-    def add_property(key, value)
-      prop_test_mode = KillBillClient::Model::PluginPropertyAttributes.new
-      prop_test_mode.key = key
-      prop_test_mode.value = value
-      @options[:pluginProperty] << prop_test_mode
     end
   end
 end
