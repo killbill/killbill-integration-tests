@@ -92,7 +92,7 @@ module KillBillIntegrationTests
         recorded_usage = get_usage_for_subscription(bp.subscription_id, '2013-08-01', (today + 1).to_s, @options)
         assert_equal(recorded_usage.subscription_id, bp.subscription_id)
         assert_equal(recorded_usage.start_date, '2013-08-01T00:00:00.000Z')
-        assert_equal(recorded_usage.end_date, "#{(today + 1).to_s}T00:00:00.000Z")
+        assert_equal(recorded_usage.end_date, "#{(today + 1)}T00:00:00.000Z")
         assert_equal(recorded_usage.rolled_up_units.size, 1)
         assert_equal(recorded_usage.rolled_up_units[0].amount, day - day / 2)
         assert_equal(recorded_usage.rolled_up_units[0].unit_type, 'minutes')
