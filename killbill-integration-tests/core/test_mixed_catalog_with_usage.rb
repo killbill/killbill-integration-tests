@@ -300,13 +300,6 @@ module KillBillIntegrationTests
       # System will generate a null invoice - as there is nothing to build
       wait_for_killbill(@options)
       all_invoices = @account.invoices(@options)
-      # TODO Remove after debugging CI issue
-      if all_invoices.size > 1
-        puts "Got unexpected invoice:"
-        all_invoices[1].items.each do |ii|
-          puts "Item start=#{ii.start_date}, end=#{ii.end_date}, amount=#{ii.amount}, type=#{ii.item_type}, phase=#{ii.phase_name}"
-        end
-      end
       assert_equal(1, all_invoices.size)
 
       # Add usage for the month
