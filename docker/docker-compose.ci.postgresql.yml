@@ -3,7 +3,7 @@ version: '3.8'
 services:
   killbill:
     network_mode: host
-    image: killbill/killbill:0.22.28
+    image: killbill/killbill:0.23.0-c89061b-SNAPSHOT
     environment:
       - KILLBILL_CATALOG_URI=SpyCarAdvanced.xml
       - KILLBILL_DAO_URL=jdbc:postgresql://127.0.0.1:5432/killbill
@@ -22,7 +22,7 @@ services:
       - db
   db:
     network_mode: host
-    image: killbill/postgresql:0.22
+    image: killbill/postgresql:0.23
     environment:
       - POSTGRES_PASSWORD=postgres
   toxiproxy:
