@@ -140,38 +140,38 @@ jobs:
         run: |
           # Some flakiness unfortunately
           ./bin/retry bundle exec rake test:core TESTOPTS="--stop-on-failure"
-      - name: Run plugins tests
-        env:
-          DB_ADAPTER: ${{ matrix.database-adapter }}
-          DB_USER: ${{ matrix.database-user }}
-          DB_PASSWORD: ${{ matrix.database-password }}
-          DB_PORT: ${{ matrix.database-port }}
-        run: |
-          # https://github.com/killbill/killbill-integration-tests/issues/43
-          #./bin/retry bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
-          # Some flakiness unfortunately
-          echo "::group::Avatax"
-          ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Analytics"
-          ./bin/retry bundle exec rake test:plugins:analytics TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Stripe"
-          ./bin/retry bundle exec rake test:plugins:stripe TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Braintree"
-          # No release yet
-          #./bin/retry bundle exec rake test:plugins:braintree TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Deposit"
-          ./bin/retry bundle exec rake test:plugins:deposit TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Payment test"
-          ./bin/retry bundle exec rake test:plugins:payment-test TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
-          echo "::group::Email notifications test"
-          ./bin/retry bundle exec rake test:plugins:email-notifications TESTOPTS="--stop-on-failure"
-          echo "::endgroup::"
+#      - name: Run plugins tests
+#        env:
+#          DB_ADAPTER: ${{ matrix.database-adapter }}
+#          DB_USER: ${{ matrix.database-user }}
+#          DB_PASSWORD: ${{ matrix.database-password }}
+#          DB_PORT: ${{ matrix.database-port }}
+#        run: |
+#          # https://github.com/killbill/killbill-integration-tests/issues/43
+#          #./bin/retry bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
+#          # Some flakiness unfortunately
+#          echo "::group::Avatax"
+#          ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Analytics"
+#          ./bin/retry bundle exec rake test:plugins:analytics TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Stripe"
+#          ./bin/retry bundle exec rake test:plugins:stripe TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Braintree"
+#          # No release yet
+#          #./bin/retry bundle exec rake test:plugins:braintree TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Deposit"
+#          ./bin/retry bundle exec rake test:plugins:deposit TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Payment test"
+#          ./bin/retry bundle exec rake test:plugins:payment-test TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Email notifications test"
+#          ./bin/retry bundle exec rake test:plugins:email-notifications TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
       - name: Debugging after failure
         run: |
           echo "::group::killbill healthcheck"
