@@ -3,7 +3,6 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 $LOAD_PATH.unshift File.expand_path(__dir__)
 
-require 'concurrent'
 require 'date'
 require 'faker'
 require 'logger'
@@ -11,6 +10,7 @@ require 'logger_colored'
 
 require 'seed_base'
 
+# To avoid certain translations
 module Faker
   class Base
     class << self
@@ -27,37 +27,31 @@ module Faker
   end
 end
 
+# Generate seed data (using SpyCarAdvanced catalog and Stripe plugin by default)
 module KillBillIntegrationSeed
   class TestSeedKaui < TestSeedBase
     def setup
-      log_dir = '/var/tmp/'
-      now = Time.now.strftime('%Y-%m-%d-%H:%M')
-      kb_log_path = "#{log_dir}/kaui_seed.#{now}.killbill.log"
-      KillBillClient.logger = Logger.new(kb_log_path)
-      KillBillClient.logger.level = Logger::DEBUG
-
       @logger = Logger.new(STDOUT)
       @logger.level = Logger::INFO
 
-      @pool = Concurrent::CachedThreadPool.new
+      # KillBillClient.logger = @logger
 
       @base_subscriptions = Concurrent::Array.new
       @ao_subscriptions = Concurrent::Hash.new
-      @subs_mutex = Mutex.new
 
       tenant_info = {
         use_multi_tenant: true,
-        api_key: ENV['api_key'] || 'bob',
-        api_secret: ENV['api_secret'] || 'lazar'
+        # create_multi_tenant: true,
+        api_key: ENV['API_KEY'] || 'bob',
+        api_secret: ENV['API_SECRET'] || 'lazar'
       }
 
-      @start_date = ENV['start_date'] || Date.today.to_s
-      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z", ENV['kb_host'] || DEFAULT_KB_ADDRESS, ENV['kb_port'] || DEFAULT_KB_PORT)
-      upload_catalog(ENV['catalog'], true, @user, @options) if ENV['catalog']
+      @start_date = ENV['START_DATE'] || (Date.today << 6).to_s # 6 months of data by default
+      setup_base('kaui_seed', tenant_info, "#{@start_date}T08:00:00.000Z", ENV['KB_HOST'] || DEFAULT_KB_ADDRESS, ENV['KB_PORT'] || DEFAULT_KB_PORT)
+      upload_catalog('SpyCarAdvanced.xml', true, @user, @options)
     end
 
     def teardown
-      @pool.shutdown
       teardown_base
     end
 
@@ -71,12 +65,6 @@ module KillBillIntegrationSeed
     private
 
     def run_one_day(date)
-      # Notes:
-      # * The config is global, so set it before creating accounts in parallel
-      # * Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
-      Faker::Config.locale = %i[de en es fa fr it ja ko ru].sample
-
-      task = -> { create_account_with_subscription }
       nb_accounts = case date.wday
                     when 0 # Sunday
                       rand(0..2)
@@ -86,13 +74,21 @@ module KillBillIntegrationSeed
                       rand(2..5)
                     end
 
-      @logger.info "Creating #{nb_accounts} accounts on #{date} (locale #{Faker::Config.locale})"
-      run_in_parallel(nb_accounts, task)
+      @logger.info "Creating #{nb_accounts} accounts on #{date}"
+
+      1.upto(nb_accounts) do |_|
+        # Notes:
+        # * The config is global
+        # * Stick to a few "safe" locales (rather than sampling I18n.available_locales) to ensure having enough data in Faker
+        Faker::Config.locale = %i[de en es fr it].sample
+        create_account_with_subscription(0)
+      end
 
       # Trigger a few cancellations
-      task = -> { cancel_random_subscription }
-      nb_cancellations = (nb_accounts * 20 / 100.0).to_i
-      run_in_parallel(nb_cancellations.zero ? 2 : nb_cancellations, task)
+      nb_cancellations = (nb_accounts * 60 / 100.0).to_i
+      0.upto(nb_cancellations) do |_|
+        cancel_random_subscription
+      end
     end
 
     def create_account_with_subscription(nb_retries = 3)
@@ -148,7 +144,18 @@ module KillBillIntegrationSeed
 
       expiry_date = Faker::Business.credit_card_expiry_date
 
+      stripe_token = case rand(10)
+                     when 0..2
+                       'tok_visa'
+                     when 3..4
+                       'tok_mastercard'
+                     when 5
+                       'tok_amex'
+                     else
+                       'tok_chargeCustomerFail'
+                     end
       plugin_info = {
+        'token' => stripe_token,
         'ccNumber' => cc_nums[cc_type],
         'ccExpirationMonth' => expiry_date.month,
         'ccExpirationYear' => expiry_date.year,
@@ -167,19 +174,19 @@ module KillBillIntegrationSeed
 
       @logger.debug "Plugin info: #{plugin_info}"
 
-      add_payment_method(account.account_id, ENV['payment_plugin'] || 'killbill-stripe', true, plugin_info, @user, @options)
+      add_payment_method(account.account_id, ENV['PAYMENT_PLUGIN'] || 'killbill-stripe', true, plugin_info, @user, @options)
     end
 
     def create_base_subscription(account)
       product, billing_period, price_list = case rand(10)
                                             when 0..4 then
-                                              %w[reserved-metal MONTHLY TRIAL]
+                                              %w[Sports MONTHLY DEFAULT]
                                             when 5 then
-                                              %w[reserved-metal ANNUAL DEFAULT]
+                                              %w[Sports ANNUAL DEFAULT]
                                             when 6..8 then
-                                              %w[reserved-vm MONTHLY TRIAL]
+                                              %w[Standard MONTHLY SpecialDiscount]
                                             else
-                                              %w[on-demand-metal NO_BILLING_PERIOD DEFAULT]
+                                              %w[Standard ANNUAL DEFAULT]
                                             end
 
       base = create_entitlement_base(account.account_id, product, billing_period, price_list, @user, @options)
@@ -190,78 +197,56 @@ module KillBillIntegrationSeed
       base
     end
 
-    def create_add_on(_account, base)
-      # Not available
+    def create_add_on(account, base)
+      return if base.product_name != 'Sports'
 
-      @logger.info "create_add_on: base = #{base.inspect}"
+      ao_product = case rand(10)
+                   when 0..4
+                     nil
+                   when 5..7
+                     'OilSlick'
+                   else
+                     'RemoteControl'
+                   end
+      return if ao_product.nil?
 
-      return if base.product_name != 'reserved-vm' || base.price_list != 'TRIAL'
+      # Only monthly add-ons are supported
+      billing_period = 'MONTHLY'
+      ao = create_entitlement_ao(account.account_id, base.bundle_id, ao_product, billing_period, 'DEFAULT', @user, @options)
+      @logger.info "Created #{ao_product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
 
-      'backup-daily'
+      @ao_subscriptions[base.bundle_id] ||= []
+      @ao_subscriptions[base.bundle_id] << ao
 
-      #       # Only monthly add-ons are supported
-      #       billing_period = 'MONTHLY'
-      #
-      #       ao = create_entitlement_ao(account.account_id, base.bundle_id, ao_product, billing_period, 'DEFAULT', @user, @options)
-      #       @logger.info "Created #{ao_product.downcase}-#{billing_period.downcase} subscription for account id #{account.account_id}"
-      #
-      #       @ao_subscriptions[base.bundle_id] ||= []
-      #       @ao_subscriptions[base.bundle_id] << ao
-      #
-      #       ao
+      ao
     end
 
     def cancel_random_subscription
       # Wait to have created enough subscriptions
-      return if @base_subscriptions.size < 100
+      # return if @base_subscriptions.size < 100
 
-      sub = @subs_mutex.synchronize do
-        # Assume most of the cancellations are for add-ons
-        if rand(10) > 3
-          unless @ao_subscriptions.empty?
-            bundle_id = @ao_subscriptions.keys.sample
-            sub = @ao_subscriptions[bundle_id].shuffle.pop
-          end
-        else
-          sub = @base_subscriptions.shuffle.pop
-          @ao_subscriptions.delete(sub.bundle_id)
+      # Assume most of the cancellations are for add-ons
+      sub = nil
+      if rand(10) > 3
+        unless @ao_subscriptions.empty?
+          bundle_id = @ao_subscriptions.keys.sample
+          sub = @ao_subscriptions[bundle_id].shuffle!.pop
         end
-        sub
+      else
+        sub = @base_subscriptions.shuffle!.pop
+        @ao_subscriptions.delete(sub.bundle_id)
       end
+
+      return if sub.nil?
 
       # Use default policies
       sub.cancel(@user, nil, nil, nil, nil, nil, nil, @options)
       @logger.info "Cancelled #{sub.product_name}-#{sub.billing_period.downcase} subscription for account id #{sub.account_id}"
     end
 
-    def run_in_parallel(nb_times, task)
-      return if nb_times.zero?
-
-      latch = Concurrent::CountDownLatch.new(nb_times)
-
-      nb_times.times do
-        @pool.post do
-          begin
-            task.call
-          rescue StandardError => e
-            @logger.warn "Exception in task: #{e.message}\n#{e.backtrace.join("\n")}"
-          ensure
-            latch.count_down
-          end
-        end
-      end
-
-      latch.wait
-      begin
-        wait_for_killbill(@options)
-      rescue StandardError
-        nil
-      end
-    end
-
     # We ignore timeouts here, to make sure we always advance the clock
     def run_with_clock(initial_date, last_date)
-      date = initial_date.prev_day
+      date = initial_date
       begin
         kb_clock_set("#{date}T08:00:00.000Z", nil, @options)
       rescue StandardError
@@ -269,6 +254,8 @@ module KillBillIntegrationSeed
       end
 
       while date <= last_date
+        yield date if block_given?
+
         @logger.info "Moving clock to #{date.next_day}"
         begin
           kb_clock_add_days(1, nil, @options)
@@ -276,14 +263,8 @@ module KillBillIntegrationSeed
           nil
         end
 
-        yield date if block_given?
-
         date = date.next_day
       end
-    end
-
-    def wait_for_killbill(options)
-      super(options, { timeoutSec: 30 })
     end
   end
 end
