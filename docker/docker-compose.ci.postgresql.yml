@@ -22,7 +22,7 @@ services:
       - db
   db:
     network_mode: host
-    image: killbill/postgresql:0.23
+    image: killbill/postgresql:0.24
     environment:
       - POSTGRES_PASSWORD=postgres
   toxiproxy:
