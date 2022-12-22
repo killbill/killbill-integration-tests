@@ -1,6 +1,7 @@
 name: ci
 
 on:
+  - pull_request
   - push
   - workflow_dispatch
 
@@ -26,7 +27,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - ruby-version: '2.4.2'
+          - ruby-version: '2.5.0'
             database-adapter: 'mysql2'
             database-user: 'root'
             database-password: 'root'
@@ -34,7 +35,7 @@ jobs:
             docker-compose-file: 'docker-compose.ci.mysql.yml'
             java-version: '8'
             java-distribution: 'adopt'
-          - ruby-version: '2.4.2'
+          - ruby-version: '2.5.0'
             database-adapter: 'postgresql'
             database-user: 'postgres'
             database-password: 'postgres'
@@ -86,23 +87,35 @@ jobs:
             sleep 5
           done
           set -e
-      - name: Install plugin specific MySQL DDL
-        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.mysql.yml' }}
-        run: |
-          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-      - name: Install plugin specific PostgreSQL DDL
-        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.postgresql.yml' }}
-        run: |
-          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#      - name: Install plugin specific MySQL DDL
+#        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.mysql.yml' }}
+#        run: |
+#          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          # Already in the image
+#          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+#      - name: Install plugin specific PostgreSQL DDL
+#        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.postgresql.yml' }}
+#        run: |
+#          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          # Already in the image
+#          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+#          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
       - name: Start Kill Bill
         # Sometimes it gets stuck (if Kill Bill starts when the DB isn't ready?)
         timeout-minutes: 4
         run: |
-          docker start it_killbill_1
+          # Start all remaining containers
+          cd docker
+          docker-compose -p it -f ${{ matrix.docker-compose-file }} up -d
           count=0
           until $(curl --connect-timeout 10 --max-time 30 --output /dev/null --silent --fail http://${KB_ADDRESS}:${KB_PORT}/1.0/healthcheck); do
             if [[ "$count" == "180" ]]; then
@@ -125,35 +138,72 @@ jobs:
           DB_PASSWORD: ${{ matrix.database-password }}
           DB_PORT: ${{ matrix.database-port }}
         run: |
-          bundle exec rake test:core TESTOPTS="--stop-on-failure"
-      - name: Run plugins tests
-        env:
-          DB_ADAPTER: ${{ matrix.database-adapter }}
-          DB_USER: ${{ matrix.database-user }}
-          DB_PASSWORD: ${{ matrix.database-password }}
-          DB_PORT: ${{ matrix.database-port }}
-        run: |
-          # https://github.com/killbill/killbill-integration-tests/issues/43
-          #bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
-          bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
+          # Some flakiness unfortunately
+          ./bin/retry bundle exec rake test:core TESTOPTS="--stop-on-failure"
+#      - name: Run plugins tests
+#        env:
+#          DB_ADAPTER: ${{ matrix.database-adapter }}
+#          DB_USER: ${{ matrix.database-user }}
+#          DB_PASSWORD: ${{ matrix.database-password }}
+#          DB_PORT: ${{ matrix.database-port }}
+#        run: |
+#          # https://github.com/killbill/killbill-integration-tests/issues/43
+#          #./bin/retry bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
+#          # Some flakiness unfortunately
+#          echo "::group::Avatax"
+#          ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Analytics"
+#          ./bin/retry bundle exec rake test:plugins:analytics TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Stripe"
+#          ./bin/retry bundle exec rake test:plugins:stripe TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Braintree"
+#          # No release yet
+#          #./bin/retry bundle exec rake test:plugins:braintree TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Deposit"
+#          ./bin/retry bundle exec rake test:plugins:deposit TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Payment test"
+#          ./bin/retry bundle exec rake test:plugins:payment-test TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
+#          echo "::group::Email notifications test"
+#          ./bin/retry bundle exec rake test:plugins:email-notifications TESTOPTS="--stop-on-failure"
+#          echo "::endgroup::"
       - name: Debugging after failure
-        if: failure()
         run: |
-          echo "[DEBUG] killbill healthcheck"
+          echo "::group::killbill healthcheck"
           curl --connect-timeout 10 --max-time 30 -v http://${KB_ADDRESS}:${KB_PORT}/1.0/healthcheck || true
-          echo "[DEBUG] hostname"
+          echo "::endgroup::"
+          echo "::group::hostname"
           hostname
-          echo "[DEBUG] netstat -tulpn"
+          echo "::endgroup::"
+          echo "::group::netstat -tulpn"
           sudo netstat -tulpn
-          echo "[DEBUG] docker network ls"
+          echo "::endgroup::"
+          echo "::group::docker network ls"
           docker network ls
-          echo "[DEBUG] docker ps -a"
+          echo "::endgroup::"
+          echo "::group::docker ps -a"
           docker ps -a
-          echo "[DEBUG] killbill env"
+          echo "::endgroup::"
+          echo "::group::killbill env"
           docker exec it_killbill_1 env || true
-          echo "[DEBUG] db env"
+          echo "::endgroup::"
+          echo "::group::db env"
           docker exec it_db_1 env || true
-          echo "[DEBUG] killbill logs"
-          docker logs -t --details it_killbill_1 || true
-          echo "[DEBUG] db logs"
+          echo "::endgroup::"
+          echo "::group::killbill logs"
+          (docker logs -t --details it_killbill_1 || true) | tee /var/tmp/killbill.txt
+          echo "::endgroup::"
+          echo "::group::db logs"
           docker logs -t --details it_db_1 || true
+          echo "::endgroup::"
+      - name: Upload logs
+        uses: actions/upload-artifact@v2.3.1
+        with:
+          name: killbill-${{ matrix.docker-compose-file }}.txt
+          path: /var/tmp/killbill.txt
+          retention-days: 1

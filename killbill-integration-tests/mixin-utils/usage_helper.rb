@@ -15,7 +15,11 @@ module KillBillIntegrationTests
         unit_usage_record.usage_records = []
         e[:usage_records].each do |r|
           usage_record = KillBillClient::Model::UsageRecordAttributes.new
-          usage_record.record_date = r[:record_date]
+          # Create a timestamp in such a way that if we get a point aligned with the first transition, the usage point is taken into account:
+          # Since our framework initializes the clock with DEFAULT_KB_INIT_CLOCK (see test_base.rb), we create a a timestamp aligned with 06:00:00.000Z
+          # and add an arbitrary 30' to make sure the point is taken into account.
+          #
+          usage_record.record_date = "#{r[:record_date]}T06:30:00.000Z"
           usage_record.amount = r[:amount]
           unit_usage_record.usage_records << usage_record
         end

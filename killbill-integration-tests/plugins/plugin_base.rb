@@ -80,7 +80,7 @@ module KillBillIntegrationTests
 
     def get_plugin_information(plugin_key, plugin_version)
       nodes_info = KillBillClient::Model::NodesInfo.nodes_info(@options)
-      return [] if nodes_info.nil?
+      return [] if nodes_info.nil? || nodes_info.first.nil? # Not sure why it's sometimes empty
 
       latest_version = Gem::Version.new('0.0.0')
       has_running_plugin = false

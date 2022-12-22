@@ -41,13 +41,14 @@ Gem::Specification.new do |s|
 
   s.rdoc_options << '--exclude' << '.'
 
-  s.add_development_dependency 'ci_reporter_test_unit', '~> 1.0.1'
   s.add_development_dependency 'concurrent-ruby', '~> 1.0.0.pre1'
   s.add_development_dependency 'faker', '~> 1.5'
+  s.add_development_dependency 'mail', '~> 2.8.0.rc1'
   s.add_development_dependency 'midi-smtp-server', '~> 2.3.3'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'rubocop', '~> 0.88.0'
   s.add_development_dependency 'test-unit', '~> 3.3.6'
   s.add_development_dependency 'thread', '0.2.2'
-  s.add_development_dependency 'toxiproxy', '~> 0.1.2'
+  s.add_development_dependency 'toxiproxy', '~> 2.0.1'
+  s.add_development_dependency 'tzinfo-data', '~> 1.2021'
 end
