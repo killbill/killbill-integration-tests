@@ -85,6 +85,12 @@ namespace :test do
     t.verbose    = true
   end
 
+    Rake::TestTask.new('plugins:qualpay') do |t|
+      t.libs << BASE_DIR
+      t.test_files = FileList["#{BASE_DIR}/plugins/qualpay/test_*.rb"]
+      t.verbose    = true
+    end
+
   Rake::TestTask.new('plugins') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/*/test_*.rb"]
