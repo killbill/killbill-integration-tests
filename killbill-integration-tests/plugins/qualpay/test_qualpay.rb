@@ -41,6 +41,5 @@ module KillBillIntegrationTests
       assert_equal(1, healthcheck.size)
       assert_equal('Qualpay OK', healthcheck['message'])
     end
-
   end
 end
