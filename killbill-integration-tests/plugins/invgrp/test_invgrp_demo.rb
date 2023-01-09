@@ -16,7 +16,6 @@ module KillBillIntegrationTests
                     { key: 'pluginGroupId', value: 'org.kill-bill.billing.plugin.java' },
                     { key: 'pluginType', value: 'java' }].freeze
 
-
     KILLBILL_INVGRP_PREFIX = '/plugins/invgrp-plugin'
 
     def setup
