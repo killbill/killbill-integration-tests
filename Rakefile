@@ -97,6 +97,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:catalog-test') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/catalog-test/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/*/test_*.rb"]
