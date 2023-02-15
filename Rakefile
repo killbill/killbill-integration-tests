@@ -73,6 +73,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:gocardless') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/gocardless/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins:deposit') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/deposit/test_*.rb"]
