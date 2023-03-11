@@ -103,7 +103,7 @@ module KillBillIntegrationTests
 
       # First dry run chg in the future by using default policy EOT as configured in the catalog
       requested_date = nil
-      billing_policy = nil
+      billing_policy = 'END_OF_TERM'
       dry_run_invoice = change_plan_dry_run(@account.account_id, bp.bundle_id, bp.subscription_id, nil, 'Sports', 'BASE', 'MONTHLY', nil,
                                             requested_date, billing_policy, @options)
       assert_nil(dry_run_invoice)
@@ -140,7 +140,7 @@ module KillBillIntegrationTests
 
       # First dry run cancel in the future by using default policy EOT as configured in the catalog
       requested_date = nil
-      billing_policy = nil
+      billing_policy = 'END_OF_TERM'
       dry_run_invoice = cancel_subscription_dry_run(@account.account_id, bp.bundle_id, bp.subscription_id, nil,
                                                     requested_date, billing_policy, @options)
       assert_nil(dry_run_invoice)
