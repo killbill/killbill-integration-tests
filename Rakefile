@@ -55,6 +55,12 @@ namespace :test do
     t.verbose    = true
   end
 
+  Rake::TestTask.new('plugins:vertex') do |t|
+    t.libs << BASE_DIR
+    t.test_files = FileList["#{BASE_DIR}/plugins/vertex/test_*.rb"]
+    t.verbose    = true
+  end
+
   Rake::TestTask.new('plugins:analytics') do |t|
     t.libs << BASE_DIR
     t.test_files = FileList["#{BASE_DIR}/plugins/analytics/test_*.rb"]
