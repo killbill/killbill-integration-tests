@@ -87,28 +87,28 @@ jobs:
             sleep 5
           done
           set -e
-#      - name: Install plugin specific MySQL DDL
-#        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.mysql.yml' }}
-#        run: |
-#          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          # Already in the image
-#          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
-#      - name: Install plugin specific PostgreSQL DDL
-#        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.postgresql.yml' }}
-#        run: |
-#          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          # Already in the image
-#          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
-#          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+      - name: Install plugin specific MySQL DDL
+        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.mysql.yml' }}
+        run: |
+          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          # Already in the image
+          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | mysql -h 127.0.0.1 -u root --password=root killbill
+      - name: Install plugin specific PostgreSQL DDL
+        if: ${{ matrix.docker-compose-file == 'docker-compose.ci.postgresql.yml' }}
+        run: |
+          curl https://raw.githubusercontent.com/killbill/killbill-avatax-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-analytics-plugin/master/src/main/resources/org/killbill/billing/plugin/analytics/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          # Already in the image
+          #curl https://raw.githubusercontent.com/killbill/killbill-stripe-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-braintree/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-payment-test-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-email-notifications-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
+          curl https://raw.githubusercontent.com/killbill/killbill-deposit-plugin/master/src/main/resources/ddl.sql | psql -h 127.0.0.1 -U postgres -p 5432 -d killbill
       - name: Start Kill Bill
         # Sometimes it gets stuck (if Kill Bill starts when the DB isn't ready?)
         timeout-minutes: 4
