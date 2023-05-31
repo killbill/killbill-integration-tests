@@ -173,6 +173,9 @@ jobs:
           echo "::group::Email notifications test"
           ./bin/retry bundle exec rake test:plugins:email-notifications TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
+          echo "::group::GoCardless"
+          ./bin/retry bundle exec rake test:plugins:gocardless TESTOPTS="--stop-on-failure"
+          echo "::endgroup::"
       - name: Debugging after failure
         run: |
           echo "::group::killbill healthcheck"
