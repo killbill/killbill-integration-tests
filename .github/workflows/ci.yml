@@ -189,7 +189,9 @@ jobs:
           echo "::group::Adyen"
           ./bin/retry bundle exec rake test:plugins:adyen TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
-
+          echo "::group::Catalog Test"
+          ./bin/retry bundle exec rake test:plugins:catalog-test TESTOPTS="--stop-on-failure"
+          echo "::endgroup::"
       - name: Debugging after failure
         run: |
           echo "::group::killbill healthcheck"
