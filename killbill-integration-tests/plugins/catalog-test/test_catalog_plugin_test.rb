@@ -12,7 +12,7 @@ module KillBillIntegrationTests
     # Default to latest
     PLUGIN_VERSION = nil
 
-    PLUGIN_PROPS = [{ key: 'pluginArtifactId', value: 'killbill-catalog-test' },
+    PLUGIN_PROPS = [{ key: 'pluginArtifactId', value: 'catalog-test-plugin' },
                     { key: 'pluginGroupId', value: 'org.kill-bill.billing.plugin.java' },
                     { key: 'pluginType', value: 'java' }].freeze
 
