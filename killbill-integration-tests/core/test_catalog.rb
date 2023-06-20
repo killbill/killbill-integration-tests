@@ -278,7 +278,7 @@ module KillBillIntegrationTests
 
       add_catalog_simple_plan('basic-annual', 'Basic', 'BASE', 'USD', 10_000.00, 'ANNUAL', 0, 'UNLIMITED', @user, @options)
 
-      catalogs = get_tenant_catalog('2013-02-09', @options)
+      catalogs = get_tenant_catalog('2013-02-09', @account.account_id, @options)
       assert_equal(1, catalogs.size)
       catalog = catalogs[0]
 
@@ -300,7 +300,7 @@ module KillBillIntegrationTests
       upload_catalog('Catalog-v2.xml', false, @user, @options)
       upload_catalog('Catalog-v3.xml', false, @user, @options)
 
-      versions = KillBillClient::Model::Catalog.get_tenant_catalog_versions(@options)
+      versions = KillBillClient::Model::Catalog.get_tenant_catalog_versions(@account.account_id, @options)
       assert_equal 3, versions.size
       assert_equal Date.parse('2013-02-08T00:00:00+00:00'), Date.parse(versions[0])
       assert_equal Date.parse('2013-09-01T00:00:00+00:00'), Date.parse(versions[1])
