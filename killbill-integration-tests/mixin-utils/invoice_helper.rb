@@ -22,11 +22,11 @@ module KillBillIntegrationTests
     end
 
     def get_invoice_by_id(id, options)
-      KillBillClient::Model::Invoice.find_by_id(id, 'NONE', options)
+      KillBillClient::Model::Invoice.find_by_id(id, false, 'NONE', options)
     end
 
     def get_invoice_by_number(number, options)
-      KillBillClient::Model::Invoice.find_by_number(number, 'NONE', options)
+      KillBillClient::Model::Invoice.find_by_number(number, false, 'NONE', options)
     end
 
     def create_charge(account_id, amount, currency, description, user, options)
@@ -59,7 +59,7 @@ module KillBillIntegrationTests
     end
 
     def trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options = {})
-      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, options)
+      KillBillClient::Model::Invoice.trigger_invoice_dry_run(account_id, target_date, upcoming_invoice_target_date, [], nil, nil, nil, options)
     end
 
     def create_subscription_dry_run(account_id, bundle_id, target_date, product_name, product_category, billing_period,

@@ -73,7 +73,7 @@ module KillBillIntegrationTests
     end
 
     def get_subscription(id, options)
-      KillBillClient::Model::Subscription.find_by_id(id, options)
+      KillBillClient::Model::Subscription.find_by_id(id, 'NONE', options)
     end
 
     def get_bundle(bundle_id, options)
