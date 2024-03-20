@@ -19,12 +19,14 @@ module KillBillIntegrationTests
       upload_overdue('Overdue.xml', @user, @options)
       upload_overdue('Overdue-v1.xml', @user, @options2)
 
-      @account  = create_account(@user, @options)
+      @account = create_account(@user, @options)
+      @other_account = create_account(@user, @options)
       @account2 = create_account(@user, @options2)
     end
 
     def teardown
       close_account(@account2.account_id, @user, @options2)
+      close_account(@other_account.account_id, @user, @options)
       # Exp. mode for ci debugging:
       #   Increment timeout to wait for notification to be completed as some test generate over 500 notifications
       @options[:timeout_sec] = 360
@@ -80,9 +82,7 @@ module KillBillIntegrationTests
                                     @options)
 
       upload_overdue('Overdue-v1.xml', @user, @options)
-
-      other_account = create_account(@user, @options)
-      bp            = go_through_all_overdue_stages(other_account, 'OD4', '2013-10-31')
+      bp = go_through_all_overdue_stages(@other_account, 'OD4', '2013-10-31')
       check_entitlement_with_events(bp,
                                     '2013-10-31',
                                     [{ type: 'START_ENTITLEMENT',
