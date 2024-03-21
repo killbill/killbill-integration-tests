@@ -105,7 +105,7 @@ module KillBillIntegrationTests
     end
 
     def teardown
-      teardown_plugin_base(PLUGIN_KEY)
+      teardown_plugin_base(PLUGIN_KEY, PLUGIN_VERSION)
       @smtp_server&.shutdown_and_wait_for_completion
     end
 
