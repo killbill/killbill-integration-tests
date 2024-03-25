@@ -29,7 +29,7 @@ module KillBillIntegrationTests
     end
 
     def teardown
-      teardown_plugin_base(PLUGIN_KEY)
+      teardown_plugin_base(PLUGIN_KEY, PLUGIN_VERSION)
     end
 
     def test_healthcheck

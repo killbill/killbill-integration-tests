@@ -27,7 +27,7 @@ module KillBillIntegrationTests
       body = { 'CONFIGURE_ACTION': 'ACTION_CLEAR' }.to_json
       KillBillClient::API.post(KILLBILL_PAYMENT_TEST_PREFIX + '/configure', body, {}, @options)
 
-      teardown_plugin_base(PLUGIN_KEY)
+      teardown_plugin_base(PLUGIN_KEY, PLUGIN_VERSION)
     end
   end
 end

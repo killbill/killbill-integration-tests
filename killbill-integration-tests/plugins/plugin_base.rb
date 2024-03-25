@@ -14,9 +14,9 @@ module KillBillIntegrationTests
       end
     end
 
-    def teardown_plugin_base(plugin_key)
+    def teardown_plugin_base(plugin_key, plugin_version)
       prepare_teardown_sequence(plugin_key) do |seq|
-        run_plugin_sequence('stop', plugin_key, nil, [], seq)
+        run_plugin_sequence('stop', plugin_key, plugin_version, [], seq)
       end
       teardown_base
     end
