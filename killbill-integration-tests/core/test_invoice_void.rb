@@ -30,7 +30,7 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
       check_invoice_no_balance(first_invoice, 0, 'USD', DEFAULT_KB_INIT_DATE)
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
 
       kb_clock_add_days(31, nil, @options)
 
