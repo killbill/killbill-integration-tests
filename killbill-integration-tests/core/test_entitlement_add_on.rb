@@ -73,21 +73,21 @@ module KillBillIntegrationTests
       bps = subscriptions.reject { |s| s.product_category == 'ADD_ON' }
       assert_not_nil(bps)
       assert_equal(1, bps.size)
-      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-08-21', DEFAULT_KB_INIT_DATE, '2013-08-21')
+      check_subscription(bps[0], 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, '2013-08-21', DEFAULT_KB_INIT_DATE, '2013-08-31')
       check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
                     { type: 'START_BILLING', date: '2013-08-01' },
                     { type: 'STOP_ENTITLEMENT', date: '2013-08-21' },
-                    { type: 'STOP_BILLING', date: '2013-08-21' }], bps[0].events)
+                    { type: 'STOP_BILLING', date: '2013-08-31' }], bps[0].events)
 
       aos = subscriptions.reject { |s| s.product_category == 'BASE' }
       assert_not_nil(aos)
       assert_equal(1, aos.size)
       assert_equal(ao_entitlement.subscription_id, aos[0].subscription_id)
-      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', '2013-08-21', '2013-08-16', '2013-08-21')
+      check_subscription(aos[0], 'OilSlick', 'ADD_ON', 'MONTHLY', 'DEFAULT', '2013-08-16', '2013-08-21', '2013-08-16', '2013-08-31')
       check_events([{ type: 'START_ENTITLEMENT', date: '2013-08-16' },
                     { type: 'START_BILLING', date: '2013-08-16' },
                     { type: 'STOP_ENTITLEMENT', date: '2013-08-21' },
-                    { type: 'STOP_BILLING', date: '2013-08-21' }], aos[0].events)
+                    { type: 'STOP_BILLING', date: '2013-08-31' }], aos[0].events)
     end
 
     def test_cancel_bp_default_policy_after_trial
@@ -1095,7 +1095,7 @@ module KillBillIntegrationTests
       all_invoices = check_next_invoice_amount(1, 0, '2013-08-01', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
 
       # Move clock and create Add-on 1 (BP still in trial)
       kb_clock_add_days(4, nil, @options) # 05/08/2013
