@@ -29,7 +29,7 @@ module KillBillIntegrationTests
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
 
       canceled_bp = get_subscription(bp.subscription_id, @options)
-      check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
+      check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, '2013-08-31')
 
       bp_subscriptions = get_subscriptions(bp.bundle_id, @options)
       bp = bp_subscriptions.find { |s| s.subscription_id == bp.subscription_id }
@@ -57,7 +57,7 @@ module KillBillIntegrationTests
                   service_name: 'entitlement-service',
                   service_state_name: 'ENT_CANCELLED' },
                 { type: 'STOP_BILLING',
-                  date: DEFAULT_KB_INIT_DATE,
+                  date: '2013-08-31',
                   service_name: 'billing-service',
                   service_state_name: 'STOP_BILLING' }]
 
@@ -141,7 +141,7 @@ module KillBillIntegrationTests
       check_entitlement(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
 
       canceled_bp = get_subscription(bp.subscription_id, @options)
-      check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE)
+      check_subscription(canceled_bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, DEFAULT_KB_INIT_DATE, '2013-08-31')
     end
 
     # Cancellation with with explicit entitlement eot policy
