@@ -51,7 +51,7 @@ module KillBillIntegrationTests
 
     private
 
-    def test_scenario_fixed_price(test_init_clock, account_time_zone, requested_date, expected_invoice_date, expected_subscription_date, invoice_item_end_date=nil)
+    def test_scenario_fixed_price(test_init_clock, account_time_zone, requested_date, expected_invoice_date, expected_subscription_date, invoice_item_end_date = nil)
       test_scenario_fixed_price_with_future_invoice(test_init_clock, account_time_zone, requested_date, expected_invoice_date, expected_subscription_date, invoice_item_end_date, nil)
     end
 
