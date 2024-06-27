@@ -29,7 +29,7 @@ module KillBillIntegrationTests
     def test_create_subscription_with_tz_minus_11_with_requested_date_in_slight_future
       # Requested date of '2013-08-02' means that this is a future date (in account timezone time is "2013-08-01T19:00:00.000-11")
       # There is a trick here which is that we end up with a date in the future so we need to move the clock before we can retrieve the invoice
-      test_scenario_fixed_price_with_future_invoice('2013-08-02T06:00:00.000Z', 'Pacific/Samoa', '2013-08-02', '2013-08-02', '2013-08-02','2013-09-01', 1)
+      test_scenario_fixed_price_with_future_invoice('2013-08-02T06:00:00.000Z', 'Pacific/Samoa', '2013-08-02', '2013-08-02', '2013-08-02', '2013-09-01', 1)
     end
 
     def test_create_subscription_with_tz_plus_9_no_requested_date
