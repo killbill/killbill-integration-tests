@@ -208,7 +208,7 @@ module KillBillIntegrationTests
       all_invoices  = check_next_invoice_amount(2, 500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
       second_invoice = all_invoices[1]
       assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
@@ -241,7 +241,7 @@ module KillBillIntegrationTests
       all_invoices  = check_next_invoice_amount(3, -500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
       second_invoice = all_invoices[1]
       assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')
@@ -284,7 +284,7 @@ module KillBillIntegrationTests
       all_invoices  = check_next_invoice_amount(4, 500, '2013-08-31', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
       second_invoice = all_invoices[1]
       assert_equal(1, second_invoice.items.size, "Invalid number of invoice items: #{second_invoice.items.size}")
       check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 500, 'USD', 'RECURRING', 'sports-monthly', 'sports-monthly-evergreen', '2013-08-31', '2013-09-30')

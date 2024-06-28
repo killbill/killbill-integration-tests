@@ -209,7 +209,7 @@ module KillBillIntegrationTests
       knife_invoice_items.each do |ii|
         check_invoice_item(ii, first_invoice.invoice_id, 29.95, 'USD', 'RECURRING', 'knife-monthly-notrial', 'knife-monthly-notrial-evergreen', '2013-08-01', '2013-09-01')
       end
-      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
       check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
     end
 
@@ -243,9 +243,9 @@ module KillBillIntegrationTests
       check_invoice_no_balance(first_invoice, 3.87, 'USD', DEFAULT_KB_INIT_DATE)
 
       check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-01', '2013-08-31')
-      check_invoice_item(find_invoice_item(first_invoice.items, 'standard-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'standard-monthly', 'standard-monthly-trial', '2013-08-01', nil)
-      check_invoice_item(find_invoice_item(first_invoice.items, 'super-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'super-monthly', 'super-monthly-trial', '2013-08-01', nil)
-      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(find_invoice_item(first_invoice.items, 'standard-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'standard-monthly', 'standard-monthly-trial', '2013-08-01', '2013-08-31')
+      check_invoice_item(find_invoice_item(first_invoice.items, 'super-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'super-monthly', 'super-monthly-trial', '2013-08-01', '2013-08-31')
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
     end
 
     def test_multiple_bundles_with_future_dates
@@ -273,7 +273,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(first_invoice, 3.87, 'USD', '2013-08-15')
 
       check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-08-15', '2013-09-14')
-      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-15', nil)
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-15', '2013-09-14')
     end
 
     def test_multiple_bundles_with_billing_date_in_past
@@ -299,7 +299,7 @@ module KillBillIntegrationTests
       check_invoice_no_balance(first_invoice, 3.87, 'USD', '2013-08-01')
 
       check_invoice_item(find_invoice_item(first_invoice.items, 'oilslick-monthly'), first_invoice.invoice_id, 3.87, 'USD', 'RECURRING', 'oilslick-monthly', 'oilslick-monthly-discount', '2013-07-15', '2013-08-14')
-      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-07-15', nil)
+      check_invoice_item(find_invoice_item(first_invoice.items, 'sports-monthly'), first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-07-15', '2013-08-14')
     end
 
     def test_multiple_bundles_with_large_amount_of_bundles
