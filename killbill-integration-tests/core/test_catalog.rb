@@ -5,7 +5,7 @@ $LOAD_PATH.unshift File.expand_path('..', __dir__)
 require 'test_base'
 require 'date'
 
-# TODO_1739 
+# TODO_1739
 ## Some tests are failing and deleted. These need to be fixed and added back
 ## The START_OF_BUNDLE tests need to be updated after the change is made on the KB side
 ## This test has major changes and needs to be reviewed carefully
@@ -25,7 +25,7 @@ module KillBillIntegrationTests
     def test_price_increase
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
-      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, type = 'RECURRING')
+      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, 'RECURRING')
 
       # Effective date of the second catalog is 2013-09-01
       upload_catalog('Catalog-v2.xml', false, @user, @options)
@@ -34,7 +34,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
 
       # Create a new subscription and check the new price is effective
-      create_basic_entitlement(3, 'MONTHLY', '2013-09-01', '2013-10-01', 1200.0, type = 'RECURRING')
+      create_basic_entitlement(3, 'MONTHLY', '2013-09-01', '2013-10-01', 1200.0, 'RECURRING')
 
       add_days_and_check_invoice_balance(30, 4, '2013-10-01', 2200.0)
     end
@@ -44,7 +44,7 @@ module KillBillIntegrationTests
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
       # basic-monthly has no trial period
-      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, type = 'RECURRING')
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, 'RECURRING')
 
       # Move clock to 2013-09-01
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
@@ -67,153 +67,153 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(1, 6, 'basic-monthly', '2013-11-01', '2013-12-01', 1000.0)
 
       # Verify we can change to the new plan
-      change_base_entitlement(bp, 7, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14_000, 13_000, type = 'RECURRING')
+      change_base_entitlement(bp, 7, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14_000, 13_000, 'RECURRING')
     end
 
-   # Change alignment in a subsequent catalog
-   def test_change_plan_with_latest_policy
-    upload_catalog('Catalog-v1.xml', false, @user, @options)
+    # Change alignment in a subsequent catalog
+    def test_change_plan_with_latest_policy
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
 
-    # basic-bimestrial has a trial period
-    bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
+      # basic-bimestrial has a trial period
+      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
 
-    # Move clock to 2013-08-31
-    add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
+      # Move clock to 2013-08-31
+      add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
 
-    # Move clock to 2013-10-01
-    kb_clock_add_days(31, nil, @options)
+      # Move clock to 2013-10-01
+      kb_clock_add_days(31, nil, @options)
 
-    # Effective date of the second catalog is 2013-10-01
-    # Because of limitations of how effectiveDateForExistingSubscriptions is used, we need to upload this intermediate catalog:
-    # if we were to upload v4 right away, the change plan would fail (unable to find basic-annual)
-    upload_catalog('Catalog-v3.xml', false, @user, @options)
+      # Effective date of the second catalog is 2013-10-01
+      # Because of limitations of how effectiveDateForExistingSubscriptions is used, we need to upload this intermediate catalog:
+      # if we were to upload v4 right away, the change plan would fail (unable to find basic-annual)
+      upload_catalog('Catalog-v3.xml', false, @user, @options)
 
-    # Move clock to 2013-10-31
-    add_days_and_check_invoice_item(30, 3, 'basic-bimestrial', '2013-10-31', '2013-12-31', 1000.0)
+      # Move clock to 2013-10-31
+      add_days_and_check_invoice_item(30, 3, 'basic-bimestrial', '2013-10-31', '2013-12-31', 1000.0)
 
-    # Move clock to 2013-11-01
-    kb_clock_add_days(1, nil, @options)
+      # Move clock to 2013-11-01
+      kb_clock_add_days(1, nil, @options)
 
-    # Effective date of the fourth catalog is 2013-11-01
-    upload_catalog('Catalog-v4.xml', false, @user, @options)
+      # Effective date of the fourth catalog is 2013-11-01
+      upload_catalog('Catalog-v4.xml', false, @user, @options)
 
-    add_days(1)
+      add_days(1)
 
-    # Verify new CHANGE_OF_PLAN change alignment
-    # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
-    # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
-    change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', '2013-12-02', 0, -967.21)
-  end    
+      # Verify new CHANGE_OF_PLAN change alignment
+      # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
+      # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
+      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', '2013-12-02', 0, -967.21)
+    end    
 
-  def test_change_alignment_no_grandfathering
-    upload_catalog('Catalog-v1.xml', false, @user, @options)
+    def test_change_alignment_no_grandfathering
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
 
-    # basic-bimestrial has a trial period
-    bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
+      # basic-bimestrial has a trial period
+      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
 
-    # Move clock to 2013-08-31
-    add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
+      # Move clock to 2013-08-31
+      add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
 
-    # Move clock to 2013-10-01
-    kb_clock_add_days(31, nil, @options)
+      # Move clock to 2013-10-01
+      kb_clock_add_days(31, nil, @options)
 
-    # Effective date of the second catalog is 2013-10-01
-    # Because of limitations of how effectiveDateForExistingSubscriptions is used, we need to upload this intermediate catalog:
-    # if we were to upload v4 right away, the change plan would fail (unable to find basic-annual)
-    upload_catalog('Catalog-v3.xml', false, @user, @options)
+      # Effective date of the second catalog is 2013-10-01
+      # Because of limitations of how effectiveDateForExistingSubscriptions is used, we need to upload this intermediate catalog:
+      # if we were to upload v4 right away, the change plan would fail (unable to find basic-annual)
+      upload_catalog('Catalog-v3.xml', false, @user, @options)
 
-    # Move clock to 2013-10-31
-    add_days_and_check_invoice_item(30, 3, 'basic-bimestrial', '2013-10-31', '2013-12-31', 1000.0)
+      # Move clock to 2013-10-31
+      add_days_and_check_invoice_item(30, 3, 'basic-bimestrial', '2013-10-31', '2013-12-31', 1000.0)
 
-    # Move clock to 2013-11-01
-    kb_clock_add_days(1, nil, @options)
+      # Move clock to 2013-11-01
+      kb_clock_add_days(1, nil, @options)
 
-    # Effective date of the fourth catalog is 2013-11-01
-    upload_catalog('Catalog-v4.xml', false, @user, @options)
+      # Effective date of the fourth catalog is 2013-11-01
+      upload_catalog('Catalog-v4.xml', false, @user, @options)
 
-    # Move clock to 2013-12-31
-    add_days_and_check_invoice_item(60, 4, 'basic-bimestrial', '2013-12-31', '2014-02-28', 1000.0)
+      # Move clock to 2013-12-31
+      add_days_and_check_invoice_item(60, 4, 'basic-bimestrial', '2013-12-31', '2014-02-28', 1000.0)
 
-    # Move clock to 2014-01-01
-    add_days(1)
+      # Move clock to 2014-01-01
+      add_days(1)
 
-    # Verify START_OF_BUNDLE change alignment is NOT grandfathered: we are back in trial
-    change_base_entitlement(bp, 5, 'Basic', 'ANNUAL', '2013-08-01', '2014-01-01', '2014-01-31', 0, -983.05)
-  end
+      # Verify START_OF_BUNDLE change alignment is NOT grandfathered: we are back in trial
+      change_base_entitlement(bp, 5, 'Basic', 'ANNUAL', '2013-08-01', '2014-01-01', '2014-01-31', 0, -983.05)
+    end
 
-  def test_create_alignment
-    upload_catalog('Catalog-CreateAlignment.xml', false, @user, @options)
+    def test_create_alignment
+      upload_catalog('Catalog-CreateAlignment.xml', false, @user, @options)
 
-    bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-08-31', 0.0)
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-08-31', 0.0)
 
-    # Move the clock to 2013-08-15
-    add_days(14)
+      # Move the clock to 2013-08-15
+      add_days(14)
 
-    # Add a first add-on with a START_OF_BUNDLE creation alignment. The subscription is aligned
-    # with the bundle creation date (2013-08-01) meaning the trial will be from 2013-08-15 to 2013-08-31
-    create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15',  '2013-09-14', 0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-14 => to 2013-08-31
+      # Add a first add-on with a START_OF_BUNDLE creation alignment. The subscription is aligned
+      # with the bundle creation date (2013-08-01) meaning the trial will be from 2013-08-15 to 2013-08-31
+      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15',  '2013-09-14', 0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-14 => to 2013-08-31
 
-    # Add a second add-on with a START_OF_SUBSCRIPTION creation alignment. The subscription is aligned
-    # with the add-on subscription creation date (2013-08-15) meaning the trial will be from 2013-08-15 to 2013-09-14
-    create_ao_entitlement(bp, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-15', '2013-09-14', 0)
+      # Add a second add-on with a START_OF_SUBSCRIPTION creation alignment. The subscription is aligned
+      # with the add-on subscription creation date (2013-08-15) meaning the trial will be from 2013-08-15 to 2013-09-14
+      create_ao_entitlement(bp, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-15', '2013-09-14', 0)
 
-    # Move the clock to 2013-08-31 (30 days trial)
-    add_days(16)
+      # Move the clock to 2013-08-31 (30 days trial)
+      add_days(16)
 
-    # The first evergreen invoice will contain the line items for the base plan and the bundle-aligned add-on
-    invoice = check_invoice_balance(4, '2013-08-31', 1100.0)
-    check_invoice_item(invoice.items[0], invoice.invoice_id, 100.0, 'USD', 'RECURRING', 'BasicAOStartOfBundle-monthly', 'BasicAOStartOfBundle-monthly-evergreen', '2013-08-31', '2013-09-30')
-    check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
+      # The first evergreen invoice will contain the line items for the base plan and the bundle-aligned add-on
+      invoice = check_invoice_balance(4, '2013-08-31', 1100.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 100.0, 'USD', 'RECURRING', 'BasicAOStartOfBundle-monthly', 'BasicAOStartOfBundle-monthly-evergreen', '2013-08-31', '2013-09-30')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-08-31', '2013-09-30')
 
-    # Move the clock to 2013-09-14: the invoice will just contain the line item for the subscription-aligned add-on
-    # Note that we configured a billing alignment of SUBSCRIPTION for the product BasicAOStartOfSubscription, to avoid dealing with pro-rations
-    # For an ACCOUNT billing alignment, the line item would be from 2013-09-14 to 2013-09-30 ($77.42)
-    add_days_and_check_invoice_item(14, 5, 'BasicAOStartOfSubscription-monthly', '2013-09-14', '2013-10-14', 150)
+      # Move the clock to 2013-09-14: the invoice will just contain the line item for the subscription-aligned add-on
+      # Note that we configured a billing alignment of SUBSCRIPTION for the product BasicAOStartOfSubscription, to avoid dealing with pro-rations
+      # For an ACCOUNT billing alignment, the line item would be from 2013-09-14 to 2013-09-30 ($77.42)
+      add_days_and_check_invoice_item(14, 5, 'BasicAOStartOfSubscription-monthly', '2013-09-14', '2013-10-14', 150)
 
-    # Move the clock to 2013-09-30
-    add_days(16)
+      # Move the clock to 2013-09-30
+      add_days(16)
 
-    invoice = check_invoice_balance(6, '2013-09-30', 1100.0)
-    check_invoice_item(invoice.items[0], invoice.invoice_id, 100.0, 'USD', 'RECURRING', 'BasicAOStartOfBundle-monthly', 'BasicAOStartOfBundle-monthly-evergreen', '2013-09-30', '2013-10-31')
-    check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
+      invoice = check_invoice_balance(6, '2013-09-30', 1100.0)
+      check_invoice_item(invoice.items[0], invoice.invoice_id, 100.0, 'USD', 'RECURRING', 'BasicAOStartOfBundle-monthly', 'BasicAOStartOfBundle-monthly-evergreen', '2013-09-30', '2013-10-31')
+      check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
 
-    # Move the clock to 2013-10-14
-    add_days_and_check_invoice_item(14, 7, 'BasicAOStartOfSubscription-monthly', '2013-10-14', '2013-11-14', 150)
-  end
+      # Move the clock to 2013-10-14
+      add_days_and_check_invoice_item(14, 7, 'BasicAOStartOfSubscription-monthly', '2013-10-14', '2013-11-14', 150)
+    end
 
-  def test_create_simple_plan
-    upload_catalog('Catalog-v1.xml', false, @user, @options)
+    def test_create_simple_plan
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
 
-    add_catalog_simple_plan('basic-annual', 'Basic', 'BASE', 'USD', 10_000.00, 'ANNUAL', 0, 'UNLIMITED', @user, @options)
+      add_catalog_simple_plan('basic-annual', 'Basic', 'BASE', 'USD', 10_000.00, 'ANNUAL', 0, 'UNLIMITED', @user, @options)
 
-    catalogs = get_tenant_catalog('2013-02-09', @account.account_id, @options)
-    assert_equal(1, catalogs.size)
-    catalog = catalogs[0]
+      catalogs = get_tenant_catalog('2013-02-09', @account.account_id, @options)
+      assert_equal(1, catalogs.size)
+      catalog = catalogs[0]
 
-    assert_equal(1, catalog.price_lists.size)
-    assert_equal(3, catalog.price_lists[0]['plans'].size)
-    assert_equal('basic-annual', catalog.price_lists[0]['plans'][0])
-    assert_equal('basic-bimestrial', catalog.price_lists[0]['plans'][1])
-    assert_equal('basic-monthly', catalog.price_lists[0]['plans'][2])
+      assert_equal(1, catalog.price_lists.size)
+      assert_equal(3, catalog.price_lists[0]['plans'].size)
+      assert_equal('basic-annual', catalog.price_lists[0]['plans'][0])
+      assert_equal('basic-bimestrial', catalog.price_lists[0]['plans'][1])
+      assert_equal('basic-monthly', catalog.price_lists[0]['plans'][2])
 
-    assert_equal(1, catalog.products.size)
-    assert_equal(3, catalog.products[0].plans.size)
+      assert_equal(1, catalog.products.size)
+      assert_equal(3, catalog.products[0].plans.size)
 
-    assert_equal('basic-annual', catalog.products[0].plans[0].name)
-    assert_equal(1, catalog.products[0].plans[0].phases.size)
-  end
+      assert_equal('basic-annual', catalog.products[0].plans[0].name)
+      assert_equal(1, catalog.products[0].plans[0].phases.size)
+    end
 
-  def test_get_list_of_catalog_versions
-    upload_catalog('Catalog-v1.xml', false, @user, @options)
-    upload_catalog('Catalog-v2.xml', false, @user, @options)
-    upload_catalog('Catalog-v3.xml', false, @user, @options)
+    def test_get_list_of_catalog_versions
+      upload_catalog('Catalog-v1.xml', false, @user, @options)
+      upload_catalog('Catalog-v2.xml', false, @user, @options)
+      upload_catalog('Catalog-v3.xml', false, @user, @options)
 
-    versions = KillBillClient::Model::Catalog.get_tenant_catalog_versions(@account.account_id, @options)
-    assert_equal 3, versions.size
-    assert_equal Date.parse('2013-02-08T00:00:00+00:00'), Date.parse(versions[0])
-    assert_equal Date.parse('2013-09-01T00:00:00+00:00'), Date.parse(versions[1])
-    assert_equal Date.parse('2013-10-01T00:00:00+00:00'), Date.parse(versions[2])
-  end
+      versions = KillBillClient::Model::Catalog.get_tenant_catalog_versions(@account.account_id, @options)
+      assert_equal 3, versions.size
+      assert_equal Date.parse('2013-02-08T00:00:00+00:00'), Date.parse(versions[0])
+      assert_equal Date.parse('2013-09-01T00:00:00+00:00'), Date.parse(versions[1])
+      assert_equal Date.parse('2013-10-01T00:00:00+00:00'), Date.parse(versions[2])
+    end
 
     private
 
@@ -230,7 +230,7 @@ module KillBillIntegrationTests
       # Move the clock to 2013-08-05
       add_days(4)
 
-      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', '2013-09-04', 0.0) ##TODO_1739 - This needs to be fixed on the KB side 2013-09-04 => to 2013-08-31
+      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', '2013-09-04', 0.0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-04 => to 2013-08-31
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
