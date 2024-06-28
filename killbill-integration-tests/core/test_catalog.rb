@@ -103,7 +103,7 @@ module KillBillIntegrationTests
       # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
       # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
       change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', '2013-12-02', 0, -967.21)
-    end    
+    end
 
     def test_change_alignment_no_grandfathering
       upload_catalog('Catalog-v1.xml', false, @user, @options)
@@ -151,7 +151,7 @@ module KillBillIntegrationTests
 
       # Add a first add-on with a START_OF_BUNDLE creation alignment. The subscription is aligned
       # with the bundle creation date (2013-08-01) meaning the trial will be from 2013-08-15 to 2013-08-31
-      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15',  '2013-09-14', 0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-14 => to 2013-08-31
+      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15', '2013-09-14', 0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-14 => to 2013-08-31
 
       # Add a second add-on with a START_OF_SUBSCRIPTION creation alignment. The subscription is aligned
       # with the add-on subscription creation date (2013-08-15) meaning the trial will be from 2013-08-15 to 2013-09-14
