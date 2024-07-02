@@ -151,7 +151,7 @@ module KillBillIntegrationTests
 
       # Add a first add-on with a START_OF_BUNDLE creation alignment. The subscription is aligned
       # with the bundle creation date (2013-08-01) meaning the trial will be from 2013-08-15 to 2013-08-31
-      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15', '2013-09-14', 0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-14 => to 2013-08-31
+      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15', '2013-08-31', 0)
 
       # Add a second add-on with a START_OF_SUBSCRIPTION creation alignment. The subscription is aligned
       # with the add-on subscription creation date (2013-08-15) meaning the trial will be from 2013-08-15 to 2013-09-14
@@ -230,7 +230,7 @@ module KillBillIntegrationTests
       # Move the clock to 2013-08-05
       add_days(4)
 
-      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', '2013-09-04', 0.0) ## TODO_1739 - This needs to be fixed on the KB side 2013-09-04 => to 2013-08-31
+      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', '2013-08-31', 0.0)
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
