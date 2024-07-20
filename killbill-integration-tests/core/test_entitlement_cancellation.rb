@@ -24,7 +24,7 @@ module KillBillIntegrationTests
       # Cancel BP  in trial with no arguments
       requested_date = nil
       entitlement_policy = nil
-      billing_policy = nil
+      billing_policy = 'IMMEDIATE'
       use_requested_date_for_billing = nil
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)
 
@@ -132,7 +132,7 @@ module KillBillIntegrationTests
       # Cancel BP  in trial with no arguments
       requested_date = nil
       entitlement_policy = 'IMMEDIATE'
-      billing_policy = nil
+      billing_policy = 'IMMEDIATE'
       use_requested_date_for_billing = nil
 
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)

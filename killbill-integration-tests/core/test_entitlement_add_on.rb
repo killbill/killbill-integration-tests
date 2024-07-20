@@ -61,7 +61,7 @@ module KillBillIntegrationTests
       # All default, system will cancel immediately since we are still in trial
       requested_date = nil
       entitlement_policy = nil
-      billing_policy = nil
+      billing_policy = 'IMMEDIATE'
       use_requested_date_for_billing = nil
 
       bp.cancel(@user, nil, nil, requested_date, entitlement_policy, billing_policy, use_requested_date_for_billing, @options)

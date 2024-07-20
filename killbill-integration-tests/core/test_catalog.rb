@@ -368,7 +368,7 @@ module KillBillIntegrationTests
     end
 
     def change_ao_entitlement(ao, invoice_nb, product, billing_period = 'MONTHLY', ao_start_date = '2013-08-01', amount = 0.0, invoice_date = start_date)
-      ao = ao.change_plan({ productName: product, billingPeriod: billing_period, priceList: 'DEFAULT' }, @user, nil, nil, nil, nil, nil, false, @options)
+      ao = ao.change_plan({ productName: product, billingPeriod: billing_period, priceList: 'DEFAULT' }, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', ao_start_date, nil, ao_start_date, nil)
       check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, amount)
     end
