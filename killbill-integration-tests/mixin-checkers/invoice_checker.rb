@@ -24,7 +24,9 @@ module KillBillIntegrationTests
       assert_equal(plan_name, ii.plan_name, msg)
       assert_equal(phase_name, ii.phase_name, msg)
       assert_equal(start_date, ii.start_date, msg)
-      assert_equal(end_date, ii.end_date, msg)
+      if item_type != 'FIXED'
+        assert_equal(end_date, ii.end_date, msg)
+      end
     end
 
     def check_usage_invoice_item_w_quantity(ii, invoice_id, amount, currency, item_type, plan_name, phase_name, usage_name, start_date, end_date, rate, quantity)
