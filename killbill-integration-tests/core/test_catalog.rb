@@ -274,7 +274,6 @@ module KillBillIntegrationTests
       check_invoice_item(invoice.items[1], invoice.invoice_id, 1000.0, 'USD', 'RECURRING', 'basic-monthly', 'basic-monthly-evergreen', '2013-09-30', '2013-10-31')
     end
 
-
     def test_create_simple_plan
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
