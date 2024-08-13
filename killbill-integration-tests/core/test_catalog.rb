@@ -239,7 +239,6 @@ module KillBillIntegrationTests
     end
 
     def test_change_alignment_change_of_plan
-
       bp, ao = setup_change_alignment_test
 
       # Change plan with a start of change of plan change alignment: the trial will now end on 2013-09-14
