@@ -20,7 +20,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_default_no_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Cancel BP  in trial with no arguments
       requested_date = nil
       entitlement_policy = nil
@@ -68,7 +68,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_default_with_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock after the trial to have a CTD
       kb_clock_add_days(31, nil, @options)
 
@@ -128,7 +128,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_imm
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Cancel BP  in trial with no arguments
       requested_date = nil
       entitlement_policy = 'IMMEDIATE'
@@ -148,7 +148,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_eot
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock after the trial to have a CTD
       kb_clock_add_days(31, nil, @options)
 
@@ -168,7 +168,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_with_requested_date_in_future_ent_only
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock after the trial to have a CTD
       kb_clock_add_days(31, nil, @options)
 
@@ -187,7 +187,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_with_requested_date_in_future_both
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock after the trial to have a CTD
       kb_clock_add_days(31, nil, @options)
 
@@ -207,7 +207,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_billing_imm
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock a few days ahead
       kb_clock_add_days(10, nil, @options)
 
@@ -228,7 +228,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_billing_eot_with_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock a few days ahead
       kb_clock_add_days(31, nil, @options)
       bp2 = get_subscription(bp.subscription_id, @options)
@@ -249,7 +249,7 @@ module KillBillIntegrationTests
     def test_bp_cancel_entitlement_eot_billing_eot_with_ctd
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
-
+      wait_for_expected_clause(1, @account, @options, &@proc_account_invoices_nb)
       # Move clock after trial
       kb_clock_add_days(31, nil, @options)
 
