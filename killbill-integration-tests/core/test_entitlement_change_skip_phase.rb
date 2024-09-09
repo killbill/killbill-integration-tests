@@ -57,7 +57,7 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       second_invoice.items.sort! { |a, b| a.item_type <=> b.item_type }
       check_invoice_no_balance(second_invoice, 0, 'USD', '2016-08-02')
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', nil)
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', '2016-08-09')
       # We get weird $0 RECURRING items coming from change https://github.com/killbill/killbill/commit/03f276b230a6f1aab62447b2ea99b34813899678
       # because code now does not insert $0 RECURRING items in the tree and therefore there is no repair against $0 RECURRING items
       check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-01', '2016-08-02')
@@ -138,7 +138,7 @@ module KillBillIntegrationTests
       second_invoice = all_invoices[1]
       check_invoice_no_balance(second_invoice, 0, 'USD', '2016-08-02')
       second_invoice.items.sort! { |a, b| a.item_type <=> b.item_type }
-      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', nil)
+      check_invoice_item(second_invoice.items[0], second_invoice.invoice_id, 0, 'USD', 'FIXED', 'silver-monthly', 'silver-monthly-trial', '2016-08-02', '2016-08-09')
       # We get weird $0 RECURRING items coming from change https://github.com/killbill/killbill/commit/03f276b230a6f1aab62447b2ea99b34813899678
       # because code now does not insert $0 RECURRING items in the tree and therefore there is no repair against $0 RECURRING items
       check_invoice_item(second_invoice.items[1], second_invoice.invoice_id, 0, 'USD', 'RECURRING', 'free-monthly', 'free-monthly-evergreen', '2016-08-01', '2016-08-02')

@@ -30,7 +30,7 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
       check_invoice_no_balance(first_invoice, 0, 'USD', DEFAULT_KB_INIT_DATE)
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
 
       kb_clock_add_days(31, nil, @options)
 
@@ -44,7 +44,7 @@ module KillBillIntegrationTests
 
     def test_dry_run_create_bp_and_phase
       dry_run_invoice = create_subscription_dry_run(@account.account_id, nil, nil, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', @options)
-      check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(dry_run_invoice.items[0], dry_run_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
 
       bp = create_entitlement_base(@account.account_id, 'Sports', 'MONTHLY', 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
@@ -56,7 +56,7 @@ module KillBillIntegrationTests
       sort_invoices!(all_invoices)
       first_invoice = all_invoices[0]
       check_invoice_no_balance(first_invoice, 0, 'USD', DEFAULT_KB_INIT_DATE)
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
 
       # Move clock to switch to next phase and generate another invoice
       # Let the system compute the targetDate

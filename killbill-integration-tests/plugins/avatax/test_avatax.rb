@@ -85,7 +85,7 @@ module KillBillIntegrationTests
       first_invoice = all_invoices[0]
       assert_equal(first_invoice.status, 'DRAFT')
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2020-05-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2020-05-01', '2020-05-31')
 
       # Move clock after trial
       kb_clock_add_days(31, nil, @options)
@@ -131,7 +131,7 @@ module KillBillIntegrationTests
       all_invoices  = check_next_invoice_amount(1, 0, '2020-05-01', @account, @options, &@proc_account_invoices_nb)
       first_invoice = all_invoices[0]
       assert_equal(1, first_invoice.items.size, "Invalid number of invoice items: #{first_invoice.items.size}")
-      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2020-05-01', nil)
+      check_invoice_item(first_invoice.items[0], first_invoice.invoice_id, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2020-05-01', '2020-05-31')
 
       # Move clock after trial
       kb_clock_add_days(31, nil, @options)

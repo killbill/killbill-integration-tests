@@ -29,7 +29,7 @@ module KillBillIntegrationTests
       check_entitlement(bp, 'Sports', 'BASE', 'MONTHLY', 'DEFAULT', DEFAULT_KB_INIT_DATE, nil)
       wait_for_expected_clause(1, @child_account, @options, &@proc_account_invoices_nb)
       child_invoice = get_and_check_child_invoice(@child_account, 1, 0, 'USD', DEFAULT_KB_INIT_DATE)
-      check_child_invoice_item(child_invoice, 1, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', nil)
+      check_child_invoice_item(child_invoice, 1, 0, 'USD', 'FIXED', 'sports-monthly', 'sports-monthly-trial', '2013-08-01', '2013-08-31')
       check_account_balance(@child_account, 0, 0)
 
       # Verify we see the parent invoice

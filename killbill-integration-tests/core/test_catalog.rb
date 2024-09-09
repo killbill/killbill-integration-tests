@@ -5,6 +5,7 @@ $LOAD_PATH.unshift File.expand_path('..', __dir__)
 require 'test_base'
 require 'date'
 
+# TODO_1739 - This test has major changes and needs to be reviewed carefully
 module KillBillIntegrationTests
   class TestCatalog < Base
     def setup
@@ -21,7 +22,7 @@ module KillBillIntegrationTests
     def test_price_increase
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
-      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
+      create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, 'RECURRING')
 
       # Effective date of the second catalog is 2013-09-01
       upload_catalog('Catalog-v2.xml', false, @user, @options)
@@ -30,7 +31,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
 
       # Create a new subscription and check the new price is effective
-      create_basic_entitlement(3, 'MONTHLY', '2013-09-01', '2013-10-01', 1200.0)
+      create_basic_entitlement(3, 'MONTHLY', '2013-09-01', '2013-10-01', 1200.0, 'RECURRING')
 
       add_days_and_check_invoice_balance(30, 4, '2013-10-01', 2200.0)
     end
@@ -40,7 +41,7 @@ module KillBillIntegrationTests
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
       # basic-monthly has no trial period
-      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0)
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-09-01', 1000.0, 'RECURRING')
 
       # Move clock to 2013-09-01
       add_days_and_check_invoice_item(31, 2, 'basic-monthly', '2013-09-01', '2013-10-01', 1000.0)
@@ -53,7 +54,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(30, 3, 'basic-monthly', '2013-10-01', '2013-11-01', 1000.0)
 
       # The annual plan is only present in the v3 catalog
-      create_basic_entitlement(4, 'ANNUAL', '2013-10-01', nil, 0)
+      create_basic_entitlement(4, 'ANNUAL', '2013-10-01', '2013-10-31', 0)
 
       # Move clock to 2013-10-31 (BCD = 1)
       add_days_and_check_invoice_item(30, 5, 'basic-annual', '2013-10-31', '2014-10-01', 12_849.32)
@@ -63,7 +64,7 @@ module KillBillIntegrationTests
       add_days_and_check_invoice_item(1, 6, 'basic-monthly', '2013-11-01', '2013-12-01', 1000.0)
 
       # Verify we can change to the new plan
-      change_base_entitlement(bp, 7, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14_000, 13_000)
+      change_base_entitlement(bp, 7, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-01', '2014-11-01', 14_000, 13_000, 'RECURRING')
     end
 
     # Change alignment in a subsequent catalog
@@ -71,7 +72,7 @@ module KillBillIntegrationTests
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
       # basic-bimestrial has a trial period
-      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', nil, 0)
+      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
 
       # Move clock to 2013-08-31
       add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
@@ -98,14 +99,14 @@ module KillBillIntegrationTests
       # Verify new CHANGE_OF_PLAN change alignment
       # Because the basic-annual has a 30 days trial, and because of the policy (CHANGE_PLAN) we invoice for a $0 trial
       # and therefore create a pro-ration credit for the part 2013-11-02 -> 2013-12-31
-      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', nil, 0, -967.21)
+      change_base_entitlement(bp, 4, 'Basic', 'ANNUAL', '2013-08-01', '2013-11-02', '2013-12-02', 0, -967.21)
     end
 
     def test_change_alignment_no_grandfathering
       upload_catalog('Catalog-v1.xml', false, @user, @options)
 
       # basic-bimestrial has a trial period
-      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', nil, 0)
+      bp = create_basic_entitlement(1, 'BIMESTRIAL', '2013-08-01', '2013-08-31', 0)
 
       # Move clock to 2013-08-31
       add_days_and_check_invoice_item(30, 2, 'basic-bimestrial', '2013-08-31', '2013-10-31', 1000.0)
@@ -134,24 +135,24 @@ module KillBillIntegrationTests
       add_days(1)
 
       # Verify START_OF_BUNDLE change alignment is NOT grandfathered: we are back in trial
-      change_base_entitlement(bp, 5, 'Basic', 'ANNUAL', '2013-08-01', '2014-01-01', nil, 0, -983.05)
+      change_base_entitlement(bp, 5, 'Basic', 'ANNUAL', '2013-08-01', '2014-01-01', '2014-01-31', 0, -983.05)
     end
 
     def test_create_alignment
       upload_catalog('Catalog-CreateAlignment.xml', false, @user, @options)
 
-      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-08-31', 0.0)
 
       # Move the clock to 2013-08-15
       add_days(14)
 
       # Add a first add-on with a START_OF_BUNDLE creation alignment. The subscription is aligned
       # with the bundle creation date (2013-08-01) meaning the trial will be from 2013-08-15 to 2013-08-31
-      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15', 0)
+      create_ao_entitlement(bp, 2, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-15', '2013-08-31', 0)
 
       # Add a second add-on with a START_OF_SUBSCRIPTION creation alignment. The subscription is aligned
       # with the add-on subscription creation date (2013-08-15) meaning the trial will be from 2013-08-15 to 2013-09-14
-      create_ao_entitlement(bp, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-15', 0)
+      create_ao_entitlement(bp, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-15', '2013-09-14', 0)
 
       # Move the clock to 2013-08-31 (30 days trial)
       add_days(16)
@@ -181,7 +182,7 @@ module KillBillIntegrationTests
       bp, ao = setup_change_alignment_test
 
       # Change plan with a start of bundle change alignment: the trial will still end on 2013-08-31
-      change_ao_entitlement(ao, 3, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      change_ao_entitlement(ao, 3, 'BasicAOStartOfBundle', 'MONTHLY', '2013-08-05', '2013-08-31', 0.0, '2013-08-15')
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
@@ -205,7 +206,7 @@ module KillBillIntegrationTests
       bp, ao = setup_change_alignment_test
 
       # Change plan with a start of subscription change alignment: the trial will now end on 2013-09-04
-      change_ao_entitlement(ao, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      change_ao_entitlement(ao, 3, 'BasicAOStartOfSubscription', 'MONTHLY', '2013-08-05', '2013-09-04', 0.0, '2013-08-15')
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
@@ -241,7 +242,7 @@ module KillBillIntegrationTests
       bp, ao = setup_change_alignment_test
 
       # Change plan with a start of change of plan change alignment: the trial will now end on 2013-09-14
-      change_ao_entitlement(ao, 3, 'BasicAOChangeOfPlan', 'MONTHLY', '2013-08-05', 0.0, '2013-08-15')
+      change_ao_entitlement(ao, 3, 'BasicAOChangeOfPlan', 'MONTHLY', '2013-08-05', '2013-09-14', 0.0, '2013-08-15')
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
@@ -317,12 +318,12 @@ module KillBillIntegrationTests
     def setup_change_alignment_test
       upload_catalog('Catalog-ChangeAlignment.xml', false, @user, @options)
 
-      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', nil, 0.0)
+      bp = create_basic_entitlement(1, 'MONTHLY', '2013-08-01', '2013-08-31', 0.0)
 
       # Move the clock to 2013-08-05
       add_days(4)
 
-      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', 0.0)
+      ao = create_ao_entitlement(bp, 2, 'BasicAO', 'MONTHLY', '2013-08-05', '2013-08-31', 0.0)
       check_subscription_events(bp,
                                 ao,
                                 [{ type: 'START_ENTITLEMENT', date: '2013-08-01' },
@@ -338,39 +339,39 @@ module KillBillIntegrationTests
       [bp, ao]
     end
 
-    def create_basic_entitlement(invoice_nb = 1, billing_period = 'MONTHLY', start_date = '2013-08-01', end_date = '2013-09-01', amount = 1000.0)
+    def create_basic_entitlement(invoice_nb = 1, billing_period = 'MONTHLY', start_date = '2013-08-01', end_date = '2013-08-31', amount = 1000.0, type = 'FIXED')
       bp = create_entitlement_base(@account.account_id, 'Basic', billing_period, 'DEFAULT', @user, @options)
       check_entitlement(bp, 'Basic', 'BASE', billing_period, 'DEFAULT', start_date, nil)
-      if end_date.nil?
-        check_fixed_item(invoice_nb, 'basic-' + billing_period.downcase, start_date, amount, amount)
+      if type == 'FIXED'
+        check_fixed_item(invoice_nb, 'basic-' + billing_period.downcase, start_date, amount, amount, start_date, end_date)
       else
         check_evergreen_item(invoice_nb, 'basic-' + billing_period.downcase, start_date, end_date, amount, amount)
       end
       bp
     end
 
-    def change_base_entitlement(bp, invoice_nb = 1, product = 'Basic', billing_period = 'MONTHLY', start_date = '2013-08-01', inv_start_date = '2013-08-01', inv_end_date = '2013-09-01', amount = 1000.0, balance = 1000.0)
+    def change_base_entitlement(bp, invoice_nb = 1, product = 'Basic', billing_period = 'MONTHLY', start_date = '2013-08-01', inv_start_date = '2013-08-01', inv_end_date = '2013-09-01', amount = 1000.0, balance = 1000.0, type = 'FIXED')
       bp = bp.change_plan({ productName: product, billingPeriod: billing_period, priceList: 'DEFAULT' }, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_entitlement(bp, 'Basic', 'BASE', billing_period, 'DEFAULT', start_date, nil)
-      if inv_end_date.nil?
-        check_fixed_item(invoice_nb, 'basic-' + billing_period.downcase, inv_start_date, amount, balance)
+      if type == 'FIXED'
+        check_fixed_item(invoice_nb, 'basic-' + billing_period.downcase, inv_start_date, amount, balance, inv_start_date, inv_end_date)
       else
         check_evergreen_item(invoice_nb, 'basic-' + billing_period.downcase, inv_start_date, inv_end_date, amount, balance)
       end
       bp
     end
 
-    def create_ao_entitlement(bp, invoice_nb, product, billing_period = 'MONTHLY', start_date = '2013-08-01', amount = 1000.0, invoice_date = start_date)
+    def create_ao_entitlement(bp, invoice_nb, product, billing_period = 'MONTHLY', start_date = '2013-08-01', end_date = '2013-08-31', amount = 1000.0, invoice_date = start_date)
       ao = create_entitlement_ao(@account.account_id, bp.bundle_id, product, billing_period, 'DEFAULT', @user, @options)
       check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', start_date, nil, start_date, nil)
-      check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, amount, start_date)
+      check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, amount, start_date, end_date)
       ao
     end
 
-    def change_ao_entitlement(ao, invoice_nb, product, billing_period = 'MONTHLY', ao_start_date = '2013-08-01', amount = 0.0, invoice_date = start_date)
-      ao = ao.change_plan({ productName: product, billingPeriod: billing_period, priceList: 'DEFAULT' }, @user, nil, nil, nil, nil, nil, false, @options)
+    def change_ao_entitlement(ao, invoice_nb, product, billing_period = 'MONTHLY', ao_start_date = '2013-08-01', ao_end_date = '2013-08-31', amount = 0.0, invoice_date = start_date)
+      ao = ao.change_plan({ productName: product, billingPeriod: billing_period, priceList: 'DEFAULT' }, @user, nil, nil, nil, 'IMMEDIATE', nil, false, @options)
       check_subscription(ao, product, 'ADD_ON', billing_period, 'DEFAULT', ao_start_date, nil, ao_start_date, nil)
-      check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, amount)
+      check_fixed_item(invoice_nb, product + '-' + billing_period.downcase, invoice_date, amount, amount, invoice_date, ao_end_date)
     end
 
     def check_subscription_events(bp, ao, bp_events, ao_events)
@@ -408,9 +409,9 @@ module KillBillIntegrationTests
       check_evergreen_item(invoice_nb, plan, invoice_date, end_date, amount, amount, start_date)
     end
 
-    def check_fixed_item(invoice_nb, plan, invoice_date, amount, balance, start_date = invoice_date)
+    def check_fixed_item(invoice_nb, plan, invoice_date, amount, balance, start_date = invoice_date, end_date = invoice_date)
       new_invoice = check_invoice_balance(invoice_nb, invoice_date, balance)
-      check_invoice_item(new_invoice.items.find { |ii| ii.item_type == 'FIXED' }, new_invoice.invoice_id, amount, 'USD', 'FIXED', plan, plan + '-trial', start_date, nil)
+      check_invoice_item(new_invoice.items.find { |ii| ii.item_type == 'FIXED' }, new_invoice.invoice_id, amount, 'USD', 'FIXED', plan, plan + '-trial', start_date, end_date)
     end
 
     def check_evergreen_item(invoice_nb, plan, invoice_date, end_date, amount, balance, start_date = invoice_date)
