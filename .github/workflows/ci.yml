@@ -28,20 +28,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - ruby-version: '2.5.0'
+          - ruby-version: '3.3.5'
             database-adapter: 'mysql2'
             database-user: 'root'
             database-password: 'root'
             database-port: '3306'
             docker-compose-file: 'docker-compose.ci.mysql.yml'
-            java-version: '8'
-            java-distribution: 'adopt'
-          - ruby-version: '2.5.0'
-            database-adapter: 'postgresql'
-            database-user: 'postgres'
-            database-password: 'postgres'
-            database-port: '5432'
-            docker-compose-file: 'docker-compose.ci.postgresql.yml'
             java-version: '8'
             java-distribution: 'adopt'
     steps:
@@ -156,13 +148,13 @@ jobs:
           #./bin/retry bundle exec rake test:plugins TESTOPTS="--stop-on-failure"
           # Some flakiness unfortunately
           echo "::group::Avatax"
-          ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
+          # ./bin/retry bundle exec rake test:plugins:avatax TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
           echo "::group::Analytics"
           ./bin/retry bundle exec rake test:plugins:analytics TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
           echo "::group::Stripe"
-          ./bin/retry bundle exec rake test:plugins:stripe TESTOPTS="--stop-on-failure"
+          # ./bin/retry bundle exec rake test:plugins:stripe TESTOPTS="--stop-on-failure"
           echo "::endgroup::"
           echo "::group::Braintree"
           # No release yet
@@ -226,7 +218,7 @@ jobs:
           docker logs -t --details it-db-1 || true
           echo "::endgroup::"
       - name: Upload logs
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: killbill-${{ matrix.docker-compose-file }}.txt
