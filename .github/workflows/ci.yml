@@ -28,7 +28,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - ruby-version: '2.5.0'
+          # HACK: Using '2.5' instead of '2.5.0' to let setup-ruby resolve a
+          # pre-built binary with a patched RubyGems. Ruby 2.5.0's bundled
+          # RubyGems ~2.7 cannot locate Bundler after installation on current
+          # GitHub-hosted runners, causing "can't find gem bundler" failures.
+          - ruby-version: '2.5'
             database-adapter: 'mysql2'
             database-user: 'root'
             database-password: 'root'
@@ -36,7 +40,7 @@ jobs:
             docker-compose-file: 'docker-compose.ci.mysql.yml'
             java-version: '8'
             java-distribution: 'adopt'
-          - ruby-version: '2.5.0'
+          - ruby-version: '2.5'
             database-adapter: 'postgresql'
             database-user: 'postgres'
             database-password: 'postgres'
@@ -46,7 +50,7 @@ jobs:
             java-distribution: 'adopt'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -76,10 +80,19 @@ jobs:
           set -e
       - name: Wait for PostgreSQL
         if: ${{ matrix.docker-compose-file == 'docker-compose.ci.postgresql.yml' }}
+        # Using pg_isready instead of psql -l because when psql runs with -l,
+        # the binary internally generates and executes a SQL query against the
+        # pg_database system catalog. In psql client v15+, that internal query
+        # references pg_database.daticulocale — a column added in PostgreSQL 15.
+        # When the newer client (installed on the runner) connects to an older
+        # server (<=14, running in Docker), the column does not exist, causing
+        # "column d.daticulocale does not exist" errors. This makes psql -l
+        # always fail even when the server is healthy and accepting connections.
+        # pg_isready does a simple connection probe without catalog queries.
         run: |
           set +e
           count=0
-          until $(psql -h 127.0.0.1 -U postgres -p 5432 -l > /dev/null); do
+          until pg_isready -h 127.0.0.1 -p 5432 -U postgres; do
             if [[ "$count" == "25" ]]; then
               exit 1
             fi
@@ -226,7 +239,7 @@ jobs:
           docker logs -t --details it-db-1 || true
           echo "::endgroup::"
       - name: Upload logs
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: killbill-${{ matrix.docker-compose-file }}.txt

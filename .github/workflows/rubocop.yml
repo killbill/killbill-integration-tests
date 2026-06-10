@@ -6,11 +6,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.5.0
+        # HACK: Using '2.5' instead of '2.5.0' to let setup-ruby resolve a
+        # pre-built binary with a patched RubyGems. Ruby 2.5.0's bundled
+        # RubyGems ~2.7 cannot locate Bundler after installation on current
+        # GitHub-hosted runners, causing "can't find gem bundler" failures.
+        ruby-version: '2.5'
     - name: Install gems
       run: |
         bundle config path vendor/bundle
