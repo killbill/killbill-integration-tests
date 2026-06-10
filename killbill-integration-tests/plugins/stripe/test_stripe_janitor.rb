@@ -46,7 +46,8 @@ module KillBillIntegrationTests
 
     def test_proxy_down
       omit_if(Gem::Version.new(@plugins_info.version).segments[0] < 8, 'Janitor support requires Stripe plugin 8 or later')
-      error_message = "IOException during API request to Stripe (https://localhost:22222): Connection refused (Connection refused) Please check your internet connection and try again. If this problem persists,you should check Stripe's service status at https://twitter.com/stripestatus, or let us know at support@stripe.com."
+      # Java 11: "Connection refused (Connection refused)", Java 21: "Connection refused"
+      error_message = %r{IOException during API request to Stripe \(https://localhost:22222\): Connection refused.*Please check your internet connection}
 
       transaction = nil
       toxiproxy.down do
@@ -84,7 +85,11 @@ module KillBillIntegrationTests
 
     def check_transaction(transaction, status = 'PAYMENT_FAILURE', gateway_error = nil, gateway_error_code = nil)
       assert_equal(status, transaction.status)
-      assert_equal(gateway_error, transaction.gateway_error_msg)
+      if gateway_error.is_a?(Regexp)
+        assert_match(gateway_error, transaction.gateway_error_msg)
+      else
+        assert_equal(gateway_error, transaction.gateway_error_msg)
+      end
       assert_equal(gateway_error_code, transaction.gateway_error_code)
     end
 
